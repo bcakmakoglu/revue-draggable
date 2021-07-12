@@ -72,7 +72,7 @@ const Draggable = defineComponent({
     },
     position: {
       type: Object as PropType<DraggableProps['position']>,
-      default: () => ({ x: 0, y: 0 })
+      default: undefined
     },
     positionOffset: {
       type: Object as PropType<DraggableProps['positionOffset']>,
@@ -209,6 +209,7 @@ const Draggable = defineComponent({
         slackX: NaN,
         slackY: NaN
       };
+      console.log(uiData);
 
       if (props.bounds) {
         const { x, y } = newState;
@@ -245,6 +246,7 @@ const Draggable = defineComponent({
     const onDragStop: DraggableEventHandler = (e, coreData) => {
       if (!dragging.value) return false;
 
+      console.log(stateX.value, stateY.value);
       const shouldContinue = props.onStop(
         e,
         createDraggableData({
@@ -259,7 +261,7 @@ const Draggable = defineComponent({
       log('Draggable: onDragStop: %j', coreData);
 
       const controlled = Boolean(props.position);
-      if (controlled) {
+      if (controlled && props.position) {
         stateX.value = props.position.x;
         stateY.value = props.position.y;
       }
@@ -267,6 +269,8 @@ const Draggable = defineComponent({
       dragging.value = false;
       slackX.value = 0;
       slackY.value = 0;
+
+      console.log(stateX.value, stateY.value);
     };
 
     // If this is controlled, we don't want to move it - unless it's dragging.
@@ -284,8 +288,10 @@ const Draggable = defineComponent({
       };
     });
 
-    const style = computed(() => !isElementSVG.value && createCSSTransform(transformOpts.value, props.positionOffset));
-    const svgTransform = computed(() => isElementSVG.value && createSVGTransform(transformOpts.value, props.positionOffset));
+    const style = computed(() => !isElementSVG.value && createCSSTransform(transformOpts.value, props.positionOffset as any));
+    const svgTransform = computed(
+      () => isElementSVG.value && createSVGTransform(transformOpts.value, props.positionOffset as any)
+    );
     const classes = computed(() => {
       return {
         [props.defaultClassName]: true,
