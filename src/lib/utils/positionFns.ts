@@ -97,8 +97,8 @@ export function createCoreData({
   node: HTMLElement;
   x: number;
   y: number;
-  lastX?: number;
-  lastY?: number;
+  lastX: number;
+  lastY: number;
 }): DraggableData {
   const isStart = !isNaN(lastX);
   if (!isStart) {
@@ -116,8 +116,8 @@ export function createCoreData({
     // Otherwise calculate proper values.
     return {
       node,
-      deltaX: x - (lastX as number),
-      deltaY: y - (lastY as number),
+      deltaX: x - lastX,
+      deltaY: y - lastY,
       lastX,
       lastY,
       x,

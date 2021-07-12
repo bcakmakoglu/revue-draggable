@@ -8,19 +8,8 @@ import type {
 } from './DraggableCore';
 import log from './utils/log';
 import type { Bounds, DraggableEventHandler } from './utils/types';
-import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, cloneVNode, onUpdated } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, onUpdated } from 'vue';
 import { createCSSTransform, createSVGTransform } from './utils/domFns';
-
-type DraggableState = {
-  dragging: boolean;
-  dragged: boolean;
-  x: number;
-  y: number;
-  slackX: number;
-  slackY: number;
-  isElementSVG: boolean;
-  prevPropsPosition: ControlPosition;
-};
 
 export type DraggableDefaultProps = {
   axis: 'both' | 'x' | 'y' | 'none';
@@ -209,7 +198,6 @@ const Draggable = defineComponent({
         slackX: NaN,
         slackY: NaN
       };
-      console.log(uiData);
 
       if (props.bounds) {
         const { x, y } = newState;
@@ -246,7 +234,6 @@ const Draggable = defineComponent({
     const onDragStop: DraggableEventHandler = (e, coreData) => {
       if (!dragging.value) return false;
 
-      console.log(stateX.value, stateY.value);
       const shouldContinue = props.onStop(
         e,
         createDraggableData({
@@ -269,8 +256,6 @@ const Draggable = defineComponent({
       dragging.value = false;
       slackX.value = 0;
       slackY.value = 0;
-
-      console.log(stateX.value, stateY.value);
     };
 
     // If this is controlled, we don't want to move it - unless it's dragging.

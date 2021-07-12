@@ -30,13 +30,6 @@ const eventsFor = {
 // Default to mouse events.
 let dragEventFor = eventsFor.mouse;
 
-type DraggableCoreState = {
-  dragging: boolean;
-  lastX: number;
-  lastY: number;
-  touchIdentifier: number;
-};
-
 export type DraggableData = {
   node: HTMLElement;
   x: number;
@@ -137,7 +130,7 @@ const DraggableCore = defineComponent({
     const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
       props.onMouseDown(e);
 
-      if (!props.allowAnyClick && typeof e.button === 'number' && e.button !== 0) return false;
+      if (!props.allowAnyClick && e.button !== 0) return false;
 
       if (!nodeRef.value || !nodeRef.value.ownerDocument || !nodeRef.value.ownerDocument.body) {
         throw new Error('<DraggableCore> not mounted on DragStart!');
