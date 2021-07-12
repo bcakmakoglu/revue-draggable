@@ -1,9 +1,31 @@
 {
+  "name": "@braks/revue-draggable",
   "version": "0.0.0",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcakmakoglu/revue-draggable"
+  },
+  "license": "MIT",
+  "author": "Burak Cakmakoglu",
+  "main": "dist/revue-draggable.es.js",
+  "browser": "dist/revue-draggable.esm.js",
+  "unpkg": "dist/revue-draggable.global.js",
+  "jsdelivr": "dist/revue-draggable.global.js",
+  "module": "dist/revue-draggable.umd.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "serve": "vite preview"
+    "build:dist": "rollup -c --environment NODE_ENV:production",
+    "serve": "vite preview",
+    "prepublishOnly": "yarn build:dist",
+    "test": "exit 0;",
+    "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
+    "lint": "yarn lint:js"
   },
   "dependencies": {
     "vue": "^3.0.5"
@@ -37,5 +59,17 @@
     "vite": "^2.3.8",
     "vue-router": "4",
     "vue-tsc": "^0.0.24"
+  },
+  "peerDependencies": {
+    "vue": ">=3.0.5"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "http://registry.npmjs.org/"
+  },
+  "np": {
+    "branch": "master",
+    "yarn": true,
+    "message": "v%s"
   }
 }
