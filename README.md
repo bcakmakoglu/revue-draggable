@@ -12,7 +12,7 @@ Check the React Draggable Docs for more info on props and usage. It's basically 
 
 ### Vue3
 ```bash
-# install revue flow
+# install revue draggable
 $ yarn add @braks/revue-draggable
 
 # or
