@@ -76,7 +76,7 @@ export function getControlPosition({
   e: MouseTouchEvent;
   touchIdentifier: number | undefined;
   node: HTMLElement;
-  offsetContainer: HTMLElement;
+  offsetContainer?: HTMLElement;
   scale: number;
 }): ControlPosition | null {
   const touchObj = typeof touchIdentifier === 'number' ? getTouch(e, touchIdentifier) : null;

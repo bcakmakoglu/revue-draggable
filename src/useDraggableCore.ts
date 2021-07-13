@@ -44,7 +44,7 @@ const useDraggableCore = (
     onStop = () => {},
     onDrag = () => {},
     onMouseDown: onMouseDownProp = () => {}
-  }: DraggableCoreProps
+  }: Partial<DraggableCoreProps>
 ): UseDraggableCore => {
   const dragging = ref(false);
   const lastX = ref<number>(NaN);

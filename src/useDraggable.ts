@@ -1,6 +1,6 @@
 import { ref } from 'vue-demi';
 import log from './utils/log';
-import { DraggableEventHandler, DraggableProps, UseDraggable } from './utils/types';
+import { DraggableCoreProps, DraggableEventHandler, DraggableProps, UseDraggable } from './utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from './utils/positionFns';
 import { createCSSTransform, createSVGTransform } from './utils/domFns';
 import useDraggableCore from './useDraggableCore';
@@ -13,7 +13,7 @@ const useDraggable = (
     scale = 1,
     onStart = () => {},
     onStop = () => {},
-    onDrag: onDragProp,
+    onDrag: onDragProp = () => {},
     axis = 'both',
     defaultClassNameDragging = 'revue-draggable-dragging',
     defaultClassNameDragged = 'revue-draggable-dragged',
@@ -21,7 +21,7 @@ const useDraggable = (
     defaultPosition = { x: 0, y: 0 },
     bounds,
     ...rest
-  }: DraggableProps
+  }: Partial<DraggableProps>
 ): any => {
   let dragging = false;
   let dragged = false;
@@ -36,7 +36,7 @@ const useDraggable = (
   });
   stateX = position ? position.x : defaultPosition.x;
   stateY = position ? position.y : defaultPosition.y;
-  prevPropsPosition = { ...position };
+  prevPropsPosition = position ? { ...position } : { x: 0, y: 0 };
   if (position && !(onDragProp || onStop)) {
     console.warn(
       'A `position` was applied to this <Draggable>, without drag handlers. This will make this ' +
@@ -159,8 +159,8 @@ const useDraggable = (
       };
     };
 
-    const style = !isElementSVG && createCSSTransform(transformOpts(), positionOffset);
-    const svgTransform = isElementSVG && createSVGTransform(transformOpts(), positionOffset);
+    const style = !isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
+    const svgTransform = isElementSVG && createSVGTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
     const classes = {
       [defaultClassName]: true,
       [defaultClassNameDragging]: dragging,
@@ -205,7 +205,7 @@ const useDraggable = (
           onDrag,
           onStop: onDragStop,
           ...rest
-        })
+        } as DraggableCoreProps)
       },
       ...lifeCycleHooks,
       transformation
