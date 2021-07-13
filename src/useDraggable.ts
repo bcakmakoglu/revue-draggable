@@ -22,7 +22,7 @@ const useDraggable = (
     bounds,
     ...rest
   }: Partial<DraggableProps>
-): any => {
+): UseDraggable => {
   let dragging = false;
   let dragged = false;
   let stateX = 0;
@@ -31,9 +31,9 @@ const useDraggable = (
   let slackX = 0;
   let slackY = 0;
   let isElementSVG = false;
-  const transformation = ref<UseDraggable['transformation'] | Record<string, any>>({
+  const transformation: UseDraggable['transformation'] = ref({
     class: ['revue-draggable']
-  });
+  } as any);
   stateX = position ? position.x : defaultPosition.x;
   stateY = position ? position.y : defaultPosition.y;
   prevPropsPosition = position ? { ...position } : { x: 0, y: 0 };
