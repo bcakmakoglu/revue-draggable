@@ -20,18 +20,7 @@ export type ControlPosition = { x: number; y: number };
 export type PositionOffsetControlPosition = { x: number | string; y: number | string };
 export type EventHandler<T> = (e: T) => void | false;
 
-// Missing in Flow
-export class SVGElement extends HTMLElement {}
-
-// Missing targetTouches
-export class TouchEvent2 extends TouchEvent {
-  // @ts-ignore
-  changedTouches: TouchList;
-  // @ts-ignore
-  targetTouches: TouchList;
-}
-
-export type MouseTouchEvent = MouseEvent & TouchEvent2;
+export type MouseTouchEvent = MouseEvent & TouchEvent;
 
 export interface DraggableBounds {
   left?: number;

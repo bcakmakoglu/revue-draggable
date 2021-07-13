@@ -5,9 +5,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import pascalcase from 'pascalcase';
 import pkg from './package.json';
-import postcss from 'rollup-plugin-postcss';
 import babel from '@rollup/plugin-babel';
-import svg from 'rollup-plugin-svg';
 import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core';
 
 const name = pkg.name;
@@ -121,13 +119,8 @@ function createConfig(format, output, plugins = []) {
         isGlobalBuild,
         isNodeBuild
       ),
-      svg(),
       resolve(),
       commonjs({ include: 'node_modules/**' }),
-      postcss({
-        minimize: true,
-        inject: true
-      }),
       babel({
         extensions: [...DEFAULT_BABEL_EXTENSIONS, '.ts', '.tsx'],
         exclude: 'node_modules/**',

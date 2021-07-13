@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref } from 'vue-demi';
 import { DraggableCoreProps, EventHandler, MouseTouchEvent } from './utils/types';
 import {
   addEvent,

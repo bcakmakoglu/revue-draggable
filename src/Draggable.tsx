@@ -1,7 +1,7 @@
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from './utils/positionFns';
 import DraggableCore from './DraggableCore';
 import log from './utils/log';
-import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, onUpdated } from 'vue';
+import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, onUpdated } from 'vue-demi';
 import { createCSSTransform, createSVGTransform } from './utils/domFns';
 import { DraggableEventHandler, DraggableProps } from './utils/types';
 
