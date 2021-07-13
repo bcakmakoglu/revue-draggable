@@ -183,7 +183,6 @@ export default defineComponent({
     },
     onDropAreaMouseEnter(e) {
       if (this.activeDrags) {
-        console.log('foo');
         e.target.classList.add('hovered');
       }
     },

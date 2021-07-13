@@ -1,6 +1,6 @@
 import type { DraggableCoreProps } from './utils/types';
 import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref } from 'vue-demi';
-import useDraggable from './useDraggable';
+import useDraggableCore from './useDraggableCore';
 
 const DraggableCore = defineComponent({
   name: 'DraggableCore',
@@ -57,7 +57,7 @@ const DraggableCore = defineComponent({
   setup(props, { slots }) {
     const nodeRef = ref<HTMLElement | null>(null);
     const draggable = computed(() => {
-      return nodeRef.value && useDraggable(nodeRef.value, props as DraggableCoreProps);
+      return nodeRef.value && useDraggableCore(nodeRef.value, props as DraggableCoreProps);
     });
     onMounted(() => {
       draggable.value?.onMounted();

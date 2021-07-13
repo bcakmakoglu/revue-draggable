@@ -1,250 +1,216 @@
 import { ref } from 'vue-demi';
-import { DraggableCoreProps, EventHandler, MouseTouchEvent, UseDraggable } from './utils/types';
-import {
-  addEvent,
-  addUserSelectStyles,
-  getTouchIdentifier,
-  matchesSelectorAndParentsTo,
-  removeEvent,
-  removeUserSelectStyles
-} from './utils/domFns';
-import { createCoreData, getControlPosition, snapToGrid } from './utils/positionFns';
 import log from './utils/log';
-import { isFunction } from './utils/shims';
-
-// Simple abstraction for dragging events names.
-const eventsFor = {
-  touch: {
-    start: 'touchstart',
-    move: 'touchmove',
-    stop: 'touchend'
-  },
-  mouse: {
-    start: 'mousedown',
-    move: 'mousemove',
-    stop: 'mouseup'
-  }
-};
-
-// Default to mouse events.
-let dragEventFor = eventsFor.mouse;
+import { DraggableEventHandler, DraggableProps, UseDraggable } from './utils/types';
+import { canDragX, canDragY, createDraggableData, getBoundPosition } from './utils/positionFns';
+import { createCSSTransform, createSVGTransform } from './utils/domFns';
+import useDraggableCore from './useDraggableCore';
 
 const useDraggable = (
   nodeRef: HTMLElement,
   {
-    enableUserSelectHack = true,
-    allowAnyClick = true,
-    disabled = false,
-    offsetParent,
-    grid,
-    handle,
-    cancel,
+    position,
+    positionOffset,
     scale = 1,
     onStart = () => {},
     onStop = () => {},
-    onDrag = () => {},
-    onMouseDown: onMouseDownProp = () => {}
-  }: DraggableCoreProps
-): UseDraggable => {
-  const dragging = ref(false);
-  const lastX = ref<number>(NaN);
-  const lastY = ref<number>(NaN);
-  const touchIdentifier = ref<number | undefined>();
+    onDrag: onDragProp,
+    axis = 'both',
+    defaultClassNameDragging = 'revue-draggable-dragging',
+    defaultClassNameDragged = 'revue-draggable-dragged',
+    defaultClassName = 'revue-draggable',
+    defaultPosition = { x: 0, y: 0 },
+    bounds,
+    ...rest
+  }: DraggableProps
+): any => {
+  let dragging = false;
+  let dragged = false;
+  let stateX = 0;
+  let stateY = 0;
+  let prevPropsPosition = { x: 0, y: 0 };
+  let slackX = 0;
+  let slackY = 0;
+  let isElementSVG = false;
+  const transformation = ref<UseDraggable['transformation'] | Record<string, any>>({
+    class: ['revue-draggable']
+  });
+  stateX = position ? position.x : defaultPosition.x;
+  stateY = position ? position.y : defaultPosition.y;
+  prevPropsPosition = { ...position };
+  if (position && !(onDragProp || onStop)) {
+    console.warn(
+      'A `position` was applied to this <Draggable>, without drag handlers. This will make this ' +
+        'component effectively undraggable. Please attach `onDrag` or `onStop` handlers so you can adjust the ' +
+        '`position` of this element.'
+    );
+  }
 
-  const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
-    if (isFunction(onMouseDownProp)) {
-      onMouseDownProp(e);
-    }
+  const onDragStart: DraggableEventHandler = (e, coreData) => {
+    log('Draggable: onDragStart: %j', coreData);
 
-    if (!allowAnyClick && e.button !== 0) return false;
-
-    if (!nodeRef || !nodeRef.ownerDocument || !nodeRef.ownerDocument.body) {
-      throw new Error('<DraggableCore> not mounted on DragStart!');
-    }
-    const { ownerDocument } = nodeRef;
-
-    if (
-      disabled ||
-      !(ownerDocument.defaultView && e.target instanceof ownerDocument.defaultView.Node) ||
-      (handle && !matchesSelectorAndParentsTo(e.target, handle, nodeRef)) ||
-      (cancel && matchesSelectorAndParentsTo(e.target, cancel, nodeRef))
-    ) {
-      return;
-    }
-
-    if (e.type === 'touchstart') e.preventDefault();
-    touchIdentifier.value = getTouchIdentifier(e);
-
-    const position = getControlPosition({
+    const shouldStart = onStart(
       e,
-      touchIdentifier: touchIdentifier.value,
-      node: nodeRef,
-      offsetContainer: offsetParent,
-      scale: scale
-    });
-    if (position == null) return;
-    const { x, y } = position;
+      createDraggableData({
+        coreData,
+        x: stateX,
+        y: stateY,
+        scale: scale
+      })
+    );
+    if (shouldStart === false) return false;
 
-    const coreEvent = createCoreData({
-      node: nodeRef,
-      x,
-      y,
-      lastX: lastX.value,
-      lastY: lastY.value
-    });
-
-    log('DraggableCore: handleDragStart: %j', coreEvent);
-    log('calling', onStart);
-
-    const shouldUpdate = onStart(e, coreEvent);
-    if (shouldUpdate === false) return;
-
-    if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
-
-    dragging.value = true;
-    lastX.value = x;
-    lastY.value = y;
-
-    addEvent(ownerDocument, dragEventFor.move, handleDrag);
-    addEvent(ownerDocument, dragEventFor.stop, handleDragStop);
+    dragging = true;
+    dragged = true;
+    transform();
   };
 
-  const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
-    const position = getControlPosition({
-      e,
-      touchIdentifier: touchIdentifier.value,
-      node: nodeRef,
-      offsetContainer: offsetParent,
+  const onDrag: DraggableEventHandler = (e, coreData) => {
+    if (!dragging) return false;
+    log('Draggable: onDrag: %j', coreData);
+
+    const uiData = createDraggableData({
+      coreData,
+      x: stateX,
+      y: stateY,
       scale: scale
     });
-    if (position == null) return;
-    let { x, y } = position;
 
-    // Snap to grid if prop has been provided
-    if (Array.isArray(grid)) {
-      let deltaX = x - lastX.value,
-        deltaY = y - lastY.value;
-      [deltaX, deltaY] = snapToGrid(grid, deltaX, deltaY);
-      if (!deltaX && !deltaY) return;
-      x = lastX.value + deltaX;
-      y = lastY.value + deltaY;
+    const newState = {
+      x: uiData.x,
+      y: uiData.y,
+      slackX: NaN,
+      slackY: NaN
+    };
+
+    if (bounds) {
+      const { x, y } = newState;
+
+      newState.x += slackX;
+      newState.y += slackY;
+
+      const [newStateX, newStateY] = getBoundPosition({
+        bounds: bounds,
+        x: newState.x,
+        y: newState.y,
+        node: coreData.node
+      });
+      newState.x = newStateX;
+      newState.y = newStateY;
+
+      newState.slackX = slackX + (x - newState.x);
+      newState.slackY = slackY + (y - newState.y);
+
+      uiData.x = newState.x;
+      uiData.y = newState.y;
+      uiData.deltaX = newState.x - stateX;
+      uiData.deltaY = newState.y - stateY;
     }
 
-    const coreEvent = createCoreData({
-      node: nodeRef,
-      x,
-      y,
-      lastX: lastX.value,
-      lastY: lastY.value
-    });
-
-    log('DraggableCore: handleDrag: %j', coreEvent);
-
-    const shouldUpdate = onDrag(e, coreEvent);
-    if (shouldUpdate === false) {
-      try {
-        handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
-      } catch (err) {
-        // Old browsers
-        const event = document.createEvent('MouseEvents') as MouseTouchEvent;
-        // I see why this insanity was deprecated
-        event.initMouseEvent('mouseup', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        handleDragStop(event);
-      }
-      return;
-    }
-
-    lastX.value = x;
-    lastY.value = y;
+    const shouldUpdate = onDragProp(e, uiData);
+    if (shouldUpdate === false) return false;
+    stateX = newState.x;
+    stateY = newState.y;
+    if (newState.slackX) slackX = newState.slackX;
+    if (newState.slackY) slackY = newState.slackY;
+    transform();
   };
 
-  const handleDragStop: EventHandler<MouseTouchEvent> = (e) => {
-    if (!dragging.value) return;
+  const onDragStop: DraggableEventHandler = (e, coreData) => {
+    if (!dragging) return false;
 
-    const position = getControlPosition({
+    const shouldContinue = onStop(
       e,
-      touchIdentifier: touchIdentifier.value,
-      node: nodeRef,
-      offsetContainer: offsetParent,
-      scale: scale
-    });
-    if (position == null) return;
-    const { x, y } = position;
-    const coreEvent = createCoreData({
-      node: nodeRef,
-      x,
-      y,
-      lastX: lastX.value,
-      lastY: lastY.value
-    });
-
-    const shouldContinue = onStop(e, coreEvent);
+      createDraggableData({
+        scale: scale,
+        x: stateX,
+        y: stateY,
+        coreData
+      })
+    );
     if (shouldContinue === false) return false;
 
-    if (nodeRef) {
-      if (enableUserSelectHack) removeUserSelectStyles(nodeRef.ownerDocument as any);
+    log('Draggable: onDragStop: %j', coreData);
+
+    const controlled = Boolean(position);
+    if (controlled && position) {
+      stateX = position.x;
+      stateY = position.y;
     }
 
-    log('DraggableCore: handleDragStop: %j', coreEvent);
-
-    dragging.value = false;
-    lastX.value = NaN;
-    lastY.value = NaN;
-
-    if (nodeRef) {
-      log('DraggableCore: Removing handlers');
-      removeEvent(nodeRef.ownerDocument as any, dragEventFor.move, handleDrag);
-      removeEvent(nodeRef.ownerDocument as any, dragEventFor.stop, handleDragStop);
-    }
+    dragging = false;
+    slackX = 0;
+    slackY = 0;
+    transform();
   };
 
-  const onMouseDown: EventHandler<MouseTouchEvent> = (e) => {
-    dragEventFor = eventsFor.mouse;
-    return handleDragStart(e);
+  const transform = () => {
+    // If this is controlled, we don't want to move it - unless it's dragging.
+    const controlled = Boolean(position);
+    const draggable = !controlled || dragging;
+
+    const validPosition = position || defaultPosition;
+    const transformOpts = () => {
+      return {
+        // Set left if horizontal drag is enabled
+        x: canDragX(axis) && draggable ? stateX : validPosition.x,
+
+        // Set top if vertical drag is enabled
+        y: canDragY(axis) && draggable ? stateY : validPosition.y
+      };
+    };
+
+    const style = !isElementSVG && createCSSTransform(transformOpts(), positionOffset);
+    const svgTransform = isElementSVG && createSVGTransform(transformOpts(), positionOffset);
+    const classes = {
+      [defaultClassName]: true,
+      [defaultClassNameDragging]: dragging,
+      [defaultClassNameDragged]: dragged
+    };
+
+    transformation.value = {
+      style,
+      svgTransform,
+      class: classes
+    };
   };
 
-  const onMouseUp: EventHandler<MouseTouchEvent> = (e) => {
-    dragEventFor = eventsFor.mouse;
-    return handleDragStop(e);
-  };
-
-  const onTouchStart: EventHandler<MouseTouchEvent> = (e) => {
-    dragEventFor = eventsFor.touch;
-    return handleDragStart(e);
-  };
-
-  const onTouchEnd: EventHandler<MouseTouchEvent> = (e) => {
-    dragEventFor = eventsFor.touch;
-    return handleDragStop(e);
-  };
-
-  const lifeCycleHooks = {
-    onMounted: () => {
-      if (nodeRef) {
-        addEvent(nodeRef as any, eventsFor.touch.start, onTouchStart, { passive: false });
+  {
+    const lifeCycleHooks = {
+      onUpdated: () => {
+        if (position && (!prevPropsPosition || position.x !== prevPropsPosition.x || position.y !== prevPropsPosition.y)) {
+          log('Draggable: getDerivedStateFromProps %j', {
+            position: position,
+            prevPropsPosition: prevPropsPosition
+          });
+          stateX = position.x;
+          stateY = position.y;
+          prevPropsPosition = { ...position };
+        }
+      },
+      onMounted: () => {
+        // Check to see if the element passed is an instanceof SVGElement
+        if (typeof window.SVGElement !== 'undefined' && nodeRef instanceof window.SVGElement) {
+          isElementSVG = true;
+        }
+      },
+      onBeforeUnmount: () => {
+        dragging = false; // prevents invariant if unmounted while dragging
       }
-    },
-
-    onBeforeUnmount: () => {
-      if (nodeRef) {
-        const { ownerDocument } = nodeRef;
-        removeEvent(ownerDocument, eventsFor.mouse.move, handleDrag);
-        removeEvent(ownerDocument, eventsFor.touch.move, handleDrag);
-        removeEvent(ownerDocument, eventsFor.mouse.stop, handleDragStop);
-        removeEvent(ownerDocument, eventsFor.touch.stop, handleDragStop);
-        removeEvent(nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
-        if (enableUserSelectHack) removeUserSelectStyles(ownerDocument);
-      }
-    }
-  };
-
-  return {
-    onMouseDown,
-    onMouseUp,
-    onTouchEnd,
-    onTouchStart,
-    ...lifeCycleHooks
-  };
+    };
+    return {
+      core: {
+        ...useDraggableCore(nodeRef, {
+          scale,
+          onStart: onDragStart,
+          onDrag,
+          onStop: onDragStop,
+          ...rest
+        })
+      },
+      ...lifeCycleHooks,
+      transformation
+    };
+  }
 };
 
 export default useDraggable;

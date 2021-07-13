@@ -1,3 +1,5 @@
+import { Ref } from 'vue-demi';
+
 export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
 export type DraggableData = {
@@ -57,11 +59,23 @@ export interface DraggableCoreProps {
   scale: number;
 }
 
-export interface UseDraggable {
+export interface UseDraggableCore {
   onMounted: () => void;
   onBeforeUnmount: () => void;
   onMouseUp: EventHandler<MouseTouchEvent>;
   onMouseDown: EventHandler<MouseTouchEvent>;
   onTouchEnd: EventHandler<MouseTouchEvent>;
   onTouchStart: EventHandler<MouseTouchEvent>;
+}
+
+export interface UseDraggable {
+  core: UseDraggableCore;
+  onUpdated: () => void;
+  onMounted: () => void;
+  onBeforeUnmount: () => void;
+  transformation: Ref<{
+    style: false | Record<string, string>;
+    class: { [x: string]: boolean };
+    svgTransform: false | string;
+  }>;
 }
