@@ -11,7 +11,7 @@ const DraggableCore = defineComponent({
     },
     allowAnyClick: {
       type: Boolean as PropType<DraggableCoreProps['allowAnyClick']>,
-      default: false
+      default: true
     },
     disabled: {
       type: Boolean as PropType<DraggableCoreProps['disabled']>,
@@ -79,7 +79,7 @@ const DraggableCore = defineComponent({
                 <node
                   ref={nodeRef}
                   onMousedown={draggable.value?.onMouseDown}
-                  onMouseup={draggable.value?.onMouseUp}
+                  onMouseUp={draggable.value?.onMouseUp}
                   onTouchend={draggable.value?.onTouchEnd}
                 />
               ))

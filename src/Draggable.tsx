@@ -47,7 +47,7 @@ const Draggable = defineComponent({
     },
     allowAnyClick: {
       type: Boolean as PropType<DraggableProps['allowAnyClick']>,
-      default: false
+      default: true
     },
     disabled: {
       type: Boolean as PropType<DraggableProps['disabled']>,

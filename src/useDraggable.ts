@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { DraggableCoreProps, EventHandler, MouseTouchEvent } from './utils/types';
 import {
   addEvent,
@@ -244,6 +244,7 @@ const useDraggable = (
     onMouseDown,
     onMouseUp,
     onTouchEnd,
+    onTouchStart,
     ...lifeCycleHooks
   };
 };

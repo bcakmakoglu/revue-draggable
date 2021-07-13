@@ -81,7 +81,6 @@ export function getControlPosition({
 }): ControlPosition | null {
   const touchObj = typeof touchIdentifier === 'number' ? getTouch(e, touchIdentifier) : null;
   if (typeof touchIdentifier === 'number' && !touchObj) return null; // not the right touch
-  console.log('evt', touchObj);
   const offsetParent = offsetContainer || node.offsetParent || node.ownerDocument.body;
   return offsetXYFromParent(touchObj || e, offsetParent, scale);
 }
