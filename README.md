@@ -34,7 +34,7 @@ export default {
 </script>
 ```
 
-For full control use <DraggableCore> instead.
+For full control use DraggableCore instead.
 DraggableCore will simply abstract over touch and mouse events but provides no transformation.
 Without callbacks, it does not provide any meaningful functionality.
 Alternatively you can just use the useDraggable and useDraggableCore abstractions which will
