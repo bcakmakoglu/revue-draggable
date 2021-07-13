@@ -1,6 +1,6 @@
 import { isNum, int } from './shims';
 import { getTouch, innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
-import type { Bounds, ControlPosition, DraggableData, MouseTouchEvent } from './types';
+import type { Bounds, ControlPosition, DraggableData, DraggableProps, MouseTouchEvent } from './types';
 
 export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: any }): [number, number] {
   // If no bounds, short-circuit and move on
@@ -58,11 +58,11 @@ export function snapToGrid(grid: [number, number], pendingX: number, pendingY: n
   return [x, y];
 }
 
-export function canDragX(axis: 'both' | 'x' | 'y' | 'none'): boolean {
+export function canDragX(axis: DraggableProps['axis']): boolean {
   return axis === 'both' || axis === 'x';
 }
 
-export function canDragY(axis: 'both' | 'x' | 'y' | 'none'): boolean {
+export function canDragY(axis: DraggableProps['axis']): boolean {
   return axis === 'both' || axis === 'y';
 }
 
@@ -81,12 +81,11 @@ export function getControlPosition({
 }): ControlPosition | null {
   const touchObj = typeof touchIdentifier === 'number' ? getTouch(e, touchIdentifier) : null;
   if (typeof touchIdentifier === 'number' && !touchObj) return null; // not the right touch
-  // User can provide an offsetParent if desired.
+  console.log('evt', touchObj);
   const offsetParent = offsetContainer || node.offsetParent || node.ownerDocument.body;
   return offsetXYFromParent(touchObj || e, offsetParent, scale);
 }
 
-// Create an data object exposed by <DraggableCore>'s events
 export function createCoreData({
   node,
   x,
@@ -126,7 +125,6 @@ export function createCoreData({
   }
 }
 
-// Create an data exposed by <Draggable>'s events
 export function createDraggableData({
   scale,
   x,
@@ -149,7 +147,6 @@ export function createDraggableData({
   };
 }
 
-// A lot faster than stringify/parse
 function cloneBounds(bounds: Bounds): Bounds {
   return {
     left: bounds.left,
