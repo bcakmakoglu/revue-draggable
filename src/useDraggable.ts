@@ -173,6 +173,7 @@ const useDraggable = (
       class: classes
     };
   };
+  transform();
 
   {
     const lifeCycleHooks = {
