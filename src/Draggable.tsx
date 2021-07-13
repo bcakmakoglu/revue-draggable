@@ -292,7 +292,7 @@ const Draggable = defineComponent({
             ? slots
                 .default()
                 .map((node) => (
-                  <node ref={nodeRef} class={classes.value} style={style.value} transform={svgTransform.value}></node>
+                  <node ref={nodeRef} class={classes.value} style={style.value} transform={svgTransform.value} />
                 ))
             : []
       };

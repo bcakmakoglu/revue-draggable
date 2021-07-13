@@ -7,6 +7,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/bcakmakoglu/revue-draggable)
 
 Make your Vue components draggable.
+Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggablecore).
 
 ### Vue3
 ```bash

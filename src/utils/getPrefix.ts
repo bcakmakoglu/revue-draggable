@@ -1,5 +1,6 @@
 const prefixes = ['Moz', 'Webkit', 'O', 'ms'];
-export function getPrefix(prop: string='transform'): string {
+
+export function getPrefix(prop = 'transform'): string {
   // Ensure we're running in an environment where there is actually a global
   // `window` obj
   if (typeof window === 'undefined') return '';
