@@ -9,9 +9,8 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from './utils/positionFns';
 import log from './utils/log';
 
-import type { EventHandler, MouseTouchEvent } from './utils/types';
+import type { DraggableCoreProps, EventHandler, MouseTouchEvent } from './utils/types';
 import { defineComponent, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
-import { DraggableProps } from './Draggable';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -30,93 +29,59 @@ const eventsFor = {
 // Default to mouse events.
 let dragEventFor = eventsFor.mouse;
 
-export type DraggableData = {
-  node: HTMLElement;
-  x: number;
-  y: number;
-  deltaX: number;
-  deltaY: number;
-  lastX: number;
-  lastY: number;
-};
-
-export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
-
-export type ControlPosition = { x: number; y: number };
-export type PositionOffsetControlPosition = { x: number | string; y: number | string };
-
-export type DraggableCoreDefaultProps = {
-  allowAnyClick: boolean;
-  disabled: boolean;
-  enableUserSelectHack: boolean;
-  onStart: DraggableEventHandler;
-  onDrag: DraggableEventHandler;
-  onStop: DraggableEventHandler;
-  onMouseDown: (e: MouseEvent) => void;
-  scale: number;
-};
-
-export type DraggableCoreProps = {
-  cancel: string;
-  offsetParent: HTMLElement;
-  grid: [number, number];
-  handle: string;
-  nodeRef?: any;
-} & DraggableCoreDefaultProps;
-
 const DraggableCore = defineComponent({
   name: 'DraggableCore',
   props: {
     scale: {
-      type: Number as PropType<DraggableProps['scale']>,
+      type: Number as PropType<DraggableCoreProps['scale']>,
       default: 1
     },
     allowAnyClick: {
-      type: Boolean as PropType<DraggableProps['allowAnyClick']>,
+      type: Boolean as PropType<DraggableCoreProps['allowAnyClick']>,
       default: false
     },
     disabled: {
-      type: Boolean as PropType<DraggableProps['disabled']>,
+      type: Boolean as PropType<DraggableCoreProps['disabled']>,
       default: false
     },
     enableUserSelectHack: {
-      type: Boolean as PropType<DraggableProps['enableUserSelectHack']>,
+      type: Boolean as PropType<DraggableCoreProps['enableUserSelectHack']>,
       default: true
     },
     onStart: {
-      type: Function as PropType<DraggableProps['onStart']>,
+      type: Function as PropType<DraggableCoreProps['onStart']>,
       default: () => {}
     },
     onDrag: {
-      type: Function as PropType<DraggableProps['onDrag']>,
+      type: Function as PropType<DraggableCoreProps['onDrag']>,
       default: () => {}
     },
     onStop: {
-      type: Function as PropType<DraggableProps['onStop']>,
+      type: Function as PropType<DraggableCoreProps['onStop']>,
       default: () => {}
     },
     onMouseDown: {
-      type: Function as PropType<DraggableProps['onMouseDown']>,
+      type: Function as PropType<DraggableCoreProps['onMouseDown']>,
       default: () => {}
     },
     cancel: {
-      type: String as PropType<DraggableProps['cancel']>,
+      type: String as PropType<DraggableCoreProps['cancel']>,
       default: undefined
     },
     offsetParent: {
-      type: Object as PropType<DraggableProps['offsetParent']>,
+      type: Object as PropType<DraggableCoreProps['offsetParent']>,
       default: () => {}
     },
     grid: {
-      type: Array as unknown as PropType<DraggableProps['grid']>,
+      type: Array as unknown as PropType<DraggableCoreProps['grid']>,
       default: undefined
     },
     handle: {
-      type: String as PropType<DraggableProps['handle']>,
+      type: String as PropType<DraggableCoreProps['handle']>,
       default: undefined
     },
     nodeRef: {
-      type: Object as PropType<DraggableProps['nodeRef']>,
+      type: Object as PropType<DraggableCoreProps['nodeRef']>,
       default: undefined as any
     }
   },
@@ -154,7 +119,7 @@ const DraggableCore = defineComponent({
         e,
         touchIdentifier: touchIdentifier.value,
         node: nodeRef.value,
-        offsetContainer: props.nodeRef,
+        offsetContainer: props.nodeRef as HTMLElement,
         scale: props.scale
       });
       if (position == null) return;
@@ -189,7 +154,7 @@ const DraggableCore = defineComponent({
         e,
         touchIdentifier: touchIdentifier.value,
         node: nodeRef.value as HTMLElement,
-        offsetContainer: props.nodeRef,
+        offsetContainer: props.nodeRef as HTMLElement,
         scale: props.scale
       });
       if (position == null) return;
@@ -241,7 +206,7 @@ const DraggableCore = defineComponent({
         e,
         touchIdentifier: touchIdentifier.value,
         node: nodeRef.value as HTMLElement,
-        offsetContainer: props.nodeRef,
+        offsetContainer: props.nodeRef as HTMLElement,
         scale: props.scale
       });
       if (position == null) return;

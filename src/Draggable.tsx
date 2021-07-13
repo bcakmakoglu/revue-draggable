@@ -1,31 +1,9 @@
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from './utils/positionFns';
 import DraggableCore from './DraggableCore';
-import type {
-  ControlPosition,
-  PositionOffsetControlPosition,
-  DraggableCoreProps,
-  DraggableCoreDefaultProps
-} from './DraggableCore';
 import log from './utils/log';
-import type { Bounds, DraggableEventHandler } from './utils/types';
 import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, onUpdated } from 'vue';
 import { createCSSTransform, createSVGTransform } from './utils/domFns';
-
-export type DraggableDefaultProps = {
-  axis: 'both' | 'x' | 'y' | 'none';
-  bounds: Bounds | string | false;
-  defaultClassName: string;
-  defaultClassNameDragging: string;
-  defaultClassNameDragged: string;
-  defaultPosition: ControlPosition;
-  scale: number;
-} & DraggableCoreDefaultProps;
-
-export type DraggableProps = {
-  positionOffset: PositionOffsetControlPosition;
-  position: ControlPosition;
-} & DraggableCoreProps &
-  DraggableDefaultProps;
+import { DraggableEventHandler, DraggableProps } from './utils/types';
 
 const Draggable = defineComponent({
   name: 'Draggable',
@@ -117,7 +95,7 @@ const Draggable = defineComponent({
     }
   },
   setup(props, { slots }) {
-    const nodeRef = ref<HTMLElement>(props.nodeRef || null);
+    const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef || null);
     const dragging = ref<boolean>(false);
     const dragged = ref<boolean>(false);
     const stateX = ref<number>(props.position ? props.position.x : props.defaultPosition.x);
@@ -291,9 +269,7 @@ const Draggable = defineComponent({
           slots.default
             ? slots
                 .default()
-                .map((node) => (
-                  <node ref={nodeRef} class={classes.value} style={style.value} transform={svgTransform.value} />
-                ))
+                .map((node) => <node ref={nodeRef} class={classes.value} style={style.value} transform={svgTransform.value} />)
             : []
       };
     });

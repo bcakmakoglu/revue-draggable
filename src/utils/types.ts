@@ -32,3 +32,39 @@ export class TouchEvent2 extends TouchEvent {
 }
 
 export type MouseTouchEvent = MouseEvent & TouchEvent2;
+
+export interface DraggableBounds {
+  left?: number;
+  right?: number;
+  top?: number;
+  bottom?: number;
+}
+
+export interface DraggableProps extends DraggableCoreProps {
+  axis: 'both' | 'x' | 'y' | 'none';
+  bounds: DraggableBounds | string | false;
+  defaultClassName: string;
+  defaultClassNameDragging: string;
+  defaultClassNameDragged: string;
+  defaultPosition: ControlPosition;
+  positionOffset: PositionOffsetControlPosition;
+  position: ControlPosition;
+}
+
+export type DraggableEvent = MouseEvent | TouchEvent;
+
+export interface DraggableCoreProps {
+  allowAnyClick: boolean;
+  cancel: string;
+  disabled: boolean;
+  enableUserSelectHack: boolean;
+  offsetParent: HTMLElement;
+  grid: [number, number];
+  handle: string;
+  nodeRef?: HTMLElement;
+  onStart: DraggableEventHandler;
+  onDrag: DraggableEventHandler;
+  onStop: DraggableEventHandler;
+  onMouseDown: (e: MouseEvent) => void;
+  scale: number;
+}
