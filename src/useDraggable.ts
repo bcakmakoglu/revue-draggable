@@ -1,5 +1,5 @@
 import { ref } from 'vue-demi';
-import { DraggableCoreProps, EventHandler, MouseTouchEvent } from './utils/types';
+import { DraggableCoreProps, EventHandler, MouseTouchEvent, UseDraggable } from './utils/types';
 import {
   addEvent,
   addUserSelectStyles,
@@ -10,6 +10,7 @@ import {
 } from './utils/domFns';
 import { createCoreData, getControlPosition, snapToGrid } from './utils/positionFns';
 import log from './utils/log';
+import { isFunction } from './utils/shims';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -31,27 +32,29 @@ let dragEventFor = eventsFor.mouse;
 const useDraggable = (
   nodeRef: HTMLElement,
   {
-    enableUserSelectHack,
+    enableUserSelectHack = true,
+    allowAnyClick = true,
+    disabled = false,
     offsetParent,
     grid,
-    onStop,
-    allowAnyClick,
-    disabled,
     handle,
     cancel,
-    scale,
-    onStart,
-    onDrag,
-    onMouseDown: onMouseDownProp
+    scale = 1,
+    onStart = () => {},
+    onStop = () => {},
+    onDrag = () => {},
+    onMouseDown: onMouseDownProp = () => {}
   }: DraggableCoreProps
-) => {
+): UseDraggable => {
   const dragging = ref(false);
   const lastX = ref<number>(NaN);
   const lastY = ref<number>(NaN);
   const touchIdentifier = ref<number | undefined>();
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
-    onMouseDownProp(e);
+    if (isFunction(onMouseDownProp)) {
+      onMouseDownProp(e);
+    }
 
     if (!allowAnyClick && e.button !== 0) return false;
 
@@ -70,14 +73,13 @@ const useDraggable = (
     }
 
     if (e.type === 'touchstart') e.preventDefault();
-
     touchIdentifier.value = getTouchIdentifier(e);
 
     const position = getControlPosition({
       e,
       touchIdentifier: touchIdentifier.value,
       node: nodeRef,
-      offsetContainer: offsetParent as HTMLElement,
+      offsetContainer: offsetParent,
       scale: scale
     });
     if (position == null) return;
@@ -92,8 +94,8 @@ const useDraggable = (
     });
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
-
     log('calling', onStart);
+
     const shouldUpdate = onStart(e, coreEvent);
     if (shouldUpdate === false) return;
 
@@ -111,7 +113,7 @@ const useDraggable = (
     const position = getControlPosition({
       e,
       touchIdentifier: touchIdentifier.value,
-      node: nodeRef as HTMLElement,
+      node: nodeRef,
       offsetContainer: offsetParent,
       scale: scale
     });
@@ -129,7 +131,7 @@ const useDraggable = (
     }
 
     const coreEvent = createCoreData({
-      node: nodeRef as HTMLElement,
+      node: nodeRef,
       x,
       y,
       lastX: lastX.value,
@@ -138,7 +140,6 @@ const useDraggable = (
 
     log('DraggableCore: handleDrag: %j', coreEvent);
 
-    // Call event handler. If it returns explicit false, trigger end.
     const shouldUpdate = onDrag(e, coreEvent);
     if (shouldUpdate === false) {
       try {
@@ -163,26 +164,24 @@ const useDraggable = (
     const position = getControlPosition({
       e,
       touchIdentifier: touchIdentifier.value,
-      node: nodeRef as HTMLElement,
+      node: nodeRef,
       offsetContainer: offsetParent,
       scale: scale
     });
     if (position == null) return;
     const { x, y } = position;
     const coreEvent = createCoreData({
-      node: nodeRef as HTMLElement,
+      node: nodeRef,
       x,
       y,
       lastX: lastX.value,
       lastY: lastY.value
     });
 
-    // Call event handler
     const shouldContinue = onStop(e, coreEvent);
     if (shouldContinue === false) return false;
 
     if (nodeRef) {
-      // Remove user-select hack
       if (enableUserSelectHack) removeUserSelectStyles(nodeRef.ownerDocument as any);
     }
 
@@ -193,7 +192,6 @@ const useDraggable = (
     lastY.value = NaN;
 
     if (nodeRef) {
-      // Remove event handlers
       log('DraggableCore: Removing handlers');
       removeEvent(nodeRef.ownerDocument as any, dragEventFor.move, handleDrag);
       removeEvent(nodeRef.ownerDocument as any, dragEventFor.stop, handleDragStop);

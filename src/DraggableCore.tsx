@@ -43,7 +43,7 @@ const DraggableCore = defineComponent({
     },
     offsetParent: {
       type: Object as PropType<DraggableCoreProps['offsetParent']>,
-      default: () => {}
+      default: undefined
     },
     grid: {
       type: Array as unknown as PropType<DraggableCoreProps['grid']>,
@@ -52,10 +52,6 @@ const DraggableCore = defineComponent({
     handle: {
       type: String as PropType<DraggableCoreProps['handle']>,
       default: undefined
-    },
-    nodeRef: {
-      type: Object as PropType<DraggableCoreProps['nodeRef']>,
-      default: undefined as any
     }
   },
   setup(props, { slots }) {

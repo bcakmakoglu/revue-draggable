@@ -50,10 +50,18 @@ export interface DraggableCoreProps {
   offsetParent: HTMLElement;
   grid: [number, number];
   handle: string;
-  nodeRef?: HTMLElement;
   onStart: DraggableEventHandler;
   onDrag: DraggableEventHandler;
   onStop: DraggableEventHandler;
   onMouseDown: (e: MouseEvent) => void;
   scale: number;
+}
+
+export interface UseDraggable {
+  onMounted: () => void;
+  onBeforeUnmount: () => void;
+  onMouseUp: EventHandler<MouseTouchEvent>;
+  onMouseDown: EventHandler<MouseTouchEvent>;
+  onTouchEnd: EventHandler<MouseTouchEvent>;
+  onTouchStart: EventHandler<MouseTouchEvent>;
 }
