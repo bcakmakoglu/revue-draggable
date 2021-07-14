@@ -28,7 +28,7 @@
     "lint": "yarn lint:js"
   },
   "dependencies": {
-    "vue": "^0.10.1"
+    "vue-demi": "latest"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
