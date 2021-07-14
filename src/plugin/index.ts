@@ -1,14 +1,15 @@
 import { isVue3, Plugin } from 'vue-demi';
 import DraggableDirective from '../directives/DraggableDirective';
 import DraggableCoreDirective from '../directives/DraggableCoreDirective';
-import Draggable, { DraggableCore } from '../index';
+import Draggable from '../components/Draggable';
+import DraggableCore from '../components/DraggableCore';
 
 const DraggablePlugin: Plugin = (app) => {
   app.directive('draggable', DraggableDirective);
   app.directive('draggable-core', DraggableCoreDirective);
   if (isVue3) {
-    app.component('draggable', Draggable);
-    app.component('draggable-core', DraggableCore);
+    app.component('Draggable', Draggable);
+    app.component('DraggableCore', DraggableCore);
   }
 };
 

@@ -20,5 +20,5 @@ export function int(a: string): number {
 }
 
 export function isVNode(node: HTMLElement | VNode<any>): node is VNode {
-  return '$el' in node !== undefined;
+  return '$el' in node;
 }

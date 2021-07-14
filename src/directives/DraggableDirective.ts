@@ -1,5 +1,6 @@
 import { Directive, DirectiveHook, isVue3 } from 'vue-demi';
-import { DraggableProps, EventHandler, useDraggable } from '../index';
+import { DraggableProps, EventHandler } from '../utils/types';
+import useDraggable from '../hooks/useDraggable';
 
 const draggableDirective: DirectiveHook<HTMLElement, any, DraggableProps> = (el, binding) => {
   const draggable = useDraggable({
