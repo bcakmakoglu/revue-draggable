@@ -74,7 +74,7 @@ const useDraggableCore = ({
 
     const position = getControlPosition({
       e,
-      touchIdentifier: touchIdentifier,
+      touchIdentifier,
       node: nodeRef,
       offsetContainer: offsetParent,
       scale: scale
@@ -110,7 +110,7 @@ const useDraggableCore = ({
     if (nodeRef) {
       const position = getControlPosition({
         e,
-        touchIdentifier: touchIdentifier,
+        touchIdentifier,
         node: nodeRef,
         offsetContainer: offsetParent,
         scale: scale
@@ -163,7 +163,7 @@ const useDraggableCore = ({
     if (nodeRef) {
       const position = getControlPosition({
         e,
-        touchIdentifier: touchIdentifier,
+        touchIdentifier,
         node: nodeRef,
         offsetContainer: offsetParent,
         scale: scale
