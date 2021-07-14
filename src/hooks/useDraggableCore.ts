@@ -1,4 +1,3 @@
-import { ref } from 'vue-demi';
 import { DraggableCoreProps, EventHandler, MouseTouchEvent, UseDraggableCore } from '../utils/types';
 import {
   addEvent,
@@ -29,27 +28,25 @@ const eventsFor = {
 // Default to mouse events.
 let dragEventFor = eventsFor.mouse;
 
-const useDraggableCore = (
-  nodeRef: HTMLElement,
-  {
-    enableUserSelectHack = true,
-    allowAnyClick = true,
-    disabled = false,
-    offsetParent,
-    grid,
-    handle,
-    cancel,
-    scale = 1,
-    onStart = () => {},
-    onStop = () => {},
-    onDrag = () => {},
-    onMouseDown: onMouseDownProp = () => {}
-  }: Partial<DraggableCoreProps>
-): UseDraggableCore => {
-  const dragging = ref(false);
-  const lastX = ref<number>(NaN);
-  const lastY = ref<number>(NaN);
-  const touchIdentifier = ref<number | undefined>();
+const useDraggableCore = ({
+  nodeRef,
+  enableUserSelectHack = true,
+  allowAnyClick = true,
+  disabled = false,
+  offsetParent,
+  grid,
+  handle,
+  cancel,
+  scale = 1,
+  onStart = () => {},
+  onStop = () => {},
+  onDrag = () => {},
+  onMouseDown: onMouseDownProp = () => {}
+}: Partial<DraggableCoreProps>): UseDraggableCore => {
+  let dragging = false;
+  let lastX = NaN;
+  let lastY = NaN;
+  let touchIdentifier: number | undefined = NaN;
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
     if (isFunction(onMouseDownProp)) {
@@ -73,11 +70,11 @@ const useDraggableCore = (
     }
 
     if (e.type === 'touchstart') e.preventDefault();
-    touchIdentifier.value = getTouchIdentifier(e);
+    touchIdentifier = getTouchIdentifier(e);
 
     const position = getControlPosition({
       e,
-      touchIdentifier: touchIdentifier.value,
+      touchIdentifier: touchIdentifier,
       node: nodeRef,
       offsetContainer: offsetParent,
       scale: scale
@@ -89,8 +86,8 @@ const useDraggableCore = (
       node: nodeRef,
       x,
       y,
-      lastX: lastX.value,
-      lastY: lastY.value
+      lastX: lastX,
+      lastY: lastY
     });
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
@@ -101,100 +98,104 @@ const useDraggableCore = (
 
     if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
 
-    dragging.value = true;
-    lastX.value = x;
-    lastY.value = y;
+    dragging = true;
+    lastX = x;
+    lastY = y;
 
     addEvent(ownerDocument, dragEventFor.move, handleDrag);
     addEvent(ownerDocument, dragEventFor.stop, handleDragStop);
   };
 
   const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
-    const position = getControlPosition({
-      e,
-      touchIdentifier: touchIdentifier.value,
-      node: nodeRef,
-      offsetContainer: offsetParent,
-      scale: scale
-    });
-    if (position == null) return;
-    let { x, y } = position;
+    if (nodeRef) {
+      const position = getControlPosition({
+        e,
+        touchIdentifier: touchIdentifier,
+        node: nodeRef,
+        offsetContainer: offsetParent,
+        scale: scale
+      });
+      if (position == null) return;
+      let { x, y } = position;
 
-    // Snap to grid if prop has been provided
-    if (Array.isArray(grid)) {
-      let deltaX = x - lastX.value,
-        deltaY = y - lastY.value;
-      [deltaX, deltaY] = snapToGrid(grid, deltaX, deltaY);
-      if (!deltaX && !deltaY) return;
-      x = lastX.value + deltaX;
-      y = lastY.value + deltaY;
-    }
-
-    const coreEvent = createCoreData({
-      node: nodeRef,
-      x,
-      y,
-      lastX: lastX.value,
-      lastY: lastY.value
-    });
-
-    log('DraggableCore: handleDrag: %j', coreEvent);
-
-    const shouldUpdate = onDrag(e, coreEvent);
-    if (shouldUpdate === false) {
-      try {
-        handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
-      } catch (err) {
-        // Old browsers
-        const event = document.createEvent('MouseEvents') as MouseTouchEvent;
-        // I see why this insanity was deprecated
-        event.initMouseEvent('mouseup', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        handleDragStop(event);
+      // Snap to grid if prop has been provided
+      if (Array.isArray(grid)) {
+        let deltaX = x - lastX,
+          deltaY = y - lastY;
+        [deltaX, deltaY] = snapToGrid(grid, deltaX, deltaY);
+        if (!deltaX && !deltaY) return;
+        x = lastX + deltaX;
+        y = lastY + deltaY;
       }
-      return;
-    }
 
-    lastX.value = x;
-    lastY.value = y;
+      const coreEvent = createCoreData({
+        node: nodeRef,
+        x,
+        y,
+        lastX: lastX,
+        lastY: lastY
+      });
+
+      log('DraggableCore: handleDrag: %j', coreEvent);
+
+      const shouldUpdate = onDrag(e, coreEvent);
+      if (shouldUpdate === false) {
+        try {
+          handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
+        } catch (err) {
+          // Old browsers
+          const event = document.createEvent('MouseEvents') as MouseTouchEvent;
+          // I see why this insanity was deprecated
+          event.initMouseEvent('mouseup', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+          handleDragStop(event);
+        }
+        return;
+      }
+
+      lastX = x;
+      lastY = y;
+    }
   };
 
   const handleDragStop: EventHandler<MouseTouchEvent> = (e) => {
-    if (!dragging.value) return;
-
-    const position = getControlPosition({
-      e,
-      touchIdentifier: touchIdentifier.value,
-      node: nodeRef,
-      offsetContainer: offsetParent,
-      scale: scale
-    });
-    if (position == null) return;
-    const { x, y } = position;
-    const coreEvent = createCoreData({
-      node: nodeRef,
-      x,
-      y,
-      lastX: lastX.value,
-      lastY: lastY.value
-    });
-
-    const shouldContinue = onStop(e, coreEvent);
-    if (shouldContinue === false) return false;
+    if (!dragging) return;
 
     if (nodeRef) {
-      if (enableUserSelectHack) removeUserSelectStyles(nodeRef.ownerDocument as any);
-    }
+      const position = getControlPosition({
+        e,
+        touchIdentifier: touchIdentifier,
+        node: nodeRef,
+        offsetContainer: offsetParent,
+        scale: scale
+      });
+      if (position == null) return;
+      const { x, y } = position;
+      const coreEvent = createCoreData({
+        node: nodeRef,
+        x,
+        y,
+        lastX: lastX,
+        lastY: lastY
+      });
 
-    log('DraggableCore: handleDragStop: %j', coreEvent);
+      const shouldContinue = onStop(e, coreEvent);
+      if (shouldContinue === false) return false;
 
-    dragging.value = false;
-    lastX.value = NaN;
-    lastY.value = NaN;
+      if (nodeRef) {
+        if (enableUserSelectHack) removeUserSelectStyles(nodeRef.ownerDocument as any);
+      }
 
-    if (nodeRef) {
-      log('DraggableCore: Removing handlers');
-      removeEvent(nodeRef.ownerDocument as any, dragEventFor.move, handleDrag);
-      removeEvent(nodeRef.ownerDocument as any, dragEventFor.stop, handleDragStop);
+      log('DraggableCore: handleDragStop: %j', coreEvent);
+
+      dragging = false;
+      lastX = NaN;
+      lastY = NaN;
+
+      if (nodeRef) {
+        log('DraggableCore: Removing handlers');
+        removeEvent(nodeRef.ownerDocument, dragEventFor.move, handleDrag);
+        removeEvent(nodeRef.ownerDocument, dragEventFor.stop, handleDragStop);
+      }
     }
   };
 
@@ -221,7 +222,7 @@ const useDraggableCore = (
   const lifeCycleHooks = {
     onMounted: () => {
       if (nodeRef) {
-        addEvent(nodeRef as any, eventsFor.touch.start, onTouchStart, { passive: false });
+        addEvent(nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
       }
     },
 

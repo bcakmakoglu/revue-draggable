@@ -2,6 +2,8 @@ import type { DraggableCoreProps } from '../utils/types';
 import { computed, defineComponent, isVue3, onBeforeUnmount, onMounted, PropType, ref } from 'vue-demi';
 import useDraggableCore from '../hooks/useDraggableCore';
 import { DefineComponent } from 'vue';
+import { DraggableProps } from '../utils/types';
+import { isVNode } from '../utils/shims';
 
 let DraggableCore: DefineComponent<Partial<DraggableCoreProps>> = defineComponent({
   template: "<div>Can't use me in Vue2</div>"
@@ -58,12 +60,23 @@ if (isVue3) {
       handle: {
         type: String as PropType<DraggableCoreProps['handle']>,
         default: undefined
+      },
+      nodeRef: {
+        type: Object as PropType<DraggableProps['nodeRef']>,
+        default: undefined
       }
     },
     setup(props, { slots }) {
-      const nodeRef = ref<HTMLElement | null>(null);
+      const nodeRef = ref<HTMLElement | null>(props.nodeRef ?? null);
       const draggable = computed(() => {
-        return nodeRef.value && useDraggableCore(nodeRef.value, props as DraggableCoreProps);
+        const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
+        return (
+          node &&
+          useDraggableCore({
+            ...(props as DraggableCoreProps),
+            nodeRef: node
+          })
+        );
       });
       onMounted(() => {
         draggable.value?.onMounted();

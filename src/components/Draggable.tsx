@@ -3,6 +3,7 @@ import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, o
 import { DraggableProps } from '../utils/types';
 import { useDraggable } from '../index';
 import { DefineComponent } from 'vue';
+import { isVNode } from '../utils/shims';
 
 let Draggable: DefineComponent<Partial<DraggableProps>> = defineComponent({
   template: "<div>Can't use me in Vue2</div>"
@@ -92,11 +93,24 @@ if (isVue3) {
       handle: {
         type: String as PropType<DraggableProps['handle']>,
         default: undefined
+      },
+      nodeRef: {
+        type: Object as PropType<DraggableProps['nodeRef']>,
+        default: undefined
       }
     },
     setup(props, { slots }) {
-      const nodeRef = ref<HTMLElement | null>(null);
-      const draggable = computed(() => nodeRef.value && useDraggable(nodeRef.value, props as DraggableProps));
+      const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
+      const draggable = computed(() => {
+        const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
+        return (
+          node &&
+          useDraggable({
+            ...(props as DraggableProps),
+            nodeRef: node
+          })
+        );
+      });
 
       onUpdated(() => {
         draggable.value?.onUpdated();
@@ -117,9 +131,6 @@ if (isVue3) {
               .map((node) => (
                 <node
                   ref={nodeRef}
-                  class={draggable.value?.transformation.value.class}
-                  style={draggable.value?.transformation.value.style}
-                  transform={draggable.value?.transformation.value.svgTransform}
                   onMousedown={draggable.value?.core.onMouseDown}
                   onMouseUp={draggable.value?.core.onMouseUp}
                   onTouchend={draggable.value?.core.onTouchEnd}

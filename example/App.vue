@@ -136,13 +136,19 @@
     </div>
   </Draggable>
   <div v-draggable="{ onStart, onStop }" class="box">I use a directive to make myself draggable</div>
+  <Draggable :on-start="onStart" :on-stop="onStop">
+    <Foo />
+  </Draggable>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import Draggable from '../src';
+import Foo from './Foo.vue';
 
 export default defineComponent({
   name: 'App',
+  components: { Draggable, Foo },
   data() {
     return {
       transformationDiv: { value: { style: {}, class: [] } },

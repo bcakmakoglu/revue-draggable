@@ -1,28 +1,25 @@
-import { ref } from 'vue-demi';
 import log from '../utils/log';
 import { DraggableCoreProps, DraggableEventHandler, DraggableProps, UseDraggable } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
 
-const useDraggable = (
-  nodeRef: HTMLElement,
-  {
-    position,
-    positionOffset,
-    scale = 1,
-    onStart = () => {},
-    onStop = () => {},
-    onDrag: onDragProp = () => {},
-    axis = 'both',
-    defaultClassNameDragging = 'revue-draggable-dragging',
-    defaultClassNameDragged = 'revue-draggable-dragged',
-    defaultClassName = 'revue-draggable',
-    defaultPosition = { x: 0, y: 0 },
-    bounds,
-    ...rest
-  }: Partial<DraggableProps>
-): UseDraggable => {
+const useDraggable = ({
+  nodeRef,
+  position,
+  positionOffset,
+  scale = 1,
+  onStart = () => {},
+  onStop = () => {},
+  onDrag: onDragProp = () => {},
+  axis = 'both',
+  defaultClassNameDragging = 'revue-draggable-dragging',
+  defaultClassNameDragged = 'revue-draggable-dragged',
+  defaultClassName = 'revue-draggable',
+  defaultPosition = { x: 0, y: 0 },
+  bounds,
+  ...rest
+}: Partial<DraggableProps & { nodeRef: HTMLElement }>): UseDraggable => {
   let dragging = false;
   let dragged = false;
   let stateX = 0;
@@ -31,9 +28,6 @@ const useDraggable = (
   let slackX = 0;
   let slackY = 0;
   let isElementSVG = false;
-  const transformation: UseDraggable['transformation'] = ref({
-    class: ['revue-draggable']
-  } as any);
   stateX = position ? position.x : defaultPosition.x;
   stateY = position ? position.y : defaultPosition.y;
   prevPropsPosition = position ? { ...position } : { x: 0, y: 0 };
@@ -169,14 +163,14 @@ const useDraggable = (
 
     const transformEl = () => {
       if (typeof svgTransform === 'string') {
-        nodeRef.setAttribute('transform', svgTransform);
+        nodeRef?.setAttribute('transform', svgTransform);
       }
       Object.keys(styles).forEach((style) => {
         // @ts-ignore
         nodeRef.style[style] = styles[style];
       });
       Object.keys(classes).forEach((cl) => {
-        classes[cl] ? nodeRef.classList.add(cl) : '';
+        classes[cl] ? nodeRef?.classList.add(cl) : '';
       });
     };
     transformEl();
@@ -208,7 +202,8 @@ const useDraggable = (
     };
     return {
       core: {
-        ...useDraggableCore(nodeRef, {
+        ...useDraggableCore({
+          nodeRef,
           scale,
           onStart: onDragStart,
           onDrag,
@@ -216,8 +211,7 @@ const useDraggable = (
           ...rest
         } as DraggableCoreProps)
       },
-      ...lifeCycleHooks,
-      transformation
+      ...lifeCycleHooks
     };
   }
 };

@@ -1,4 +1,4 @@
-import { Ref } from 'vue-demi';
+import { VNode } from 'vue-demi';
 
 export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
@@ -57,6 +57,7 @@ export interface DraggableCoreProps {
   onStop: DraggableEventHandler;
   onMouseDown: (e: MouseEvent) => void;
   scale: number;
+  nodeRef: HTMLElement;
 }
 
 export interface UseDraggableCore {
@@ -73,9 +74,4 @@ export interface UseDraggable {
   onUpdated: () => void;
   onMounted: () => void;
   onBeforeUnmount: () => void;
-  transformation: Ref<{
-    style: false | Record<string, string>;
-    class: { [x: string]: boolean };
-    svgTransform: false | string;
-  }>;
 }
