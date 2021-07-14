@@ -140,13 +140,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Draggable from '../src/components/Draggable';
 
 export default defineComponent({
   name: 'App',
-  components: {
-    Draggable
-  },
   data() {
     return {
       transformationDiv: { value: { style: {}, class: [] } },
