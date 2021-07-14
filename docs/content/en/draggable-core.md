@@ -124,3 +124,15 @@ interface UseDraggableCore {
   onTouchStart: EventHandler<MouseTouchEvent>;
 }
 ```
+
+## Directive
+## Directive
+Directive accepts DraggableCoreProps as value.
+
+```vue {}[App.vue]
+<template>
+  <div v-draggable-core="{}" /* Pass DraggableCoreProps here */" class="box">I use a directive to make myself draggable</div>
+</template>
+<script>
+...
+```

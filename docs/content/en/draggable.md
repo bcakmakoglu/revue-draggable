@@ -248,3 +248,14 @@ setup() {
 }
 </script>
 ```
+
+## Directive
+Directive accepts DraggableProps as value.
+
+```vue {}[App.vue]
+<template>
+  <div v-draggable="{ onStart, onStop } /* Pass DraggableProps here */" class="box">I use a directive to make myself draggable</div>
+</template>
+<script>
+...
+```
