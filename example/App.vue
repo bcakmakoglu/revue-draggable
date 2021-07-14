@@ -208,7 +208,8 @@ export default defineComponent({
     },
     onControlledDrag(e, position) {
       const { x, y } = position;
-      this.controlledPosition = { x, y: y };
+      this.controlledPosition.x = x;
+      this.controlledPosition.y = y;
     },
     onControlledDragStop(e, position) {
       this.onControlledDrag(e, position);
