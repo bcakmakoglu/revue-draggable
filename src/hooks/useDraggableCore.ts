@@ -1,5 +1,5 @@
 import { ref } from 'vue-demi';
-import { DraggableCoreProps, EventHandler, MouseTouchEvent, UseDraggableCore } from './utils/types';
+import { DraggableCoreProps, EventHandler, MouseTouchEvent, UseDraggableCore } from '../utils/types';
 import {
   addEvent,
   addUserSelectStyles,
@@ -7,10 +7,10 @@ import {
   matchesSelectorAndParentsTo,
   removeEvent,
   removeUserSelectStyles
-} from './utils/domFns';
-import { createCoreData, getControlPosition, snapToGrid } from './utils/positionFns';
-import log from './utils/log';
-import { isFunction } from './utils/shims';
+} from '../utils/domFns';
+import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
+import log from '../utils/log';
+import { isFunction } from '../utils/shims';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {

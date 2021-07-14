@@ -135,11 +135,12 @@
       I depend on a CSS hack to avoid double absolute positioning.
     </div>
   </Draggable>
+  <div v-draggable="{ onStart, onStop }" class="box">I use a directive to make myself draggable</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Draggable from '../src/Draggable';
+import Draggable from '../src/components/Draggable';
 
 export default defineComponent({
   name: 'App',
@@ -148,6 +149,7 @@ export default defineComponent({
   },
   data() {
     return {
+      transformationDiv: { value: { style: {}, class: [] } },
       transform: 'translate(0rem, 0rem)',
       activeDrags: 0,
       deltaPosition: {
@@ -221,6 +223,9 @@ export default defineComponent({
       const [x, y] = convertedValues;
 
       return (this.transform = `translate(${x}, ${y})`);
+    },
+    transformDiv(e) {
+      this.transformationDiv = e.detail;
     }
   }
 });

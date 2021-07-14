@@ -1,7 +1,7 @@
 import DraggableCore from './DraggableCore';
 import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, onUpdated } from 'vue-demi';
-import { DraggableProps } from './utils/types';
-import { useDraggable } from './index';
+import { DraggableProps } from '../utils/types';
+import { useDraggable } from '../index';
 
 const Draggable = defineComponent({
   name: 'Draggable',

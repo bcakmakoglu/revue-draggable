@@ -1,8 +1,8 @@
 import { ref } from 'vue-demi';
-import log from './utils/log';
-import { DraggableCoreProps, DraggableEventHandler, DraggableProps, UseDraggable } from './utils/types';
-import { canDragX, canDragY, createDraggableData, getBoundPosition } from './utils/positionFns';
-import { createCSSTransform, createSVGTransform } from './utils/domFns';
+import log from '../utils/log';
+import { DraggableCoreProps, DraggableEventHandler, DraggableProps, UseDraggable } from '../utils/types';
+import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
+import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
 
 const useDraggable = (

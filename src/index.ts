@@ -2,15 +2,15 @@ import { isVue3, DefineComponent } from 'vue-demi';
 import { DraggableCoreProps, DraggableProps } from './utils/types';
 
 export * from './utils/types';
-export { default as useDraggableCore } from './useDraggableCore';
-export { default as useDraggable } from './useDraggable';
-export { default as DraggableCoreDirective } from './DraggableCoreDirective';
-export { default as DraggableDirective } from './DraggableDirective';
+export { default as useDraggableCore } from './hooks/useDraggableCore';
+export { default as useDraggable } from './hooks/useDraggable';
+export { default as DraggableCoreDirective } from './directives/DraggableCoreDirective';
+export { default as DraggableDirective } from './directives/DraggableDirective';
 
 export const DraggableCore: DefineComponent<DraggableCoreProps> = (isVue3
-  ? import('./DraggableCore')
+  ? import('./components/DraggableCore')
   : () => {}) as unknown as DefineComponent<DraggableCoreProps>;
 const Draggable: DefineComponent<DraggableProps> = (isVue3
-  ? import('./Draggable')
+  ? import('./components/Draggable')
   : () => {}) as unknown as DefineComponent<DraggableProps>;
 export default Draggable;

@@ -1,4 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import DraggablePlugin from '../src/plugin';
 
-createApp(App).mount('#app');
+const app = createApp(App);
+app.use(DraggablePlugin);
+app.mount('#app');
