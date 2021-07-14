@@ -245,10 +245,10 @@ setup() {
 Lastly, you have the option of just using the DraggableDirective directly on your element.
 The directive accepts `<Draggable>` props as a directive binding value.
 It will bind the necessary events to the element and will move it (i.e., apply transformation styles).
-```vue {}[App.vue]
+````vue {}[App.vue]
 <template>
   <div v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
 </template>
 <script>
 ...
-```
+````

@@ -11,6 +11,17 @@ Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggab
 Check the [Docs](https://revue-draggable-docs.vercel.app/) for an in-depth explanation.
 
 ## Quickstart
+The easiest way to make your elements draggable is by using the DraggableDirective
+which will handle everything for you with no configuration necessary.
+
+````vue {}[App.vue]
+<template>
+  <div v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
+</template>
+<script>
+... the rest of your code
+````
+
 ### Vue3
 ```bash
 # install revue draggable
@@ -20,7 +31,8 @@ $ yarn add @braks/revue-draggable
 $ npm i --save @braks/revue-draggable
 ```
 
-```vue
+### Example usage
+```vue {}[App.vue]
 <template>
   <Draggable>
     <div>Drag me!</div>
@@ -44,10 +56,10 @@ provide you with the necessary callbacks and reactive fields to make your elemen
 ### Composition API / Vue2
 ```bash
 # install revue flow
-$ yarn add @braks/revue-draggable
+$ yarn add @braks/revue-draggable @vue/composition-api
 
 # or
-$ npm i --save @braks/revue-draggable
+$ npm i --save @braks/revue-draggable @vue/composition-api
 ```
 
 The components cannot be used in Vue2 as they're written in Vue3 JSX, which sadly is not downward compatible.
@@ -57,8 +69,6 @@ You can use the useDraggable and useDraggableCore hooks to add draggability to y
 <template>
   <div
       ref="dragme"
-      :class="transform.value.class"
-      :style="transform.value.style"
       @mousedown="onMouseDown"
       @mouseup="onMouseUp"
       @touchend="onTouchEnd"
@@ -83,7 +93,6 @@ export default {
     this.onMouseUp = draggable.core.onMouseUp;
     this.onMouseDown = draggable.core.onMouseDown;
     this.onTouchEnd = draggable.core.onTouchEnd;
-    this.transform = draggable.transformation;
   },
   methods: {
     onMouseUp() {},
@@ -92,6 +101,18 @@ export default {
   }
 }
 </script>
+```
+
+## Plugin
+You can add Revue Draggable as a Plugin to your Vue app.
+
+```ts {}[main.ts]
+import { createApp } from 'vue';
+import { DraggablePlugin } from '@braks/revue-draggable';
+
+const app = createApp();
+app.use(DraggablePlugin);
+app.moun('#root');
 ```
 
 ## Development
