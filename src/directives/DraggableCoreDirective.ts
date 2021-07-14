@@ -2,7 +2,10 @@ import { Directive, DirectiveHook, isVue3 } from 'vue-demi';
 import { DraggableCoreProps, EventHandler, useDraggableCore } from '../index';
 
 const draggableCoreDirective: DirectiveHook<HTMLElement, any, DraggableCoreProps> = (el, binding) => {
-  const draggable = useDraggableCore(el, binding.value);
+  const draggable = useDraggableCore({
+    ...binding.value,
+    nodeRef: el
+  });
   el.onmousedown = draggable.onMouseDown as EventHandler<MouseEvent>;
   el.onmouseup = draggable.onMouseUp as EventHandler<MouseEvent>;
   el.ontouchend = draggable.onTouchEnd as EventHandler<TouchEvent>;
