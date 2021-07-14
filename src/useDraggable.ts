@@ -159,7 +159,7 @@ const useDraggable = (
       };
     };
 
-    const style = !isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
+    const styles = !isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
     const svgTransform = isElementSVG && createSVGTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
     const classes = {
       [defaultClassName]: true,
@@ -167,11 +167,19 @@ const useDraggable = (
       [defaultClassNameDragged]: dragged
     };
 
-    transformation.value = {
-      style,
-      svgTransform,
-      class: classes
+    const transformEl = () => {
+      if (typeof svgTransform === 'string') {
+        nodeRef.setAttribute('transform', svgTransform);
+      }
+      Object.keys(styles).forEach((style) => {
+        // @ts-ignore
+        nodeRef.style[style] = styles[style];
+      });
+      Object.keys(classes).forEach((cl) => {
+        classes[cl] ? nodeRef.classList.add(cl) : '';
+      });
     };
+    transformEl();
   };
   transform();
 
