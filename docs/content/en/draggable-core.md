@@ -128,7 +128,6 @@ interface UseDraggableCore {
 
 ## Directive
 Lastly, you can just use the DraggableCoreDirective directly on your element.
-The directive accepts DraggableCoreProps as value.
 The directive accepts `<DraggableCore>` props as a directive binding value.
 It will bind the necessary events to the element but will not apply any transformation styles.
 
