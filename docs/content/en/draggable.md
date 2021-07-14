@@ -193,7 +193,28 @@ draggable element using the useDraggable hook.
 It will provide you with the necessary callbacks to make your element draggable and
 a reactive property that you can use to add a transformation (i.e., move your element)
 to your element.
+```ts
+interface UseDraggableCore {
+  onMounted: () => void;
+  onBeforeUnmount: () => void;
+  onMouseUp: EventHandler<MouseTouchEvent>;
+  onMouseDown: EventHandler<MouseTouchEvent>;
+  onTouchEnd: EventHandler<MouseTouchEvent>;
+  onTouchStart: EventHandler<MouseTouchEvent>;
+}
 
+interface UseDraggable {
+  core: UseDraggableCore;
+  onUpdated: () => void;
+  onMounted: () => void;
+  onBeforeUnmount: () => void;
+  transformation: Ref<{
+    style: false | Record<string, string>;
+    class: { [x: string]: boolean };
+    svgTransform: false | string;
+  }>;
+}
+```
 ```vue {}[DraggableElement.vue]
 <template>
     <div

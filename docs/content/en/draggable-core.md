@@ -107,3 +107,20 @@ It is up to the parent to set actual positions on `<DraggableCore>`.
 </alert>
 
 Drag callbacks (onStart, onDrag, onStop) are called with the [same arguments as `<Draggable>`](/draggable).
+
+
+## useDraggableCore
+Instead of using the wrapper component you can instead compose your own
+draggable element using the useDraggableCore hook.
+It will provide you with the necessary callbacks to make your element draggable (i.e., positions etc.).
+
+```ts
+interface UseDraggableCore {
+  onMounted: () => void;
+  onBeforeUnmount: () => void;
+  onMouseUp: EventHandler<MouseTouchEvent>;
+  onMouseDown: EventHandler<MouseTouchEvent>;
+  onTouchEnd: EventHandler<MouseTouchEvent>;
+  onTouchStart: EventHandler<MouseTouchEvent>;
+}
+```
