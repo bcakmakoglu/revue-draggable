@@ -10,19 +10,7 @@ Make your Vue components draggable.
 Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggablecore).
 Check the [Docs](https://revue-draggable-docs.vercel.app/) for an in-depth explanation.
 
-## Quickstart
-The easiest way to make your elements draggable is by using the DraggableDirective
-which will handle everything for you with no configuration necessary.
-
-````vue {}[App.vue]
-<template>
-  <div v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
-</template>
-<script>
-... the rest of your code
-````
-
-### Vue3
+### Install
 ```bash
 # install revue draggable
 $ yarn add @braks/revue-draggable
@@ -31,7 +19,29 @@ $ yarn add @braks/revue-draggable
 $ npm i --save @braks/revue-draggable
 ```
 
-### Example usage
+If you plan to use Vue2, add the composition api to your dependencies.
+```bash
+# install revue flow
+$ yarn add @braks/revue-draggable @vue/composition-api
+
+# or
+$ npm i --save @braks/revue-draggable @vue/composition-api
+```
+
+
+## Quickstart
+The easiest way to make your elements draggable is by using the DraggableDirective
+which will handle everything for you with no configuration necessary.
+
+````vue {}[App.vue]
+<template>
+  <div v-draggable="/* Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
+</template>
+<script>
+... the rest of your code
+````
+
+### Example usage (Vue3)
 ```vue {}[App.vue]
 <template>
   <Draggable>
@@ -53,15 +63,7 @@ Without callbacks, it does not provide any meaningful functionality.
 Alternatively you can just use the useDraggable and useDraggableCore abstractions which will
 provide you with the necessary callbacks and reactive fields to make your element draggable.
 
-### Composition API / Vue2
-```bash
-# install revue flow
-$ yarn add @braks/revue-draggable @vue/composition-api
-
-# or
-$ npm i --save @braks/revue-draggable @vue/composition-api
-```
-
+### Vue2
 The components cannot be used in Vue2 as they're written in Vue3 JSX, which sadly is not downward compatible.
 You can use the useDraggable and useDraggableCore hooks to add draggability to your elements.
 
@@ -80,14 +82,6 @@ You can use the useDraggable and useDraggableCore hooks to add draggability to y
 import { useDraggable } from '@braks/revue-draggable';
 
 export default {
-  data() {
-    return {
-      // transform is of type Ref, so it's a reactive field that is passed back by useDraggable
-      transform: {
-        value: {}
-      }  
-    }
-  },
   mounted() {
     const draggable = useDraggable(this.$refs.dragme, {});
     this.onMouseUp = draggable.core.onMouseUp;

@@ -161,21 +161,17 @@ const useDraggable = ({
       [defaultClassNameDragged]: dragged
     };
 
-    const transformEl = () => {
-      if (typeof svgTransform === 'string') {
-        nodeRef?.setAttribute('transform', svgTransform);
-      }
-      Object.keys(styles).forEach((style) => {
-        // @ts-ignore
-        nodeRef.style[style] = styles[style];
-      });
-      Object.keys(classes).forEach((cl) => {
-        classes[cl] ? nodeRef?.classList.toggle(cl, true) : nodeRef?.classList.toggle(cl, false);
-      });
-    };
-    transformEl();
+    if (typeof svgTransform === 'string') {
+      nodeRef?.setAttribute('transform', svgTransform);
+    }
+    Object.keys(styles).forEach((style) => {
+      // @ts-ignore
+      nodeRef.style[style] = styles[style];
+    });
+    Object.keys(classes).forEach((cl) => {
+      classes[cl] ? nodeRef?.classList.toggle(cl, true) : nodeRef?.classList.toggle(cl, false);
+    });
   };
-  transform();
 
   {
     const lifeCycleHooks = {
@@ -189,6 +185,7 @@ const useDraggable = ({
           stateY = position.y;
           prevPropsPosition = { ...position };
         }
+        transform();
       },
       onMounted: () => {
         // Check to see if the element passed is an instanceof SVGElement
@@ -200,6 +197,9 @@ const useDraggable = ({
         dragging = false; // prevents invariant if unmounted while dragging
       }
     };
+
+    lifeCycleHooks.onMounted();
+    transform();
     return {
       core: {
         ...useDraggableCore({

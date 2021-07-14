@@ -239,6 +239,7 @@ const useDraggableCore = ({
     }
   };
 
+  lifeCycleHooks.onMounted();
   return {
     onMouseDown,
     onMouseUp,

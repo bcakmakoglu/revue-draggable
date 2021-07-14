@@ -1,7 +1,7 @@
-import type { DraggableCoreProps, UseDraggableCore } from '../utils/types';
-import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
+import type { DraggableCoreProps } from '../utils/types';
+import { defineComponent, onBeforeUnmount, onMounted, PropType, reactive, ref } from 'vue';
 import useDraggableCore from '../hooks/useDraggableCore';
-import { DraggableProps } from '../utils/types';
+import { DraggableProps, MouseTouchEvent } from '../utils/types';
 import { isVNode } from '../utils/shims';
 
 const DraggableCore = defineComponent({
@@ -62,21 +62,27 @@ const DraggableCore = defineComponent({
   },
   setup(props, { slots }) {
     const nodeRef = ref<HTMLElement | null>(props.nodeRef ?? null);
-    const draggable = computed<UseDraggableCore>(() => {
-      const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
-      return (
-        node &&
-        useDraggableCore({
-          ...(props as DraggableCoreProps),
-          nodeRef: node
-        })
-      );
+    const draggable = reactive({
+      onMouseDown: (e: MouseTouchEvent) => {},
+      onMouseUp: (e: MouseTouchEvent) => {},
+      onTouchEnd: (e: MouseTouchEvent) => {},
+      onBeforeUnmount: () => {}
     });
+
     onMounted(() => {
-      draggable.value?.onMounted();
+      const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
+      const { onMouseUp, onMouseDown, onTouchEnd, onBeforeUnmount } = useDraggableCore({
+        ...(props as DraggableCoreProps),
+        nodeRef: node
+      });
+      draggable.onMouseDown = onMouseDown;
+      draggable.onMouseUp = onMouseUp;
+      draggable.onTouchEnd = onTouchEnd;
+      draggable.onBeforeUnmount = onBeforeUnmount;
     });
+
     onBeforeUnmount(() => {
-      draggable.value?.onBeforeUnmount();
+      draggable.onBeforeUnmount();
     });
 
     return () => (
@@ -87,9 +93,9 @@ const DraggableCore = defineComponent({
               .map((node) => (
                 <node
                   ref={nodeRef}
-                  onMousedown={draggable.value?.onMouseDown}
-                  onMouseUp={draggable.value?.onMouseUp}
-                  onTouchend={draggable.value?.onTouchEnd}
+                  onMousedown={draggable.onMouseDown}
+                  onMouseUp={draggable.onMouseUp}
+                  onTouchend={draggable.onTouchEnd}
                 />
               ))
           : []}

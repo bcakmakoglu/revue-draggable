@@ -1,6 +1,6 @@
 import DraggableCore from './DraggableCore';
-import { defineComponent, onBeforeUnmount, onMounted, computed, ref, PropType, onUpdated } from 'vue';
-import { DraggableProps, UseDraggable } from '../utils/types';
+import { defineComponent, onBeforeUnmount, onMounted, onUpdated, PropType, ref, reactive } from 'vue';
+import { DraggableProps, MouseTouchEvent } from '../utils/types';
 import { isVNode } from '../utils/shims';
 import useDraggable from '../hooks/useDraggable';
 
@@ -95,27 +95,40 @@ const Draggable = defineComponent({
   },
   setup(props, { slots }) {
     const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
-    const draggable = computed<UseDraggable>(() => {
+    const draggable = reactive({
+      onMouseDown: (e: MouseTouchEvent) => {},
+      onMouseUp: (e: MouseTouchEvent) => {},
+      onTouchEnd: (e: MouseTouchEvent) => {},
+      onUpdated: () => {},
+      onBeforeUnmount: () => {}
+    });
+
+    onMounted(() => {
       const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
-      return (
-        node &&
-        useDraggable({
-          ...(props as DraggableProps),
-          nodeRef: node
-        })
-      );
+      const {
+        core: { onMouseDown, onMouseUp, onTouchEnd, onBeforeUnmount: unmountCore },
+        onUpdated,
+        onBeforeUnmount
+      } = useDraggable({
+        ...(props as DraggableProps),
+        nodeRef: node
+      });
+      draggable.onMouseDown = onMouseDown;
+      draggable.onMouseUp = onMouseUp;
+      draggable.onTouchEnd = onTouchEnd;
+      draggable.onUpdated = onUpdated;
+      draggable.onBeforeUnmount = () => {
+        onBeforeUnmount();
+        unmountCore();
+      };
     });
 
     onUpdated(() => {
-      draggable.value?.onUpdated();
+      draggable.onUpdated();
     });
-    onMounted(() => {
-      draggable.value?.onMounted();
-      draggable.value?.core.onMounted();
-    });
+
     onBeforeUnmount(() => {
-      draggable.value?.onBeforeUnmount();
-      draggable.value?.core.onBeforeUnmount();
+      draggable.onBeforeUnmount();
     });
 
     return () => (
@@ -126,9 +139,9 @@ const Draggable = defineComponent({
               .map((node) => (
                 <node
                   ref={nodeRef}
-                  onMousedown={draggable.value?.core.onMouseDown}
-                  onMouseUp={draggable.value?.core.onMouseUp}
-                  onTouchend={draggable.value?.core.onTouchEnd}
+                  onMousedown={draggable.onMouseDown}
+                  onMouseUp={draggable.onMouseUp}
+                  onTouchend={draggable.onTouchEnd}
                 />
               ))
           : []}
