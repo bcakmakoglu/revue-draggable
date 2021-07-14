@@ -8,8 +8,9 @@
 
 Make your Vue components draggable.
 Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggablecore).
-Check the React Draggable Docs for more info on props and usage. It's basically the same.
+Check the [Docs](https://revue-draggable-docs.vercel.app/) for an in-depth explanation.
 
+## Quickstart
 ### Vue3
 ```bash
 # install revue draggable
