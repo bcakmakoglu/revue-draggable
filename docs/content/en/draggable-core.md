@@ -110,11 +110,12 @@ Drag callbacks (onStart, onDrag, onStop) are called with the [same arguments as 
 
 
 ## useDraggableCore
-Instead of using the wrapper component you can instead compose your own
+Instead of using the wrapper component you can compose your own
 draggable element using the useDraggableCore hook.
 It will provide you with the necessary callbacks to make your element draggable (i.e., positions etc.).
 
 ```ts
+// Return Type
 interface UseDraggableCore {
   onMounted: () => void;
   onBeforeUnmount: () => void;
@@ -126,13 +127,15 @@ interface UseDraggableCore {
 ```
 
 ## Directive
-## Directive
-Directive accepts DraggableCoreProps as value.
+Lastly, you can just use the DraggableCoreDirective directly on your element.
+The directive accepts DraggableCoreProps as value.
+The directive accepts `<DraggableCore>` props as a directive binding value.
+It will bind the necessary events to the element but will not apply any transformation styles.
 
 ```vue {}[App.vue]
 <template>
   <div v-draggable-core="{}" /* Pass DraggableCoreProps here */" class="box">I use a directive to make myself draggable</div>
 </template>
 <script>
-...
+... the rest of your code
 ```

@@ -170,7 +170,7 @@ const useDraggable = ({
         nodeRef.style[style] = styles[style];
       });
       Object.keys(classes).forEach((cl) => {
-        classes[cl] ? nodeRef?.classList.add(cl) : '';
+        classes[cl] ? nodeRef?.classList.toggle(cl, true) : nodeRef?.classList.toggle(cl, false);
       });
     };
     transformEl();

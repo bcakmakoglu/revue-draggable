@@ -188,11 +188,10 @@ export default {
 ```
 
 ## useDraggable
-Instead of using the wrapper component you can instead compose your own 
+Instead of using the wrapper component you can compose your own 
 draggable element using the useDraggable hook.
-It will provide you with the necessary callbacks to make your element draggable and
-a reactive property that you can use to add a transformation (i.e., move your element)
-to your element.
+It will provide you with the necessary callbacks to make your element draggable 
+and will move your element for you by applying transformation styles.
 ```ts
 interface UseDraggableCore {
   onMounted: () => void;
@@ -203,24 +202,19 @@ interface UseDraggableCore {
   onTouchStart: EventHandler<MouseTouchEvent>;
 }
 
+// Return Type
 interface UseDraggable {
   core: UseDraggableCore;
   onUpdated: () => void;
   onMounted: () => void;
   onBeforeUnmount: () => void;
-  transformation: Ref<{
-    style: false | Record<string, string>;
-    class: { [x: string]: boolean };
-    svgTransform: false | string;
-  }>;
 }
 ```
+### Example
 ```vue {}[DraggableElement.vue]
 <template>
     <div
       :ref="nodeRef"
-      :class="transform.value.class"
-      :style="transform.value.style"
       @mousedown="onMouseDown"
       @mouseup="onMouseUp"
       @touchend="onTouchEnd"
@@ -233,16 +227,14 @@ export default {
 setup() {
     const nodeRef = ref<HTMLElement | null>(null);
     const {
-      core: { onMouseUp = () => {}, onMouseDown = () => {}, onTouchEnd = () => {} },
-      transformation
+      core: { onMouseUp = () => {}, onMouseDown = () => {}, onTouchEnd = () => {} }
     } = useDraggable(nodeRef.value, {});
     
     return {
         nodeRef,
         onMouseDown,
         onMouseUp,
-        onTouchEnd,
-        transform
+        onTouchEnd
     }
   }
 }
@@ -250,11 +242,12 @@ setup() {
 ```
 
 ## Directive
-Directive accepts DraggableProps as value.
-
+Lastly, you have the option of just using the DraggableDirective directly on your element.
+The directive accepts `<Draggable>` props as a directive binding value.
+It will bind the necessary events to the element and will move it (i.e., apply transformation styles).
 ```vue {}[App.vue]
 <template>
-  <div v-draggable="{ onStart, onStop } /* Pass DraggableProps here */" class="box">I use a directive to make myself draggable</div>
+  <div v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
 </template>
 <script>
 ...
