@@ -3,6 +3,7 @@ import { DraggableCoreProps, DraggableEventHandler, DraggableProps, UseDraggable
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
+import { onBeforeUnmount, onUpdated } from 'vue-demi';
 
 const useDraggable = ({
   nodeRef,
@@ -20,6 +21,11 @@ const useDraggable = ({
   bounds,
   ...rest
 }: Partial<DraggableProps & { nodeRef: HTMLElement }>): UseDraggable => {
+  if (!nodeRef) {
+    console.warn(
+      'You are trying to use <Draggable> without passing a valid node reference. This will cause errors down the line.'
+    );
+  }
   let dragging = false;
   let dragged = false;
   let stateX = 0;
@@ -173,47 +179,52 @@ const useDraggable = ({
     });
   };
 
-  {
-    const lifeCycleHooks = {
-      onUpdated: () => {
-        if (position && (!prevPropsPosition || position.x !== prevPropsPosition.x || position.y !== prevPropsPosition.y)) {
-          log('Draggable: getDerivedStateFromProps %j', {
-            position: position,
-            prevPropsPosition: prevPropsPosition
-          });
-          stateX = position.x;
-          stateY = position.y;
-          prevPropsPosition = { ...position };
-        }
-        transform();
-      },
-      onMounted: () => {
-        // Check to see if the element passed is an instanceof SVGElement
-        if (typeof window.SVGElement !== 'undefined' && nodeRef instanceof window.SVGElement) {
-          isElementSVG = true;
-        }
-      },
-      onBeforeUnmount: () => {
-        dragging = false; // prevents invariant if unmounted while dragging
+  const lifeCycleHooks = {
+    onUpdated: () => {
+      if (position && (!prevPropsPosition || position.x !== prevPropsPosition.x || position.y !== prevPropsPosition.y)) {
+        log('Draggable: Updated %j', {
+          position: position,
+          prevPropsPosition: prevPropsPosition
+        });
+        stateX = position.x;
+        stateY = position.y;
+        prevPropsPosition = { ...position };
       }
-    };
+      transform();
+    },
+    onMounted: () => {
+      // Check to see if the element passed is an instanceof SVGElement
+      if (typeof window.SVGElement !== 'undefined' && nodeRef instanceof window.SVGElement) {
+        isElementSVG = true;
+      }
+    },
+    onBeforeUnmount: () => {
+      dragging = false; // prevents invariant if unmounted while dragging
+    }
+  };
 
-    lifeCycleHooks.onMounted();
-    transform();
-    return {
-      core: {
-        ...useDraggableCore({
-          nodeRef,
-          scale,
-          onStart: onDragStart,
-          onDrag,
-          onStop: onDragStop,
-          ...rest
-        } as DraggableCoreProps)
-      },
-      ...lifeCycleHooks
-    };
-  }
+  onUpdated(() => {
+    lifeCycleHooks.onUpdated();
+  });
+
+  onBeforeUnmount(() => {
+    dragging = false;
+  });
+
+  lifeCycleHooks.onMounted();
+  return {
+    core: {
+      ...useDraggableCore({
+        nodeRef,
+        scale,
+        onStart: onDragStart,
+        onDrag,
+        onStop: onDragStop,
+        ...rest
+      } as DraggableCoreProps)
+    },
+    ...lifeCycleHooks
+  };
 };
 
 export default useDraggable;

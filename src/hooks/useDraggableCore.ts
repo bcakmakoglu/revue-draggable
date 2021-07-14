@@ -10,6 +10,7 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { isFunction } from '../utils/shims';
+import { onBeforeUnmount } from 'vue-demi';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -43,6 +44,11 @@ const useDraggableCore = ({
   onDrag = () => {},
   onMouseDown: onMouseDownProp = () => {}
 }: Partial<DraggableCoreProps>): UseDraggableCore => {
+  if (!nodeRef) {
+    console.warn(
+      'You are trying to use <DraggableCore> without passing a valid node reference. This will cause errors down the line.'
+    );
+  }
   let dragging = false;
   let lastX = NaN;
   let lastY = NaN;
@@ -238,6 +244,10 @@ const useDraggableCore = ({
       }
     }
   };
+
+  onBeforeUnmount(() => {
+    lifeCycleHooks.onBeforeUnmount();
+  });
 
   lifeCycleHooks.onMounted();
   return {

@@ -99,7 +99,6 @@ const Draggable = defineComponent({
       onMouseDown: (e: MouseTouchEvent) => {},
       onMouseUp: (e: MouseTouchEvent) => {},
       onTouchEnd: (e: MouseTouchEvent) => {},
-      onUpdated: () => {},
       onBeforeUnmount: () => {}
     });
 
@@ -107,7 +106,6 @@ const Draggable = defineComponent({
       const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
       const {
         core: { onMouseDown, onMouseUp, onTouchEnd, onBeforeUnmount: unmountCore },
-        onUpdated,
         onBeforeUnmount
       } = useDraggable({
         ...(props as DraggableProps),
@@ -116,15 +114,10 @@ const Draggable = defineComponent({
       draggable.onMouseDown = onMouseDown;
       draggable.onMouseUp = onMouseUp;
       draggable.onTouchEnd = onTouchEnd;
-      draggable.onUpdated = onUpdated;
       draggable.onBeforeUnmount = () => {
         onBeforeUnmount();
         unmountCore();
       };
-    });
-
-    onUpdated(() => {
-      draggable.onUpdated();
     });
 
     onBeforeUnmount(() => {
