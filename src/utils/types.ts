@@ -40,10 +40,7 @@ export interface DraggableProps extends DraggableCoreProps {
   position: ControlPosition;
 }
 
-export type DraggableEvent = {
-  e: MouseTouchEvent;
-  data: DraggableData;
-};
+export type DraggableEvent = MouseEvent | KeyboardEvent | (DraggableData & MouseTouchEvent);
 
 export type TransformedEvent = {
   style: Record<string, string> | false;

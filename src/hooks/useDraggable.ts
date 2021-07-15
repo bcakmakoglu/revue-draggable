@@ -65,7 +65,7 @@ const useDraggable = ({
         scale: scale
       })
     );
-    instance?.emit('drag-start', { e, data: coreData } as DraggableEvent);
+    instance?.emit('drag-start', { ...e, ...coreData } as DraggableEvent);
     if (shouldStart === false) return false;
 
     dragging = true;
@@ -116,7 +116,7 @@ const useDraggable = ({
     }
 
     const shouldUpdate = onDragProp(e, uiData);
-    instance?.emit('drag', { e, data: coreData } as DraggableEvent);
+    instance?.emit('drag', { ...e, ...coreData } as DraggableEvent);
     if (shouldUpdate === false) return false;
     stateX = newState.x;
     stateY = newState.y;
@@ -137,7 +137,7 @@ const useDraggable = ({
         coreData
       })
     );
-    instance?.emit('drag-stop', { e, data: coreData } as DraggableEvent);
+    instance?.emit('drag-stop', { ...e, ...coreData } as DraggableEvent);
     if (shouldContinue === false) return false;
 
     log('Draggable: onDragStop: %j', coreData);
