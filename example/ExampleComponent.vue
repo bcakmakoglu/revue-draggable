@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <span>I'm a Vue component</span>
+    <slot></slot>
   </div>
 </template>
 <script>
