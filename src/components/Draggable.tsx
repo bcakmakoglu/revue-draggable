@@ -1,11 +1,10 @@
 import DraggableCore from './DraggableCore';
-import { defineComponent, onBeforeUnmount, onMounted, PropType, ref, reactive, isVue3 } from 'vue-demi';
+import { defineComponent, onBeforeUnmount, onMounted, PropType, ref, reactive } from 'vue-demi';
 import { DraggableProps, MouseTouchEvent } from '../utils/types';
 import { isVNode } from '../utils/shims';
 import useDraggable from '../hooks/useDraggable';
 
-export let Draggable: typeof DraggableNext;
-const DraggableNext = defineComponent({
+const Draggable = defineComponent({
   name: 'Draggable',
   components: { DraggableCore },
   props: {
@@ -94,6 +93,7 @@ const DraggableNext = defineComponent({
       default: undefined
     }
   },
+  emits: ['drag-start', 'drag', 'drag-stop'],
   setup(props, { slots }) {
     const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
     const draggable = reactive({
@@ -112,9 +112,15 @@ const DraggableNext = defineComponent({
         ...(props as DraggableProps),
         nodeRef: node
       });
-      draggable.onMouseDown = onMouseDown;
-      draggable.onMouseUp = onMouseUp;
-      draggable.onTouchEnd = onTouchEnd;
+      draggable.onMouseDown = (e) => {
+        onMouseDown(e);
+      };
+      draggable.onMouseUp = (e) => {
+        onMouseUp(e);
+      };
+      draggable.onTouchEnd = (e) => {
+        onTouchEnd(e);
+      };
       draggable.onBeforeUnmount = () => {
         onBeforeUnmount();
         unmountCore();
@@ -143,15 +149,5 @@ const DraggableNext = defineComponent({
     );
   }
 });
-
-const Undraggable: typeof Draggable = defineComponent({
-  template: "<div>Can't use me in Vue2</div>"
-});
-
-if (isVue3) {
-  Draggable = DraggableNext;
-} else {
-  Draggable = Undraggable;
-}
 
 export default Draggable;

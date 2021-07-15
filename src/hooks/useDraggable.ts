@@ -1,9 +1,16 @@
 import log from '../utils/log';
-import { DraggableCoreProps, DraggableEventHandler, DraggableProps, UseDraggable } from '../utils/types';
+import {
+  DraggableCoreProps,
+  DraggableEvent,
+  DraggableEventHandler,
+  DraggableProps,
+  TransformedEvent,
+  UseDraggable
+} from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
-import { onBeforeUnmount, onUpdated } from 'vue-demi';
+import { getCurrentInstance, onBeforeUnmount, onUpdated } from 'vue-demi';
 
 const useDraggable = ({
   nodeRef,
@@ -20,7 +27,8 @@ const useDraggable = ({
   defaultPosition = { x: 0, y: 0 },
   bounds,
   ...rest
-}: Partial<DraggableProps & { nodeRef: HTMLElement }>): UseDraggable => {
+}: Partial<DraggableProps>): UseDraggable => {
+  const instance = getCurrentInstance();
   if (!nodeRef) {
     console.warn(
       'You are trying to use <Draggable> without passing a valid node reference. This will cause errors down the line.'
@@ -57,6 +65,7 @@ const useDraggable = ({
         scale: scale
       })
     );
+    instance?.emit('drag-start', { e, data: coreData } as DraggableEvent);
     if (shouldStart === false) return false;
 
     dragging = true;
@@ -107,6 +116,7 @@ const useDraggable = ({
     }
 
     const shouldUpdate = onDragProp(e, uiData);
+    instance?.emit('drag', { e, data: coreData } as DraggableEvent);
     if (shouldUpdate === false) return false;
     stateX = newState.x;
     stateY = newState.y;
@@ -127,6 +137,7 @@ const useDraggable = ({
         coreData
       })
     );
+    instance?.emit('drag-stop', { e, data: coreData } as DraggableEvent);
     if (shouldContinue === false) return false;
 
     log('Draggable: onDragStop: %j', coreData);
@@ -177,6 +188,11 @@ const useDraggable = ({
     Object.keys(classes).forEach((cl) => {
       classes[cl] ? nodeRef?.classList.toggle(cl, true) : nodeRef?.classList.toggle(cl, false);
     });
+    instance?.emit('transformed', {
+      style: styles,
+      transform: svgTransform,
+      classes
+    } as TransformedEvent);
   };
 
   const lifeCycleHooks = {

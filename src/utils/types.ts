@@ -1,5 +1,3 @@
-import { VNode } from 'vue-demi';
-
 export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
 export type DraggableData = {
@@ -42,7 +40,18 @@ export interface DraggableProps extends DraggableCoreProps {
   position: ControlPosition;
 }
 
-export type DraggableEvent = MouseEvent | TouchEvent;
+export type DraggableEvent = {
+  e: MouseTouchEvent;
+  data: DraggableData;
+};
+
+export type TransformedEvent = {
+  style: Record<string, string> | false;
+  transform: string | false;
+  classes: {
+    [x: string]: boolean;
+  };
+};
 
 export interface DraggableCoreProps {
   allowAnyClick: boolean;

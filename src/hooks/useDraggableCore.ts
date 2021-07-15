@@ -10,7 +10,7 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { isFunction } from '../utils/shims';
-import { onBeforeUnmount } from 'vue-demi';
+import { getCurrentInstance, onBeforeUnmount } from 'vue-demi';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -53,6 +53,7 @@ const useDraggableCore = ({
   let lastX = NaN;
   let lastY = NaN;
   let touchIdentifier: number | undefined = NaN;
+  const instance = getCurrentInstance();
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
     if (isFunction(onMouseDownProp)) {
@@ -100,6 +101,7 @@ const useDraggableCore = ({
     log('calling', onStart);
 
     const shouldUpdate = onStart(e, coreEvent);
+    instance?.emit('start', { e, coreEvent });
     if (shouldUpdate === false) return;
 
     if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
@@ -145,6 +147,7 @@ const useDraggableCore = ({
       log('DraggableCore: handleDrag: %j', coreEvent);
 
       const shouldUpdate = onDrag(e, coreEvent);
+      instance?.emit('move', { e, coreEvent });
       if (shouldUpdate === false) {
         try {
           handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
@@ -185,6 +188,7 @@ const useDraggableCore = ({
       });
 
       const shouldContinue = onStop(e, coreEvent);
+      instance?.emit('stop', { e, coreEvent });
       if (shouldContinue === false) return false;
 
       if (nodeRef) {
