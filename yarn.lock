@@ -4763,9 +4763,9 @@ vite@^2.3.8:
     fsevents "~2.3.2"
 
 vue-demi@latest:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.11.0.tgz#3fd2bd3004adc912051e6b2da3c3f5780f3dd9ef"
-  integrity sha512-fjMHzLh3KFMxC4gvSn3KLM9klh868ccj+lKfpyt/Y6LODVfHjL1hGtDrszV7B7saaHtOPVqboGPmqXKwcYwwTQ==
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.11.2.tgz#faa06da53887c493a695b997f4fcb4784a667990"
+  integrity sha512-J+X8Au6BhQdcej6LY4O986634hZLu55L0ewU2j8my7WIKlu8cK0dqmdUxqVHHMd/cMrKKZ9SywB/id6aLhwCtA==
 
 vue-eslint-parser@^7.0.0, vue-eslint-parser@^7.8.0:
   version "7.8.0"
