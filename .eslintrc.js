@@ -37,7 +37,13 @@ module.exports = {
     es6: true,
     browser: true
   },
-  extends: ['plugin:vue/vue3-recommended', 'eslint:recommended', '@vue/typescript/recommended', 'plugin:prettier/recommended'],
+  extends: [
+    'plugin:vue/vue3-recommended',
+    'eslint:recommended',
+    '@vue/typescript/recommended',
+    'plugin:prettier/recommended',
+    'plugin:cypress/recommended'
+  ],
   plugins: [],
   rules: baseRules
 };

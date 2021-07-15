@@ -31,9 +31,10 @@
     "build:dist": "rollup -c --environment NODE_ENV:production",
     "serve": "vite preview",
     "prepublishOnly": "yarn build:dist",
-    "test": "exit 0;",
+    "test": "cypress run",
     "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
-    "lint": "yarn lint:js"
+    "lint": "yarn lint:js",
+    "ci": "start-server-and-test dev http-get://localhost:3000 test"
   },
   "dependencies": {
     "vue-demi": "latest"
@@ -44,6 +45,9 @@
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@rollup/plugin-replace": "^2.4.2",
+    "@types/chai": "^4.2.21",
+    "@types/cypress": "^1.1.3",
+    "@types/mocha": "^8.2.3",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "@vitejs/plugin-vue": "^1.2.3",
@@ -52,8 +56,10 @@
     "@vue/compiler-sfc": "^3.0.5",
     "@vue/eslint-config-typescript": "^7.0.0",
     "babel-eslint": "latest",
+    "cypress": "^7.7.0",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-cypress": "^2.11.3",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.12.1",
     "husky": "^7.0.1",
@@ -64,6 +70,7 @@
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.30.0",
+    "start-server-and-test": "^1.12.6",
     "tslib": "^2.3.0",
     "typescript": "^4.3.5",
     "vite": "^2.3.8",
