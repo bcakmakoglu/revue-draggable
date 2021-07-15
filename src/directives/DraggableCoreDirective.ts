@@ -11,7 +11,6 @@ const draggableCoreDirective: DirectiveHook<HTMLElement, any, DraggableCoreProps
   el.onmouseup = draggable.onMouseUp as EventHandler<MouseEvent>;
   el.ontouchend = draggable.onTouchEnd as EventHandler<TouchEvent>;
   el.dispatchEvent(new CustomEvent('draggableCore', { detail: draggable }));
-  draggable.onMounted();
 };
 const DraggableCoreDirective: Directive<HTMLElement, DraggableCoreProps> = {
   [isVue3 ? 'mounted' : 'inserted']: draggableCoreDirective
