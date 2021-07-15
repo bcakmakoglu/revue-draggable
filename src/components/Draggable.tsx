@@ -93,7 +93,7 @@ const Draggable = defineComponent({
       default: undefined
     }
   },
-  emits: ['drag-start', 'drag', 'drag-stop'],
+  emits: ['drag-start', 'drag', 'drag-stop', 'transformed', 'start', 'move', 'stop'],
   setup(props, { slots }) {
     const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
     const draggable = reactive({
@@ -131,22 +131,19 @@ const Draggable = defineComponent({
       draggable.onBeforeUnmount();
     });
 
-    return () => (
-      <>
-        {slots.default
-          ? slots
-              .default()
-              .map((node) => (
-                <node
-                  ref={nodeRef}
-                  onMousedown={draggable.onMouseDown}
-                  onMouseUp={draggable.onMouseUp}
-                  onTouchend={draggable.onTouchEnd}
-                />
-              ))
-          : []}
-      </>
-    );
+    return () =>
+      slots.default
+        ? slots
+            .default()
+            .map((node) => (
+              <node
+                ref={nodeRef}
+                onMousedown={draggable.onMouseDown}
+                onMouseUp={draggable.onMouseUp}
+                onTouchend={draggable.onTouchEnd}
+              />
+            ))
+        : [];
   }
 });
 

@@ -86,22 +86,19 @@ const DraggableCore = defineComponent({
       draggable.onBeforeUnmount();
     });
 
-    return () => (
-      <>
-        {slots.default
-          ? slots
-              .default()
-              .map((node) => (
-                <node
-                  ref={nodeRef}
-                  onMousedown={draggable.onMouseDown}
-                  onMouseUp={draggable.onMouseUp}
-                  onTouchend={draggable.onTouchEnd}
-                />
-              ))
-          : []}
-      </>
-    );
+    return () =>
+      slots.default
+        ? slots
+            .default()
+            .map((node) => (
+              <node
+                ref={nodeRef}
+                onMousedown={draggable.onMouseDown}
+                onMouseUp={draggable.onMouseUp}
+                onTouchend={draggable.onTouchEnd}
+              />
+            ))
+        : [];
   }
 });
 

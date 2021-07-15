@@ -219,13 +219,15 @@ const useDraggable = ({
     }
   };
 
-  onUpdated(() => {
-    lifeCycleHooks.onUpdated();
-  });
+  if (instance) {
+    onUpdated(() => {
+      lifeCycleHooks.onUpdated();
+    }, instance);
 
-  onBeforeUnmount(() => {
-    dragging = false;
-  });
+    onBeforeUnmount(() => {
+      dragging = false;
+    }, instance);
+  }
 
   lifeCycleHooks.onMounted();
   return {

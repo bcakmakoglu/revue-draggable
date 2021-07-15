@@ -249,9 +249,11 @@ const useDraggableCore = ({
     }
   };
 
-  onBeforeUnmount(() => {
-    lifeCycleHooks.onBeforeUnmount();
-  });
+  if (instance) {
+    onBeforeUnmount(() => {
+      lifeCycleHooks.onBeforeUnmount();
+    }, instance);
+  }
 
   lifeCycleHooks.onMounted();
   return {
