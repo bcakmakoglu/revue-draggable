@@ -11,6 +11,7 @@ describe('draggable', () => {
       .should('have.length.at.least', 26)
       .should('have.class', 'revue-draggable')
       .each((el) => {
+        const originalPosition = el.position();
         const box = Cypress.$(el)[0];
         const coords = { x: 200, y: 300 };
         box.dispatchEvent(new MouseEvent('mousedown'));
@@ -22,6 +23,7 @@ describe('draggable', () => {
           })
         );
         expect(el.position()).exist;
+        expect(originalPosition).not.eq(el.position());
         box.dispatchEvent(new MouseEvent('mouseup'));
       });
   });
