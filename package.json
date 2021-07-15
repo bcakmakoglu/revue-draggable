@@ -91,7 +91,8 @@
   "np": {
     "branch": "master",
     "yarn": true,
-    "message": "v%s"
+    "message": "v%s",
+    "testScript": "ci"
   },
   "husky": {
     "hooks": {
