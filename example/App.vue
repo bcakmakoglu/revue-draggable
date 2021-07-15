@@ -141,6 +141,9 @@
       <span>I'm a Vue component</span>
     </ExampleComponent>
   </Draggable>
+  <Draggable @drag-start="onStart" @drag-stop="onStop">
+    <div class="box">I use event handlers instead of callbacks passed as props</div>
+  </Draggable>
 </template>
 
 <script lang="ts">
@@ -227,6 +230,9 @@ export default defineComponent({
       const [x, y] = convertedValues;
 
       return (this.transform = `translate(${x}, ${y})`);
+    },
+    log(e) {
+      console.log(e);
     }
   }
 });
