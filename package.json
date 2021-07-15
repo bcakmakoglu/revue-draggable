@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/bcakmakoglu/revue-draggable"
   },
+  "keywords": ["vue", "vue3", "draggable", "component", "directive", "composition api"],
   "license": "MIT",
   "author": "Burak Cakmakoglu",
   "main": "dist/revue-draggable.es.js",
