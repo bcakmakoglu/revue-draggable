@@ -169,3 +169,10 @@ $ yarn serve
 # build dist
 $ yarn build:dist
 ```
+
+## 🕵🏻‍♂️ Tests
+Testing is done by Cypress.
+You can find the specs in the [cypress directory](/cypress);
+```bash
+$ yarn ci // starts test server and runs tests, make sure port 3000 is open
+```
