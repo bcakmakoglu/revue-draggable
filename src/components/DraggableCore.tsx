@@ -1,13 +1,14 @@
 import type { DraggableCoreProps } from '../utils/types';
-import {defineComponent, isVue3, onBeforeUnmount, onMounted, PropType, reactive, ref} from 'vue-demi';
+import { defineComponent, isVue3, onBeforeUnmount, onMounted, PropType, reactive, ref } from 'vue-demi';
 import useDraggableCore from '../hooks/useDraggableCore';
 import { DraggableProps, MouseTouchEvent } from '../utils/types';
 import { isVNode } from '../utils/shims';
 
+export let DraggableCore: typeof DraggableCoreNext;
 const Undraggable: typeof DraggableCore = defineComponent({
   template: "<div>Can't use me in Vue2</div>"
 });
-const DraggableCore = defineComponent({
+const DraggableCoreNext = defineComponent({
   name: 'DraggableCore',
   props: {
     scale: {
@@ -107,4 +108,10 @@ const DraggableCore = defineComponent({
   }
 });
 
-export default isVue3 ? DraggableCore : Undraggable;
+if (isVue3) {
+  DraggableCore = DraggableCoreNext;
+} else {
+  DraggableCore = Undraggable;
+}
+
+export default DraggableCore;

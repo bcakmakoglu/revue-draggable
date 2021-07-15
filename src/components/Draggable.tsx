@@ -4,10 +4,8 @@ import { DraggableProps, MouseTouchEvent } from '../utils/types';
 import { isVNode } from '../utils/shims';
 import useDraggable from '../hooks/useDraggable';
 
-const Undraggable: typeof Draggable = defineComponent({
-  template: "<div>Can't use me in Vue2</div>"
-});
-const Draggable = defineComponent({
+export let Draggable: typeof DraggableNext;
+const DraggableNext = defineComponent({
   name: 'Draggable',
   components: { DraggableCore },
   props: {
@@ -146,4 +144,14 @@ const Draggable = defineComponent({
   }
 });
 
-export default isVue3 ? Draggable : Undraggable;
+const Undraggable: typeof Draggable = defineComponent({
+  template: "<div>Can't use me in Vue2</div>"
+});
+
+if (isVue3) {
+  Draggable = DraggableNext;
+} else {
+  Draggable = Undraggable;
+}
+
+export default Draggable;
