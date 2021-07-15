@@ -15,6 +15,7 @@ It does not set styles or transforms on itself and thus must have callbacks atta
 ## API
 
 ### Types
+
 ```ts
 type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
@@ -26,6 +27,11 @@ type DraggableData = {
     deltaY: number;
     lastX: number;
     lastY: number;
+};
+
+type DraggableEvent = {
+    e: MouseTouchEvent;
+    data: DraggableData;
 };
 
 interface DraggableCoreProps {
@@ -45,6 +51,7 @@ interface DraggableCoreProps {
 ```
 
 ### Props
+
 ```ts
 export default {
     scale: {
@@ -108,6 +115,28 @@ It is up to the parent to set actual positions on `<DraggableCore>`.
 
 Drag callbacks (onStart, onDrag, onStop) are called with the [same arguments as `<Draggable>`](/draggable).
 
+### Events
+
+Instead of passing callback functions you can use typical vue event handlers.
+The drawback here is that `<DraggableCore>` allows you to return false from a callback to stop the update of the current event handler.
+You might have to handle this case yourself if that is an issue or just pass the function as a prop.
+
+```vue
+<template>
+  <DraggableCore @start="start">
+    <div>Drag me!</div>
+  </DraggableCore>
+</template>
+... the rest of your code
+
+```
+
+#### Emittable Events
+
+* `start` - Called after native `mousedown`. Emits `DraggableEvent`.
+* `move` - Called after native `mouseup`. Emits `DraggableEvent`.
+* `stop` - Called after native `touchend`. Emits `DraggableEvent`.
+
 
 ## useDraggableCore
 Instead of using the wrapper component you can compose your own
@@ -133,7 +162,15 @@ It will bind the necessary events to the element but will not apply any transfor
 
 ```vue {}[App.vue]
 <template>
-  <div v-draggable-core="{}" /* Pass DraggableCoreProps here */" class="box">I use a directive to make myself draggable</div>
+  <div 
+    v-draggable-core="{}" /* Pass DraggableCoreProps here */" 
+    @start="start" /* You can hook to events here too */
+    @stop=""
+    @move=""
+    class="box"
+  >
+    I use a directive to make myself draggable
+  </div>
 </template>
 <script>
 ... the rest of your code

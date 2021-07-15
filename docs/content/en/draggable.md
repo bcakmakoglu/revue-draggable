@@ -60,6 +60,7 @@ For the <Draggable/> component to correctly attach itself to its child, the chil
   * onMouseDown, onMouseUp, onTouchStart, and onTouchEnd are used to keep track of dragging state.
 
 ### Types
+
 ```ts
 type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
@@ -71,6 +72,19 @@ type DraggableData = {
   deltaY: number;
   lastX: number;
   lastY: number;
+};
+
+type DraggableEvent = {
+    e: MouseTouchEvent;
+    data: DraggableData;
+};
+
+type TransformedEvent = {
+    style: Record<string, string> | false;
+    transform: string | false;
+    classes: {
+        [x: string]: boolean;
+    };
 };
 
 interface DraggableProps extends DraggableCoreProps {
@@ -99,7 +113,9 @@ interface DraggableCoreProps {
     scale: number;
 }
 ```
+
 ### Props
+
 ```ts
 export default {
     props: {
@@ -187,7 +203,31 @@ export default {
 }
 ```
 
+### Events
+
+Instead of passing callback functions you can use typical vue event handlers.
+The drawback here is that `<Draggable>` allows you to return false from a callback to stop the update of the current event handler.
+You might have to handle this case yourself if that is an issue or just pass the function as a prop.
+
+```vue
+<template>
+  <Draggable @drag-start="dragStart">
+    <div>Drag me!</div>
+  </Draggable>
+</template>
+... the rest of your code
+
+```
+
+#### Emittable Events
+
+* `drag-start` - Called after native `mousedown` event and `start` event of `<DraggableCore>`. Emits `DraggableEvent`.
+* `drag` - Called after native `mouseup` event and `move` event of `<DraggableCore>`. Emits `DraggableEvent`.
+* `drag-stop` - Called after native `touchend` event and `stop` event of `<DraggableCore>`. Emits `DraggableEvent`.
+* `transformed` - Called after the element has been transformed (i.e., styles to move it have been applied). Emits `TransformedEvent`
+
 ## useDraggable
+
 Instead of using the wrapper component you can compose your own 
 draggable element using the useDraggable hook.
 It will provide you with the necessary callbacks to make your element draggable 
@@ -211,6 +251,7 @@ interface UseDraggable {
 }
 ```
 ### Example
+
 ```vue {}[DraggableElement.vue]
 <template>
     <div
@@ -242,13 +283,22 @@ setup() {
 ```
 
 ## Directive
+
 Lastly, you have the option of just using the DraggableDirective directly on your element.
 The directive accepts `<Draggable>` props as a directive binding value.
 It will bind the necessary events to the element and will move it (i.e., apply transformation styles).
 ````vue {}[App.vue]
 <template>
-  <div v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
+  <div 
+    v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" 
+    class="box"
+    @drag-start="" /* you can still hook to events */
+    @drag=""
+    @drag-stop="" 
+   >
+    I use a directive to make myself draggable
+   </div>
 </template>
 <script>
-...
+... the rest of your code
 ````
