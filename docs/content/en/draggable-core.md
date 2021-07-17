@@ -133,9 +133,9 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 #### Emittable Events
 
-* `start` - Called after native `mousedown`. Emits `DraggableEvent`.
-* `move` - Called after native `mouseup`. Emits `DraggableEvent`.
-* `stop` - Called after native `touchend`. Emits `DraggableEvent`.
+* `start` - Called after native `mousedown`. Emits `DraggableData`.
+* `move` - Called after native `mouseup`. Emits `DraggableData`.
+* `stop` - Called after native `touchend`. Emits `DraggableData`.
 
 
 ## useDraggableCore

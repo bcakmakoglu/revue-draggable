@@ -1,12 +1,5 @@
 import log from '../utils/log';
-import {
-  DraggableCoreProps,
-  DraggableEvent,
-  DraggableEventHandler,
-  DraggableProps,
-  TransformedEvent,
-  UseDraggable
-} from '../utils/types';
+import { DraggableCoreProps, DraggableEventHandler, DraggableProps, TransformedData, UseDraggable } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
@@ -65,7 +58,7 @@ const useDraggable = ({
         scale: scale
       })
     );
-    instance?.emit('drag-start', { event: e, data: coreData } as DraggableEvent);
+    instance?.emit('drag-start', coreData);
     if (shouldStart === false) return false;
 
     dragging = true;
@@ -116,7 +109,7 @@ const useDraggable = ({
     }
 
     const shouldUpdate = onDragProp(e, uiData);
-    instance?.emit('drag', { event: e, data: coreData } as DraggableEvent);
+    instance?.emit('drag', coreData);
     if (shouldUpdate === false) return false;
     stateX = newState.x;
     stateY = newState.y;
@@ -137,7 +130,7 @@ const useDraggable = ({
         coreData
       })
     );
-    instance?.emit('drag-stop', { event: e, data: coreData } as DraggableEvent);
+    instance?.emit('drag-stop', coreData);
     if (shouldContinue === false) return false;
 
     log('Draggable: onDragStop: %j', coreData);
@@ -192,7 +185,7 @@ const useDraggable = ({
       style: styles,
       transform: svgTransform,
       classes
-    } as TransformedEvent);
+    } as TransformedData);
   };
 
   const lifeCycleHooks = {
