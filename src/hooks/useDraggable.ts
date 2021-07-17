@@ -109,7 +109,7 @@ const useDraggable = ({
     }
 
     const shouldUpdate = onDragProp(e, uiData);
-    instance?.emit('drag', coreData);
+    instance?.emit('drag-move', coreData);
     if (shouldUpdate === false) return false;
     stateX = newState.x;
     stateY = newState.y;

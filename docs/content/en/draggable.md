@@ -221,9 +221,9 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 #### Emittable Events
 
-* `drag-start` - Called after native `mousedown` event and `start` event of `<DraggableCore>`. Emits `DraggableData`.
-* `drag` - Called after native `mouseup` event and `move` event of `<DraggableCore>`. Emits `DraggableData`.
-* `drag-stop` - Called after native `touchend` event and `stop` event of `<DraggableCore>`. Emits `DraggableData`.
+* `drag-start` - Called after native `mousedown` or `touchstart` event and `start` event of `<DraggableCore>`. Emits `DraggableData`.
+* `drag-move` - Called after native `mousemove` or `touchmove` event and `move` event of `<DraggableCore>`. Emits `DraggableData`.
+* `drag-stop` - Called after native `mouseup` or `touchend` event and `stop` event of `<DraggableCore>`. Emits `DraggableData`.
 * `transformed` - Called after the element has been transformed (i.e., styles to move it have been applied). Emits `TransformedData`
 
 ## useDraggable
