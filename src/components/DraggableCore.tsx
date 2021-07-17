@@ -60,7 +60,7 @@ const DraggableCore = defineComponent({
       default: undefined
     }
   },
-  emits: ['start', 'move', 'stop'],
+  emits: ['core-start', 'core-move', 'core-stop'],
   setup(props, { slots }) {
     const nodeRef = ref<DraggableCoreProps['nodeRef'] | null>(props.nodeRef ?? null);
     const draggable = reactive({

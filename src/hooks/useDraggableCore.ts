@@ -101,7 +101,7 @@ const useDraggableCore = ({
     log('calling', onStart);
 
     const shouldUpdate = onStart(e, coreEvent);
-    instance?.emit('start', { e, coreEvent });
+    instance?.emit('core-start', coreEvent);
     if (shouldUpdate === false) return;
 
     if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
@@ -147,7 +147,7 @@ const useDraggableCore = ({
       log('DraggableCore: handleDrag: %j', coreEvent);
 
       const shouldUpdate = onDrag(e, coreEvent);
-      instance?.emit('move', { e, coreEvent });
+      instance?.emit('core-move', { e, coreEvent });
       if (shouldUpdate === false) {
         try {
           handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
@@ -188,7 +188,7 @@ const useDraggableCore = ({
       });
 
       const shouldContinue = onStop(e, coreEvent);
-      instance?.emit('stop', { e, coreEvent });
+      instance?.emit('core-stop', { e, coreEvent });
       if (shouldContinue === false) return false;
 
       if (nodeRef) {

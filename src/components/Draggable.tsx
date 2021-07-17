@@ -93,7 +93,7 @@ const Draggable = defineComponent({
       default: undefined
     }
   },
-  emits: ['drag-start', 'drag', 'drag-stop', 'transformed', 'start', 'move', 'stop'],
+  emits: ['drag-start', 'drag-move', 'drag-stop', 'transformed', 'core-start', 'core-move', 'core-stop'],
   setup(props, { slots }) {
     const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
     const draggable = reactive({
