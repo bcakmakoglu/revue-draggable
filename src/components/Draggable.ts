@@ -1,10 +1,8 @@
 import { h, defineComponent, PropType, ref } from 'vue-demi';
-import DraggableCore from './DraggableCore';
 import { DraggableOptions, useDraggable } from '../index';
 
 const Draggable = defineComponent({
   name: 'Draggable',
-  components: { DraggableCore },
   props: {
     axis: {
       type: String as PropType<DraggableOptions['axis']>,
