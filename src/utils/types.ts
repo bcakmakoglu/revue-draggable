@@ -42,15 +42,6 @@ export interface DraggableOptions extends DraggableCoreOptions {
   position: ControlPosition;
 }
 
-export type TransformedData = {
-  // el should be emitted too
-  style: Record<string, string> | false;
-  transform: string | false;
-  classes: {
-    [x: string]: boolean;
-  };
-};
-
 export interface DraggableCoreOptions {
   allowAnyClick: boolean;
   cancel: string;
@@ -60,12 +51,7 @@ export interface DraggableCoreOptions {
   offsetParent: HTMLElement;
   grid: [number, number];
   handle: string;
-  onStart: DraggableEventHandler;
-  onDrag: DraggableEventHandler;
-  onStop: DraggableEventHandler;
-  onMouseDown: (e: MouseEvent) => void;
   scale: number;
-  nodeRef: HTMLElement;
 }
 
 export type DraggableCoreState = State & DraggableCoreOptions;
@@ -81,20 +67,28 @@ interface State {
   slackX: number;
   slackY: number;
   isElementSVG: boolean;
-  touchIdentifier?: number;
+  touch?: number;
 }
 
 export interface UseDraggable {
-  onDragStart: EventHookOn<DraggableHook>;
-  onDrag: EventHookOn<DraggableHook>;
-  onDragStop: EventHookOn<DraggableHook>;
-  onTransformed: EventHookOn<TransformedData>;
+  onDragStart: EventHookOn<DraggableEvent>;
+  onDrag: EventHookOn<DraggableEvent>;
+  onDragStop: EventHookOn<DraggableEvent>;
+  onTransformed: EventHookOn<TransformEvent>;
   updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
 }
 
 export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
 
-export interface DraggableHook {
+export interface DraggableEvent {
   event: MouseEvent;
   data: DraggableData;
+}
+
+export interface TransformEvent {
+  style: Record<string, string> | false;
+  transform: string | false;
+  classes: {
+    [x: string]: boolean;
+  };
 }

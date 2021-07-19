@@ -1,7 +1,6 @@
-import { defineComponent, onMounted, PropType, ref } from 'vue-demi';
+import { h, defineComponent, PropType, ref, onUpdated } from 'vue-demi';
 import DraggableCore from './DraggableCore';
-import { DraggableOptions, useDraggable } from '../src';
-import { isVNode } from '../src/utils/shims';
+import { DraggableOptions, useDraggable } from '../index';
 
 const Draggable = defineComponent({
   name: 'Draggable',
@@ -55,22 +54,6 @@ const Draggable = defineComponent({
       type: Boolean as PropType<DraggableOptions['enableUserSelectHack']>,
       default: true
     },
-    onStart: {
-      type: Function as PropType<DraggableOptions['onStart']>,
-      default: () => {}
-    },
-    onDrag: {
-      type: Function as PropType<DraggableOptions['onDrag']>,
-      default: () => {}
-    },
-    onStop: {
-      type: Function as PropType<DraggableOptions['onStop']>,
-      default: () => {}
-    },
-    onMouseDown: {
-      type: Function as PropType<DraggableOptions['onMouseDown']>,
-      default: () => {}
-    },
     cancel: {
       type: String as PropType<DraggableOptions['cancel']>,
       default: undefined
@@ -86,25 +69,33 @@ const Draggable = defineComponent({
     handle: {
       type: String as PropType<DraggableOptions['handle']>,
       default: undefined
-    },
-    nodeRef: {
-      type: Object as PropType<DraggableOptions['nodeRef']>,
-      default: undefined
     }
   },
-  emits: ['drag-start', 'drag-move', 'drag-stop', 'transformed', 'core-start', 'core-move', 'core-stop'],
-  setup(props, { slots }) {
-    const nodeRef = ref<DraggableOptions['nodeRef'] | null>(props.nodeRef ?? null);
+  emits: ['move', 'start', 'stop', 'transformed'],
+  setup(props, { slots, emit }) {
+    const target = ref();
 
-    onMounted(() => {
-      const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
-      useDraggable({
-        ...(props as DraggableOptions),
-        nodeRef: node
-      });
+    const { onDrag, onDragStart, onDragStop, onTransformed } = useDraggable(target, props);
+
+    onDrag((dragEvent) => {
+      emit('move', dragEvent);
     });
 
-    return () => (slots.default ? slots.default().map((node) => <node ref={nodeRef} />) : []);
+    onDragStart((dragStartEvent) => {
+      emit('start', dragStartEvent);
+    });
+
+    onDragStop((dragStopEvent) => {
+      emit('stop', dragStopEvent);
+    });
+
+    onTransformed((transformEvent) => {
+      emit('transformed', transformEvent);
+    });
+
+    return () => {
+      if (slots.default) return h('div', { ref: target }, slots.default());
+    };
   }
 });
 

@@ -137,8 +137,8 @@ export function getTranslation(
 
 export function getTouch(e: MouseTouchEvent, identifier: number): { clientX: number; clientY: number } {
   return (
-    (e.targetTouches && findInArray(e.targetTouches, (t: any) => identifier === t.identifier)) ||
-    (e.changedTouches && findInArray(e.changedTouches, (t: any) => identifier === t.identifier))
+    (e.targetTouches && findInArray(e.targetTouches, (t) => identifier === t.identifier)) ||
+    (e.changedTouches && findInArray(e.changedTouches, (t) => identifier === t.identifier))
   );
 }
 

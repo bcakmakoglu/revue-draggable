@@ -1,6 +1,7 @@
 import { isNum, int } from './shims';
 import { getTouch, innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
 import { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types';
+import {useMouse} from "@vueuse/core";
 
 export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: any }): [number, number] {
   // If no bounds, short-circuit and move on
@@ -68,19 +69,19 @@ export function canDragY(axis: DraggableOptions['axis']): boolean {
 
 export function getControlPosition({
   e,
-  touchIdentifier,
+  touch,
   node,
   offsetContainer,
   scale
 }: {
   e: MouseTouchEvent;
-  touchIdentifier: number | undefined;
+  touch: number | undefined;
   node: HTMLElement;
   offsetContainer?: HTMLElement;
   scale: number;
 }): ControlPosition | null {
-  const touchObj = typeof touchIdentifier === 'number' ? getTouch(e, touchIdentifier) : null;
-  if (typeof touchIdentifier === 'number' && !touchObj) return null; // not the right touch
+  const touchObj = typeof touch === 'number' ? getTouch(e, touch) : null;
+  if (typeof touch === 'number' && !touchObj) return null; // not the right touch
   const offsetParent = offsetContainer || node.offsetParent || node.ownerDocument.body;
   return offsetXYFromParent(touchObj || e, offsetParent, scale);
 }
