@@ -22,6 +22,9 @@
     </strong>
     <div>You must click my handle to drag me</div>
   </div>
+  <div class="box" v-draggable="{ bounds: 'body' }" @drag-start="onStart" @drag-stop="onStop">
+    I can only be moved within the confines of the body element.
+  </div>
   <div
     class="box no-cursor"
     style="display: flex; flex-direction: column"
@@ -52,6 +55,33 @@
     @drag-stop="onStop"
     @drag-move="onControlledDrag"
   >
+    I can detect drops from the next box.
+  </div>
+  <div v-draggable @drag-start="onStart" @drag-stop="onDrop" :class="`box ${activeDrags ? 'no-pointer-events' : ''}`">
+    I can be dropped onto another box.
+  </div>
+  <div class="box" style="height: 500px; width: 500px; position: relative; overflow: auto; padding: 0">
+    <div style="height: 1000px; width: 1000px; padding: 10px">
+      <div class="box" v-draggable="{ bounds: 'parent' }" @drag-start="onStart" @drag-stop="onStop">
+        I can only be moved within my offsetParent.<br /><br />
+        Both parent padding and child margin work properly.
+      </div>
+      <div class="box" v-draggable="{ bounds: 'parent' }" @drag-start="onStart" @drag-stop="onStop">
+        I also can only be moved within my offsetParent.<br /><br />
+        Both parent padding and child margin work properly.
+      </div>
+    </div>
+  </div>
+  <div class="box" style="position: absolute; bottom: 100px; right: 100px" v-draggable @drag-start="onStart" @drag-stop="onStop">
+    I already have an absolute position.
+  </div>
+  <div class="box" v-draggable="{ defaultPosition: { x: 25, y: 25 } }" @drag-start="onStart" @drag-stop="onStop">
+    {{ "I have a default position of {x: 25, y: 25}, so I'm slightly offset." }}
+  </div>
+  <div class="box" v-draggable="{ positionOffset: { x: '-10%', y: '-10%' } }" @drag-start="onStart" @drag-stop="onStop">
+    {{ "I have a default position based on percents {x: '-10%', y: '-10%'}, so I'm slightly offset." }}
+  </div>
+  <div class="box" v-draggable="{ position: controlledPosition }" @drag-start="onStart" @drag-stop="onStop">
     My position can be changed programmatically. <br />
     I have a drag handler to sync state.
     <div>
