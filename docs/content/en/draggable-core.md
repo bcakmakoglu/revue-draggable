@@ -5,11 +5,11 @@ category: Guide
 position: 3
 ---
 
-For users that require absolute control, the `core` argument can be passed to `v-draggable` (i.e., `v-draggable:core`).
-Or you can use the composable `useDraggableCore`.
+For users that require absolute control, the `DraggableCore` is provided.
+You can use it either as a component `DraggableCore`, a directive `v-draggable:core` or composable `useDraggableCore`.
 This is useful as an abstraction over touch and mouse events, but with full control.
 
-Revue Draggable Core is a useful building block for other libraries that simply want to abstract browser-specific quirks and receive callbacks when a user attempts to move an element. 
+`<DraggableCore>` is a useful building block for other libraries that simply want to abstract browser-specific quirks and receive callbacks when a user attempts to move an element. 
 It does not set styles or transforms on itself and thus must have callbacks attached to be useful.
 
 ## API
@@ -56,12 +56,10 @@ It is up to the parent to set actual positions on `<DraggableCore>`.
 
 </alert>
 
-Drag callbacks (onStart, onDrag, onStop) are called with the [same arguments as `<Draggable>`](/draggable).
-
 ### Events
 ```vue
 <template>
-  <div v-draggable:core @core-start="start">Drag me!</div>
+  <div v-draggable:core @start="start">Drag me!</div>
 </template>
 ... the rest of your code
 
@@ -69,9 +67,9 @@ Drag callbacks (onStart, onDrag, onStop) are called with the [same arguments as 
 
 #### Emittable Events
 
-* `core-start` - Called after native `mousedown`. Emits `DraggableData`.
-* `core-move` - Called after native `mouseup`. Emits `DraggableData`.
-* `core-stop` - Called after native `touchend`. Emits `DraggableData`.
+* `start` - Called after native `mousedown`. Emits `DraggableEvent`.
+* `move` - Called after native `mouseup`. Emits `DraggableEvent`.
+* `stop` - Called after native `touchend`. Emits `DraggableEvent`.
 
 
 ## useDraggableCore
@@ -89,6 +87,6 @@ interface UseDraggable {
     updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
 }
 
-// useDraggableCore return
+// useDraggableCore hooks
 export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
 ```

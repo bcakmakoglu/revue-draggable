@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, ref, onUpdated } from 'vue-demi';
+import { h, defineComponent, PropType, ref } from 'vue-demi';
 import DraggableCore from './DraggableCore';
 import { DraggableOptions, useDraggable } from '../index';
 
