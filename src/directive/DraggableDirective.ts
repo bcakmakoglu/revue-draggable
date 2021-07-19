@@ -1,10 +1,10 @@
 import { Directive, DirectiveHook, isVue3, VNode } from 'vue-demi';
-import { DraggableProps, UseDraggable } from '../utils/types';
+import { DraggableOptions, UseDraggable } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
 import useDraggableCore from '../hooks/useDraggableCore';
 
-const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableProps> = (el, binding) => {
-  const options: Partial<DraggableProps> = {
+const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el, binding) => {
+  const options: Partial<DraggableOptions> = {
     ...binding.value,
     nodeRef: el as HTMLElement
   };
@@ -19,7 +19,7 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableProps> = (el, 
   }
 };
 
-const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableProps> = (el, binding) => {
+const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el, binding) => {
   // typehack as we store the draggable instance on the element, see the comment above
   const element = el as any;
   if (typeof element['revue-draggable'] !== 'undefined' && binding.value) {
@@ -28,14 +28,14 @@ const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableProps> = (el, 
   }
 };
 
-const onUnmounted: DirectiveHook<HTMLElement | VNode, any, DraggableProps> = (el) => {
+const onUnmounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el) => {
   const element = el as any;
   if (typeof element['revue-draggable'] !== 'undefined') {
     delete element['revue-draggable'];
   }
 };
 
-const DraggableDirective: Directive<HTMLElement | VNode, DraggableProps> = {
+const DraggableDirective: Directive<HTMLElement | VNode, DraggableOptions> = {
   [isVue3 ? 'mounted' : 'inserted']: onMounted,
   [isVue3 ? 'updated' : 'componentUpdated']: onUpdated,
   [isVue3 ? 'unmounted' : 'unbind']: onUnmounted

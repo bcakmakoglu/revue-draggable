@@ -1,6 +1,6 @@
 import { defineComponent, onMounted, PropType, ref } from 'vue-demi';
 import DraggableCore from './DraggableCore';
-import { DraggableProps, useDraggable } from '../src';
+import { DraggableOptions, useDraggable } from '../src';
 import { isVNode } from '../src/utils/shims';
 
 const Draggable = defineComponent({
@@ -8,98 +8,98 @@ const Draggable = defineComponent({
   components: { DraggableCore },
   props: {
     axis: {
-      type: String as PropType<DraggableProps['axis']>,
+      type: String as PropType<DraggableOptions['axis']>,
       default: 'both'
     },
     bounds: {
-      type: [Object, String, Boolean] as PropType<DraggableProps['bounds']>,
+      type: [Object, String, Boolean] as PropType<DraggableOptions['bounds']>,
       default: false
     },
     defaultClassName: {
-      type: String as PropType<DraggableProps['defaultClassName']>,
+      type: String as PropType<DraggableOptions['defaultClassName']>,
       default: 'revue-draggable'
     },
     defaultClassNameDragging: {
-      type: String as PropType<DraggableProps['defaultClassNameDragging']>,
+      type: String as PropType<DraggableOptions['defaultClassNameDragging']>,
       default: 'revue-draggable-dragging'
     },
     defaultClassNameDragged: {
-      type: String as PropType<DraggableProps['defaultClassNameDragged']>,
+      type: String as PropType<DraggableOptions['defaultClassNameDragged']>,
       default: 'revue-draggable-dragged'
     },
     defaultPosition: {
-      type: Object as PropType<DraggableProps['defaultPosition']>,
+      type: Object as PropType<DraggableOptions['defaultPosition']>,
       default: () => ({ x: 0, y: 0 })
     },
     scale: {
-      type: Number as PropType<DraggableProps['scale']>,
+      type: Number as PropType<DraggableOptions['scale']>,
       default: 1
     },
     position: {
-      type: Object as PropType<DraggableProps['position']>,
+      type: Object as PropType<DraggableOptions['position']>,
       default: undefined
     },
     positionOffset: {
-      type: Object as PropType<DraggableProps['positionOffset']>,
+      type: Object as PropType<DraggableOptions['positionOffset']>,
       default: undefined
     },
     allowAnyClick: {
-      type: Boolean as PropType<DraggableProps['allowAnyClick']>,
+      type: Boolean as PropType<DraggableOptions['allowAnyClick']>,
       default: true
     },
     disabled: {
-      type: Boolean as PropType<DraggableProps['disabled']>,
+      type: Boolean as PropType<DraggableOptions['disabled']>,
       default: false
     },
     enableUserSelectHack: {
-      type: Boolean as PropType<DraggableProps['enableUserSelectHack']>,
+      type: Boolean as PropType<DraggableOptions['enableUserSelectHack']>,
       default: true
     },
     onStart: {
-      type: Function as PropType<DraggableProps['onStart']>,
+      type: Function as PropType<DraggableOptions['onStart']>,
       default: () => {}
     },
     onDrag: {
-      type: Function as PropType<DraggableProps['onDrag']>,
+      type: Function as PropType<DraggableOptions['onDrag']>,
       default: () => {}
     },
     onStop: {
-      type: Function as PropType<DraggableProps['onStop']>,
+      type: Function as PropType<DraggableOptions['onStop']>,
       default: () => {}
     },
     onMouseDown: {
-      type: Function as PropType<DraggableProps['onMouseDown']>,
+      type: Function as PropType<DraggableOptions['onMouseDown']>,
       default: () => {}
     },
     cancel: {
-      type: String as PropType<DraggableProps['cancel']>,
+      type: String as PropType<DraggableOptions['cancel']>,
       default: undefined
     },
     offsetParent: {
-      type: Object as PropType<DraggableProps['offsetParent']>,
+      type: Object as PropType<DraggableOptions['offsetParent']>,
       default: () => {}
     },
     grid: {
-      type: Array as unknown as PropType<DraggableProps['grid']>,
+      type: Array as unknown as PropType<DraggableOptions['grid']>,
       default: undefined
     },
     handle: {
-      type: String as PropType<DraggableProps['handle']>,
+      type: String as PropType<DraggableOptions['handle']>,
       default: undefined
     },
     nodeRef: {
-      type: Object as PropType<DraggableProps['nodeRef']>,
+      type: Object as PropType<DraggableOptions['nodeRef']>,
       default: undefined
     }
   },
   emits: ['drag-start', 'drag-move', 'drag-stop', 'transformed', 'core-start', 'core-move', 'core-stop'],
   setup(props, { slots }) {
-    const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
+    const nodeRef = ref<DraggableOptions['nodeRef'] | null>(props.nodeRef ?? null);
 
     onMounted(() => {
       const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
       useDraggable({
-        ...(props as DraggableProps),
+        ...(props as DraggableOptions),
         nodeRef: node
       });
     });

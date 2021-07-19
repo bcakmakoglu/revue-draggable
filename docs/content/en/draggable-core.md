@@ -5,11 +5,11 @@ category: Guide
 position: 3
 ---
 
-For users that require absolute control, a `<DraggableCore>` element is available. 
+For users that require absolute control, the `core` argument can be passed to `v-draggable` (i.e., `v-draggable:core`).
+Or you can use the composable `useDraggableCore`.
 This is useful as an abstraction over touch and mouse events, but with full control.
-`<DraggableCore>` has no internal state.
 
-`<DraggableCore>` is a useful building block for other libraries that simply want to abstract browser-specific quirks and receive callbacks when a user attempts to move an element. 
+Revue Draggable Core is a useful building block for other libraries that simply want to abstract browser-specific quirks and receive callbacks when a user attempts to move an element. 
 It does not set styles or transforms on itself and thus must have callbacks attached to be useful.
 
 ## API
@@ -29,15 +29,11 @@ type DraggableData = {
     lastY: number;
 };
 
-type DraggableEvent = {
-    e: MouseTouchEvent;
-    data: DraggableData;
-};
-
-interface DraggableCoreProps {
+export interface DraggableCoreOptions {
     allowAnyClick: boolean;
     cancel: string;
     disabled: boolean;
+    update?: boolean;
     enableUserSelectHack: boolean;
     offsetParent: HTMLElement;
     grid: [number, number];
@@ -47,63 +43,10 @@ interface DraggableCoreProps {
     onStop: DraggableEventHandler;
     onMouseDown: (e: MouseEvent) => void;
     scale: number;
+    nodeRef: HTMLElement;
 }
 ```
 
-### Props
-
-```ts
-export default {
-    scale: {
-        type: Number as PropType<DraggableCoreProps['scale']>,
-        default: 1
-    },
-    allowAnyClick: {
-        type: Boolean as PropType<DraggableCoreProps['allowAnyClick']>,
-        default: true
-    },
-    disabled: {
-        type: Boolean as PropType<DraggableCoreProps['disabled']>,
-        default: false
-    },
-    enableUserSelectHack: {
-        type: Boolean as PropType<DraggableCoreProps['enableUserSelectHack']>,
-        default: true
-    },
-    onStart: {
-        type: Function as PropType<DraggableCoreProps['onStart']>,
-        default: () => {}
-    },
-    onDrag: {
-        type: Function as PropType<DraggableCoreProps['onDrag']>,
-        default: () => {}
-    },
-    onStop: {
-        type: Function as PropType<DraggableCoreProps['onStop']>,
-        default: () => {}
-    },
-    onMouseDown: {
-        type: Function as PropType<DraggableCoreProps['onMouseDown']>,
-        default: () => {}
-    },
-    cancel: {
-        type: String as PropType<DraggableCoreProps['cancel']>,
-        default: undefined
-    },
-    offsetParent: {
-        type: Object as PropType<DraggableCoreProps['offsetParent']>,
-        default: undefined
-    },
-    grid: {
-        type: Array as unknown as PropType<DraggableCoreProps['grid']>,
-        default: undefined
-    },
-    handle: {
-        type: String as PropType<DraggableCoreProps['handle']>,
-        default: undefined
-    }
-}
-```
 <alert>
 
 Note that there is no start position.
@@ -116,16 +59,9 @@ It is up to the parent to set actual positions on `<DraggableCore>`.
 Drag callbacks (onStart, onDrag, onStop) are called with the [same arguments as `<Draggable>`](/draggable).
 
 ### Events
-
-Instead of passing callback functions you can use typical vue event handlers.
-The drawback here is that `<DraggableCore>` allows you to return false from a callback to stop the update of the current event handler.
-You might have to handle this case yourself if that is an issue or just pass the function as a prop.
-
 ```vue
 <template>
-  <DraggableCore @start="start">
-    <div>Drag me!</div>
-  </DraggableCore>
+  <div v-draggable:core @core-start="start">Drag me!</div>
 </template>
 ... the rest of your code
 
@@ -140,40 +76,19 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 ## useDraggableCore
 
-Instead of using the wrapper component you can compose your own
-draggable element using the useDraggableCore hook.
+Instead of using the directive you can compose your own
+draggable element using the useDraggable hook.
 It will add the necessary events directly to the node to receive the data to make it draggable (i.e., positions etc.).
 
 ```ts
-export interface UseDraggable {
+interface UseDraggable {
     onDragStart: EventHookOn<DraggableHook>;
     onDrag: EventHookOn<DraggableHook>;
     onDragStop: EventHookOn<DraggableHook>;
     onTransformed: EventHookOn<TransformedData>;
+    updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
 }
 
 // useDraggableCore return
 export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
-```
-
-## Directive
-
-Lastly, you can just use the DraggableCoreDirective directly on your element.
-The directive accepts `<DraggableCore>` props as a directive binding value.
-It will bind the necessary events to the element but will not apply any transformation styles.
-
-```vue {}[App.vue]
-<template>
-  <div 
-    v-draggable-core="{}" /* Pass DraggableCoreProps here */" 
-    @start="start" /* You can hook to events here too */
-    @stop=""
-    @move=""
-    class="box"
-  >
-    I use a directive to make myself draggable
-  </div>
-</template>
-<script>
-... the rest of your code
 ```

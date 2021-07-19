@@ -1,6 +1,6 @@
 import { isNum, int } from './shims';
 import { getTouch, innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
-import { Bounds, ControlPosition, DraggableData, DraggableProps, MouseTouchEvent } from './types';
+import { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types';
 
 export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: any }): [number, number] {
   // If no bounds, short-circuit and move on
@@ -58,11 +58,11 @@ export function snapToGrid(grid: [number, number], pendingX: number, pendingY: n
   return [x, y];
 }
 
-export function canDragX(axis: DraggableProps['axis']): boolean {
+export function canDragX(axis: DraggableOptions['axis']): boolean {
   return axis === 'both' || axis === 'x';
 }
 
-export function canDragY(axis: DraggableProps['axis']): boolean {
+export function canDragY(axis: DraggableOptions['axis']): boolean {
   return axis === 'both' || axis === 'y';
 }
 
