@@ -54,7 +54,7 @@
     "@vue/eslint-config-typescript": "^7.0.0",
     "babel-eslint": "latest",
     "cypress": "^7.7.0",
-    "eslint": "^7.29.0",
+    "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-cypress": "^2.11.3",
     "eslint-plugin-prettier": "^3.3.1",
