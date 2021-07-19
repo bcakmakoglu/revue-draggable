@@ -4,12 +4,9 @@ description: 'Revue Draggable'
 category: Guide
 position: 2
 ---
-
-Revue Draggable can be used with either a directive (`v-draggable`) or using the
-composable hooks exposed by `useDraggable`.
-
-The `v-draggable` directive or `useDraggable` composable adds new event handlers and styles to an existing element. 
-It does not create a wrapper element in the DOM.
+A `<Draggable>` element wraps an existing element and extends it with new event handlers and styles.
+You can either use a component wrapper, which creates an element in the DOM, a directive, which will not create
+an element or a composable and it's hooks (no element included either).
 
 Draggable items move using CSS Transforms.
 This allows items to be dragged regardless of their current positioning (relative, absolute, or static). 
@@ -46,11 +43,11 @@ default defineComponent({
 
 ## API
 
-The `v-draggable` and `useDraggable` transparently adds draggability to its children.
+`Revue Draggable` transparently adds draggability to its children.
 
 Note: Only a single child is allowed or an Error will be thrown.
 
-For `v-draggable` and `useDraggable` to correctly attach itself to its child, the child element must provide support for the following props:
+For `Revue Draggable` to correctly attach itself to its child, the child element must provide support for the following props:
 
   * style is used to give the transform css to the child.
   * class is used to apply the proper classes to the object being dragged. 
@@ -83,7 +80,6 @@ interface DraggableOptions extends DraggableCoreOptions {
 }
 
 type TransformedData = {
-    // el should be emitted too
     style: Record<string, string> | false;
     transform: string | false;
     classes: {
@@ -105,7 +101,6 @@ interface DraggableCoreOptions {
     onStop: DraggableEventHandler;
     onMouseDown: (e: MouseEvent) => void;
     scale: number;
-    nodeRef: HTMLElement;
 }
 
 type DraggableCoreState = State & DraggableCoreOptions;
@@ -121,7 +116,7 @@ interface State {
     slackX: number;
     slackY: number;
     isElementSVG: boolean;
-    touchIdentifier?: number;
+    touch?: number;
 }
 
 interface UseDraggable {
@@ -134,7 +129,7 @@ interface UseDraggable {
 
 type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
 
-interface DraggableHook {
+interface DraggableEvent {
     event: MouseEvent;
     data: DraggableData;
 }
@@ -142,13 +137,9 @@ interface DraggableHook {
 
 ### Events
 
-Instead of passing callback functions you can use typical vue event handlers.
-The drawback here is that `<Draggable>` allows you to return false from a callback to stop the update of the current event handler.
-You might have to handle this case yourself if that is an issue or just pass the function as a prop.
-
 ```vue
 <template>
-  <div v-draggable @drag-start="dragStart">Drag me!</div>
+  <div v-draggable @start="dragStart">Drag me!</div>
 </template>
 ... the rest of your code
 
@@ -156,19 +147,20 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 #### Emittable Events
 
-* `drag-start` - Called after native `mousedown` or `touchstart` event and `start` event of `<DraggableCore>`. Emits `DraggableData`.
-* `drag-move` - Called after native `mousemove` or `touchmove` event and `move` event of `<DraggableCore>`. Emits `DraggableData`.
-* `drag-stop` - Called after native `mouseup` or `touchend` event and `stop` event of `<DraggableCore>`. Emits `DraggableData`.
-* `transformed` - Called after the element has been transformed (i.e., styles to move it have been applied). Emits `TransformedData`
+* `start` - Called after native `mousedown` or `touchstart` event and `start` event of `<DraggableCore>`. Emits `DraggableEvent`.
+* `move` - Called after native `mousemove` or `touchmove` event and `move` event of `<DraggableCore>`. Emits `DraggableEvent`.
+* `stop` - Called after native `mouseup` or `touchend` event and `stop` event of `<DraggableCore>`. Emits `DraggableEvent`.
+* `transformed` - Called after the element has been transformed (i.e., styles to move it have been applied). Emits `TransformEvent`
 
 ## useDraggable
 
 Instead of using the directive you can compose your own 
-draggable element using the useDraggable hook.
+draggable element using the useDraggable hooks.
 If provided a valid node reference useDraggable will add all event handlers and
 transformations directly onto the node.
+
 ```ts
-// useDraggable return
+// useDraggable hooks
 interface UseDraggable {
     onDragStart: EventHookOn<DraggableHook>;
     onDrag: EventHookOn<DraggableHook>;

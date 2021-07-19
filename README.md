@@ -7,7 +7,12 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/bcakmakoglu/revue-draggable)
 ![GitHub last commit](https://img.shields.io/github/last-commit/bcakmakoglu/revue-draggable)
 
-Make your Vue components draggable. 
+**Make your Vue components draggable. 🤏**
+
+**Supports Vue 2 and Vue 3!** Comes with a 🔋 batteries included component / directive / composable or
+for users who want more control a simple abstraction over drag events with the core, wich is also available
+as a component / directive / composable.
+
 Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggablecore).
 
 Check the [Docs 📔](https://revue-draggable-docs.vercel.app/) for an in-depth explanation and
@@ -57,6 +62,7 @@ app.use(DraggablePlugin);
 
 // or
 app.directive('draggable', DraggableDirective)
+app.component('Draggable', Draggable);
 
 app.moun('#root');
 ```
@@ -71,7 +77,7 @@ Vue.use(DraggablePlugin)
 
 // or
 Vue.directive('draggable', DraggableDirective)
-// Vue.component('Draggable, Draggable) <Draggable> components should not be registered in Vue2, as it won't work.
+Vue.component('Draggable', Draggable)
 ```
 
 ## 🎮 Quickstart
@@ -82,6 +88,17 @@ with no configuration necessary.
 ````vue {}[App.vue]
 <template>
   <div v-draggable="/* Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
+</template>
+<script>
+... the rest of your code
+````
+
+Or use the component wrapper.
+````vue {}[App.vue]
+<template>
+  <Draggable>
+    <div class="box">I use a wrapper</div>
+  </Draggable>
 </template>
 <script>
 ... the rest of your code
