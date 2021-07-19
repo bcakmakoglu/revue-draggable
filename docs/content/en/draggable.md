@@ -230,36 +230,23 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 Instead of using the wrapper component you can compose your own 
 draggable element using the useDraggable hook.
-It will provide you with the necessary callbacks to make your element draggable 
-and will move your element for you by applying transformation styles.
+If provided a valid node reference useDraggable will add all event handlers and
+transformations directly onto the node.
 ```ts
-interface UseDraggableCore {
-  onMounted: () => void;
-  onBeforeUnmount: () => void;
-  onMouseUp: EventHandler<MouseTouchEvent>;
-  onMouseDown: EventHandler<MouseTouchEvent>;
-  onTouchEnd: EventHandler<MouseTouchEvent>;
-  onTouchStart: EventHandler<MouseTouchEvent>;
-}
-
-// Return Type
-interface UseDraggable {
-  core: UseDraggableCore;
-  onUpdated: () => void;
-  onMounted: () => void;
-  onBeforeUnmount: () => void;
+// useDraggable return
+export interface UseDraggable {
+    onDragStart: EventHookOn<DraggableHook>;
+    onDrag: EventHookOn<DraggableHook>;
+    onDragStop: EventHookOn<DraggableHook>;
+    onTransformed: EventHookOn<TransformedData>;
 }
 ```
+
 ### Example
 
 ```vue {}[DraggableElement.vue]
 <template>
-    <div
-      :ref="nodeRef"
-      @mousedown="onMouseDown"
-      @mouseup="onMouseUp"
-      @touchend="onTouchEnd"
-    >
+    <div :ref="nodeRef">
       I am draggable
     </div>
 </template>
@@ -267,15 +254,13 @@ interface UseDraggable {
 export default {
 setup() {
     const nodeRef = ref<HTMLElement | null>(null);
-    const {
-      core: { onMouseUp = () => {}, onMouseDown = () => {}, onTouchEnd = () => {} }
-    } = useDraggable(nodeRef.value, {});
+    onMounted(() => {
+      const { onDrag } = useDraggable({ nodeRef });
+      onDrag(() => console.log('dragging')); // called when element is dragged
+    })
     
     return {
-        nodeRef,
-        onMouseDown,
-        onMouseUp,
-        onTouchEnd
+        nodeRef
     }
   }
 }
@@ -283,7 +268,6 @@ setup() {
 ```
 
 ## Directive
-
 Lastly, you have the option of just using the DraggableDirective directly on your element.
 The directive accepts `<Draggable>` props as a directive binding value.
 It will bind the necessary events to the element and will move it (i.e., apply transformation styles).
