@@ -139,23 +139,25 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 
 ## useDraggableCore
+
 Instead of using the wrapper component you can compose your own
 draggable element using the useDraggableCore hook.
-It will provide you with the necessary callbacks to make your element draggable (i.e., positions etc.).
+It will add the necessary events directly to the node to receive the data to make it draggable (i.e., positions etc.).
 
 ```ts
-// Return Type
-interface UseDraggableCore {
-  onMounted: () => void;
-  onBeforeUnmount: () => void;
-  onMouseUp: EventHandler<MouseTouchEvent>;
-  onMouseDown: EventHandler<MouseTouchEvent>;
-  onTouchEnd: EventHandler<MouseTouchEvent>;
-  onTouchStart: EventHandler<MouseTouchEvent>;
+export interface UseDraggable {
+    onDragStart: EventHookOn<DraggableHook>;
+    onDrag: EventHookOn<DraggableHook>;
+    onDragStop: EventHookOn<DraggableHook>;
+    onTransformed: EventHookOn<TransformedData>;
 }
+
+// useDraggableCore return
+export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
 ```
 
 ## Directive
+
 Lastly, you can just use the DraggableCoreDirective directly on your element.
 The directive accepts `<DraggableCore>` props as a directive binding value.
 It will bind the necessary events to the element but will not apply any transformation styles.

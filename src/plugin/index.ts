@@ -11,7 +11,7 @@ let plugin: Plugin = (app) => {
   app.component('DraggableCore', DraggableCore);
 };
 if (isVue2) {
-  plugin = (app: typeof Vue2) => {
+  plugin = (app: typeof Vue2): void => {
     app.directive('draggable', DraggableDirective);
     app.directive('draggable-core', DraggableCoreDirective);
   };
