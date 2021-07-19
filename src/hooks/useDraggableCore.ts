@@ -57,7 +57,13 @@ const useDraggableCore = ({
   const onDragStartHook = createEventHook<DraggableHook>(),
     onDragHook = createEventHook<DraggableHook>(),
     onDragStopHook = createEventHook<DraggableHook>(),
-    instance = getCurrentInstance();
+    instance = getCurrentInstance(),
+    emitter =
+      instance?.emit ??
+      ((arg, data) => {
+        const event = new CustomEvent(arg, data);
+        nodeRef?.dispatchEvent(event);
+      });
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
     if (isFunction(onMouseDownProp)) {
@@ -105,7 +111,7 @@ const useDraggableCore = ({
     log('calling', onStart);
 
     const shouldUpdate = onStart(e, coreEvent);
-    instance?.emit('core-start', coreEvent);
+    emitter('core-start', coreEvent);
     onDragStartHook.trigger({ event: e, data: coreEvent });
     if (shouldUpdate === false) return;
 
@@ -152,7 +158,7 @@ const useDraggableCore = ({
       log('DraggableCore: handleDrag: %j', coreEvent);
 
       const shouldUpdate = onDrag(e, coreEvent);
-      instance?.emit('core-move', { e, coreEvent });
+      emitter('core-move', coreEvent);
       onDragHook.trigger({ event: e, data: coreEvent });
       if (shouldUpdate === false) {
         try {
@@ -194,7 +200,7 @@ const useDraggableCore = ({
       });
 
       const shouldContinue = onStop(e, coreEvent);
-      instance?.emit('core-stop', { e, coreEvent });
+      emitter('core-stop', { e, coreEvent });
       onDragStopHook.trigger({ event: e, data: coreEvent });
       if (shouldContinue === false) return false;
 
