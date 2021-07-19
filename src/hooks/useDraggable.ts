@@ -30,6 +30,12 @@ const useDraggable = ({
   ...rest
 }: Partial<DraggableProps>): UseDraggable => {
   const instance = getCurrentInstance();
+  const emitter =
+    getCurrentInstance()?.emit ??
+    ((arg, data) => {
+      const event = new CustomEvent(arg, data);
+      nodeRef?.dispatchEvent(event);
+    });
 
   if (!nodeRef) {
     console.warn(
@@ -68,7 +74,7 @@ const useDraggable = ({
         scale: scale
       })
     );
-    instance?.emit('drag-start', coreData);
+    emitter('drag-start', coreData);
     onDragStartHook.trigger({ event: e, data: coreData });
     if (shouldStart === false) return false;
 
@@ -142,7 +148,7 @@ const useDraggable = ({
         coreData
       })
     );
-    instance?.emit('drag-stop', coreData);
+    emitter('drag-stop', coreData);
     onDragStopHook.trigger({ event: e, data: coreData });
     if (shouldContinue === false) return false;
 
@@ -194,12 +200,13 @@ const useDraggable = ({
     Object.keys(classes).forEach((cl) => {
       classes[cl] ? nodeRef?.classList.toggle(cl, true) : nodeRef?.classList.toggle(cl, false);
     });
+
     const transformedData = {
       style: styles,
       transform: svgTransform,
       classes
     } as TransformedData;
-    instance?.emit('transformed', transformedData);
+    emitter('transformed', transformedData);
     onTransformedHook.trigger(transformedData);
   };
 
