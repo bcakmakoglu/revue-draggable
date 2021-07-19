@@ -1,3 +1,5 @@
+import { EventHookOn } from '@vueuse/core';
+
 export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
 export type DraggableData = {
@@ -64,18 +66,16 @@ export interface DraggableCoreProps {
   nodeRef: HTMLElement;
 }
 
-export interface UseDraggableCore {
-  onMounted: () => void;
-  onBeforeUnmount: () => void;
-  onMouseUp: EventHandler<MouseTouchEvent>;
-  onMouseDown: EventHandler<MouseTouchEvent>;
-  onTouchEnd: EventHandler<MouseTouchEvent>;
-  onTouchStart: EventHandler<MouseTouchEvent>;
+export interface UseDraggable {
+  onDragStart: EventHookOn<DraggableHook>;
+  onDrag: EventHookOn<DraggableHook>;
+  onDragStop: EventHookOn<DraggableHook>;
+  onTransformed: EventHookOn<TransformedData>;
 }
 
-export interface UseDraggable {
-  core: UseDraggableCore;
-  onUpdated: () => void;
-  onMounted: () => void;
-  onBeforeUnmount: () => void;
+export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
+
+export interface DraggableHook {
+  event: MouseEvent;
+  data: DraggableData;
 }

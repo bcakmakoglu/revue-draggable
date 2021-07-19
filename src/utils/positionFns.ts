@@ -1,6 +1,6 @@
 import { isNum, int } from './shims';
 import { getTouch, innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
-import type { Bounds, ControlPosition, DraggableData, DraggableProps, MouseTouchEvent } from './types';
+import { Bounds, ControlPosition, DraggableData, DraggableProps, MouseTouchEvent } from './types';
 
 export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: any }): [number, number] {
   // If no bounds, short-circuit and move on

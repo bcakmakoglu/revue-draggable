@@ -1,4 +1,6 @@
-import { DraggableCoreProps, EventHandler, MouseTouchEvent, UseDraggableCore } from '../utils/types';
+import { getCurrentInstance, onBeforeUnmount } from 'vue-demi';
+import { createEventHook } from '@vueuse/core';
+import { DraggableCoreProps, DraggableHook, EventHandler, MouseTouchEvent, UseDraggableCore } from '../utils/types';
 import {
   addEvent,
   addUserSelectStyles,
@@ -10,7 +12,6 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { isFunction } from '../utils/shims';
-import { getCurrentInstance, onBeforeUnmount } from 'vue-demi';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -49,11 +50,14 @@ const useDraggableCore = ({
       'You are trying to use <DraggableCore> without passing a valid node reference. This will cause errors down the line.'
     );
   }
-  let dragging = false;
-  let lastX = NaN;
-  let lastY = NaN;
-  let touchIdentifier: number | undefined = NaN;
-  const instance = getCurrentInstance();
+  let dragging = false,
+    lastX = NaN,
+    lastY = NaN,
+    touchIdentifier: number | undefined = NaN;
+  const onDragStartHook = createEventHook<DraggableHook>(),
+    onDragHook = createEventHook<DraggableHook>(),
+    onDragStopHook = createEventHook<DraggableHook>(),
+    instance = getCurrentInstance();
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
     if (isFunction(onMouseDownProp)) {
@@ -102,6 +106,7 @@ const useDraggableCore = ({
 
     const shouldUpdate = onStart(e, coreEvent);
     instance?.emit('core-start', coreEvent);
+    onDragStartHook.trigger({ event: e, data: coreEvent });
     if (shouldUpdate === false) return;
 
     if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
@@ -148,6 +153,7 @@ const useDraggableCore = ({
 
       const shouldUpdate = onDrag(e, coreEvent);
       instance?.emit('core-move', { e, coreEvent });
+      onDragHook.trigger({ event: e, data: coreEvent });
       if (shouldUpdate === false) {
         try {
           handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
@@ -189,6 +195,7 @@ const useDraggableCore = ({
 
       const shouldContinue = onStop(e, coreEvent);
       instance?.emit('core-stop', { e, coreEvent });
+      onDragStopHook.trigger({ event: e, data: coreEvent });
       if (shouldContinue === false) return false;
 
       if (nodeRef) {
@@ -233,6 +240,9 @@ const useDraggableCore = ({
     onMounted: () => {
       if (nodeRef) {
         addEvent(nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
+        addEvent(nodeRef, eventsFor.touch.stop, onTouchEnd);
+        addEvent(nodeRef, eventsFor.mouse.start, onMouseDown);
+        addEvent(nodeRef, eventsFor.mouse.stop, onMouseUp);
       }
     },
 
@@ -257,11 +267,9 @@ const useDraggableCore = ({
 
   lifeCycleHooks.onMounted();
   return {
-    onMouseDown,
-    onMouseUp,
-    onTouchEnd,
-    onTouchStart,
-    ...lifeCycleHooks
+    onDragStart: onDragStartHook.on,
+    onDrag: onDragHook.on,
+    onDragStop: onDragStopHook.on
   };
 };
 

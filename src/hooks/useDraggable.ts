@@ -1,9 +1,17 @@
+import { getCurrentInstance, onBeforeUnmount, onUpdated } from 'vue-demi';
+import { createEventHook } from '@vueuse/core';
 import log from '../utils/log';
-import { DraggableCoreProps, DraggableEventHandler, DraggableProps, TransformedData, UseDraggable } from '../utils/types';
+import {
+  DraggableCoreProps,
+  DraggableEventHandler,
+  DraggableHook,
+  DraggableProps,
+  TransformedData,
+  UseDraggable
+} from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
-import { getCurrentInstance, onBeforeUnmount, onUpdated } from 'vue-demi';
 
 const useDraggable = ({
   nodeRef,
@@ -22,22 +30,24 @@ const useDraggable = ({
   ...rest
 }: Partial<DraggableProps>): UseDraggable => {
   const instance = getCurrentInstance();
+
   if (!nodeRef) {
     console.warn(
       'You are trying to use <Draggable> without passing a valid node reference. This will cause errors down the line.'
     );
   }
-  let dragging = false;
-  let dragged = false;
-  let stateX = 0;
-  let stateY = 0;
-  let prevPropsPosition = { x: 0, y: 0 };
-  let slackX = 0;
-  let slackY = 0;
-  let isElementSVG = false;
-  stateX = position ? position.x : defaultPosition.x;
-  stateY = position ? position.y : defaultPosition.y;
-  prevPropsPosition = position ? { ...position } : { x: 0, y: 0 };
+  let dragging = false,
+    dragged = false,
+    stateX = position ? position.x : defaultPosition.x,
+    stateY = position ? position.y : defaultPosition.y,
+    prevPropsPosition = position ? { ...position } : { x: 0, y: 0 },
+    slackX = 0,
+    slackY = 0,
+    isElementSVG = false;
+  const onDragStartHook = createEventHook<DraggableHook>(),
+    onDragHook = createEventHook<DraggableHook>(),
+    onDragStopHook = createEventHook<DraggableHook>(),
+    onTransformedHook = createEventHook<TransformedData>();
   if (position && !(onDragProp || onStop)) {
     console.warn(
       'A `position` was applied to this <Draggable>, without drag handlers. This will make this ' +
@@ -59,6 +69,7 @@ const useDraggable = ({
       })
     );
     instance?.emit('drag-start', coreData);
+    onDragStartHook.trigger({ event: e, data: coreData });
     if (shouldStart === false) return false;
 
     dragging = true;
@@ -110,6 +121,7 @@ const useDraggable = ({
 
     const shouldUpdate = onDragProp(e, uiData);
     instance?.emit('drag-move', coreData);
+    onDragHook.trigger({ event: e, data: coreData });
     if (shouldUpdate === false) return false;
     stateX = newState.x;
     stateY = newState.y;
@@ -131,6 +143,7 @@ const useDraggable = ({
       })
     );
     instance?.emit('drag-stop', coreData);
+    onDragStopHook.trigger({ event: e, data: coreData });
     if (shouldContinue === false) return false;
 
     log('Draggable: onDragStop: %j', coreData);
@@ -181,11 +194,13 @@ const useDraggable = ({
     Object.keys(classes).forEach((cl) => {
       classes[cl] ? nodeRef?.classList.toggle(cl, true) : nodeRef?.classList.toggle(cl, false);
     });
-    instance?.emit('transformed', {
+    const transformedData = {
       style: styles,
       transform: svgTransform,
       classes
-    } as TransformedData);
+    } as TransformedData;
+    instance?.emit('transformed', transformedData);
+    onTransformedHook.trigger(transformedData);
   };
 
   const lifeCycleHooks = {
@@ -206,6 +221,7 @@ const useDraggable = ({
       if (typeof window.SVGElement !== 'undefined' && nodeRef instanceof window.SVGElement) {
         isElementSVG = true;
       }
+      transform();
     },
     onBeforeUnmount: () => {
       dragging = false; // prevents invariant if unmounted while dragging
@@ -223,18 +239,21 @@ const useDraggable = ({
   }
 
   lifeCycleHooks.onMounted();
+
+  useDraggableCore({
+    nodeRef,
+    scale,
+    onStart: onDragStart,
+    onDrag,
+    onStop: onDragStop,
+    ...rest
+  } as DraggableCoreProps);
+
   return {
-    core: {
-      ...useDraggableCore({
-        nodeRef,
-        scale,
-        onStart: onDragStart,
-        onDrag,
-        onStop: onDragStop,
-        ...rest
-      } as DraggableCoreProps)
-    },
-    ...lifeCycleHooks
+    onDragStart: onDragStartHook.on,
+    onDrag: onDragHook.on,
+    onDragStop: onDragStopHook.on,
+    onTransformed: onTransformedHook.on
   };
 };
 
