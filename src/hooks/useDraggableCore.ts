@@ -1,7 +1,7 @@
 import { getCurrentInstance, onBeforeUnmount } from 'vue-demi';
 import { createEventHook } from '@vueuse/core';
 import {
-  DraggableCoreProps,
+  DraggableCoreOptions,
   DraggableCoreState,
   DraggableHook, DraggableState,
   EventHandler,
@@ -61,7 +61,7 @@ const useDraggableCore = ({
   onStop = () => {},
   onDrag = () => {},
   onMouseDown: onMouseDownProp = () => {}
-}: Partial<DraggableCoreProps>): UseDraggableCore => {
+}: Partial<DraggableCoreOptions>): UseDraggableCore => {
   if (!nodeRef) {
     console.warn(
       'You are trying to use <DraggableCore> without passing a valid node reference. This will cause errors down the line.'

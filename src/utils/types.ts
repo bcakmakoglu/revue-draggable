@@ -31,7 +31,7 @@ export interface DraggableBounds {
   bottom?: number;
 }
 
-export interface DraggableProps extends DraggableCoreProps {
+export interface DraggableOptions extends DraggableCoreOptions {
   axis: 'both' | 'x' | 'y' | 'none';
   bounds: DraggableBounds | string | false;
   defaultClassName: string;
@@ -51,7 +51,7 @@ export type TransformedData = {
   };
 };
 
-export interface DraggableCoreProps {
+export interface DraggableCoreOptions {
   allowAnyClick: boolean;
   cancel: string;
   disabled: boolean;
@@ -68,9 +68,9 @@ export interface DraggableCoreProps {
   nodeRef: HTMLElement;
 }
 
-export type DraggableCoreState = State & DraggableCoreProps;
+export type DraggableCoreState = State & DraggableCoreOptions;
 
-export type DraggableState = State & DraggableProps;
+export type DraggableState = State & DraggableOptions;
 
 interface State {
   dragging: boolean;

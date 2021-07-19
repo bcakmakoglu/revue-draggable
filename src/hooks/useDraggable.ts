@@ -2,10 +2,10 @@ import { getCurrentInstance, onBeforeUnmount, onUpdated } from 'vue-demi';
 import { createEventHook } from '@vueuse/core';
 import log from '../utils/log';
 import {
-  DraggableCoreProps,
+  DraggableCoreOptions,
   DraggableEventHandler,
   DraggableHook,
-  DraggableProps,
+  DraggableOptions,
   DraggableState,
   TransformedData,
   UseDraggable
@@ -40,7 +40,7 @@ const useDraggable = ({
   bounds,
   update,
   ...rest
-}: Partial<DraggableProps>): UseDraggable => {
+}: Partial<DraggableOptions>): UseDraggable => {
   if (!nodeRef) {
     console.warn(
       'You are trying to use <Draggable> without passing a valid node reference. This will cause errors down the line.'
@@ -213,9 +213,9 @@ const useDraggable = ({
     };
 
     const styles =
-      !draggable.state.isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
+      !draggable.state.isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableOptions['positionOffset']);
     const svgTransform =
-      draggable.state.isElementSVG && createSVGTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
+      draggable.state.isElementSVG && createSVGTransform(transformOpts(), positionOffset as DraggableOptions['positionOffset']);
     const classes = {
       [defaultClassName]: true,
       [defaultClassNameDragging]: draggable.state.dragging,
@@ -292,7 +292,7 @@ const useDraggable = ({
     onDrag,
     onStop: onDragStop,
     ...rest
-  } as DraggableCoreProps);
+  } as DraggableCoreOptions);
 
   onUpdateHook.on((state) => {
     log('Draggable: State Updated %j', state);

@@ -5,15 +5,18 @@ category: Guide
 position: 2
 ---
 
-A `<Draggable>` element wraps an existing element and extends it with new event handlers and styles. 
+Revue Draggable can be used with either a directive (`v-draggable`) or using the
+composable hooks exposed by `useDraggable`.
+
+The `v-draggable` directive or `useDraggable` composable adds new event handlers and styles to an existing element. 
 It does not create a wrapper element in the DOM.
 
 Draggable items move using CSS Transforms.
 This allows items to be dragged regardless of their current positioning (relative, absolute, or static). 
 Elements can also be moved between drags without incident.
 
-If the item you are dragging already has a CSS Transform applied, it will be overwritten by `<Draggable>`. 
-Use an intermediate wrapper (`<Draggable><span>...</span></Draggable>`) in this case.
+If the item you are dragging already has a CSS Transform applied, it will be overwritten by Revue Draggable. 
+Use an intermediate wrapper (`<div v-draggable><span>...</span></div>`) in this case.
 
 ## Usage
 
@@ -21,20 +24,14 @@ View the [Demo](https://revue-draggable.vercel.app/) or its [source](https://git
 
 ```vue {}[App.vue]
 <template>
-  <Draggable :on-start="onStart" :on-stop="onStop">
-    <div class="box">I can be dragged anywhere</div>
-  </Draggable>
+  <div class="box" v-draggable @drag-start="onStart" @drag-stop="onStop">I can be dragged anywhere</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Draggable from '@braks/revue-draggable';
 
-export default defineComponent({
+default defineComponent({
   name: 'App',
-  components: {
-    Draggable
-  },
   methods: {
     onStart() {
       this.activeDrags++;
@@ -49,11 +46,11 @@ export default defineComponent({
 
 ## API
 
-The <Draggable/> component transparently adds draggability to its children.
+The `v-draggable` and `useDraggable` transparently adds draggability to its children.
 
 Note: Only a single child is allowed or an Error will be thrown.
 
-For the <Draggable/> component to correctly attach itself to its child, the child element must provide support for the following props:
+For `v-draggable` and `useDraggable` to correctly attach itself to its child, the child element must provide support for the following props:
 
   * style is used to give the transform css to the child.
   * class is used to apply the proper classes to the object being dragged. 
@@ -65,29 +62,16 @@ For the <Draggable/> component to correctly attach itself to its child, the chil
 type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
 type DraggableData = {
-  node: HTMLElement;
-  x: number;
-  y: number;
-  deltaX: number;
-  deltaY: number;
-  lastX: number;
-  lastY: number;
+    node: HTMLElement;
+    x: number;
+    y: number;
+    deltaX: number;
+    deltaY: number;
+    lastX: number;
+    lastY: number;
 };
 
-type DraggableEvent = {
-    e: MouseTouchEvent;
-    data: DraggableData;
-};
-
-type TransformedEvent = {
-    style: Record<string, string> | false;
-    transform: string | false;
-    classes: {
-        [x: string]: boolean;
-    };
-};
-
-interface DraggableProps extends DraggableCoreProps {
+interface DraggableOptions extends DraggableCoreOptions {
     axis: 'both' | 'x' | 'y' | 'none';
     bounds: DraggableBounds | string | false;
     defaultClassName: string;
@@ -98,10 +82,20 @@ interface DraggableProps extends DraggableCoreProps {
     position: ControlPosition;
 }
 
-interface DraggableCoreProps {
+type TransformedData = {
+    // el should be emitted too
+    style: Record<string, string> | false;
+    transform: string | false;
+    classes: {
+        [x: string]: boolean;
+    };
+};
+
+interface DraggableCoreOptions {
     allowAnyClick: boolean;
     cancel: string;
     disabled: boolean;
+    update?: boolean;
     enableUserSelectHack: boolean;
     offsetParent: HTMLElement;
     grid: [number, number];
@@ -111,95 +105,38 @@ interface DraggableCoreProps {
     onStop: DraggableEventHandler;
     onMouseDown: (e: MouseEvent) => void;
     scale: number;
+    nodeRef: HTMLElement;
 }
-```
 
-### Props
+type DraggableCoreState = State & DraggableCoreOptions;
 
-```ts
-export default {
-    props: {
-        axis: {
-            type: String as PropType<DraggableProps['axis']>,
-            default: 'both'
-        },
-        bounds: {
-            type: [Object, String, Boolean] as PropType<DraggableProps['bounds']>,
-            default: false
-        },
-        defaultClassName: {
-            type: String as PropType<DraggableProps['defaultClassName']>,
-            default: 'revue-draggable'
-        },
-        defaultClassNameDragging: {
-            type: String as PropType<DraggableProps['defaultClassNameDragging']>,
-            default: 'revue-draggable-dragging'
-        },
-        defaultClassNameDragged: {
-            type: String as PropType<DraggableProps['defaultClassNameDragged']>,
-            default: 'revue-draggable-dragged'
-        },
-        defaultPosition: {
-            type: Object as PropType<DraggableProps['defaultPosition']>,
-            default: () => ({ x: 0, y: 0 })
-        },
-        scale: {
-            type: Number as PropType<DraggableProps['scale']>,
-            default: 1
-        },
-        position: {
-            type: Object as PropType<DraggableProps['position']>,
-            default: undefined
-        },
-        positionOffset: {
-            type: Object as PropType<DraggableProps['positionOffset']>,
-            default: undefined
-        },
-        allowAnyClick: {
-            type: Boolean as PropType<DraggableProps['allowAnyClick']>,
-            default: true
-        },
-        disabled: {
-            type: Boolean as PropType<DraggableProps['disabled']>,
-            default: false
-        },
-        enableUserSelectHack: {
-            type: Boolean as PropType<DraggableProps['enableUserSelectHack']>,
-            default: true
-        },
-        onStart: {
-            type: Function as PropType<DraggableProps['onStart']>,
-            default: () => {}
-        },
-        onDrag: {
-            type: Function as PropType<DraggableProps['onDrag']>,
-            default: () => {}
-        },
-        onStop: {
-            type: Function as PropType<DraggableProps['onStop']>,
-            default: () => {}
-        },
-        onMouseDown: {
-            type: Function as PropType<DraggableProps['onMouseDown']>,
-            default: () => {}
-        },
-        cancel: {
-            type: String as PropType<DraggableProps['cancel']>,
-            default: undefined
-        },
-        offsetParent: {
-            type: Object as PropType<DraggableProps['offsetParent']>,
-            default: () => {}
-        },
-        grid: {
-            type: Array as unknown as PropType<DraggableProps['grid']>,
-            default: undefined
-        },
-        handle: {
-            type: String as PropType<DraggableProps['handle']>,
-            default: undefined
-        }
-    }
+type DraggableState = State & DraggableOptions;
+
+interface State {
+    dragging: boolean;
+    dragged: boolean;
+    x: number;
+    y: number;
+    prevPropsPosition: { x: number; y: number };
+    slackX: number;
+    slackY: number;
+    isElementSVG: boolean;
+    touchIdentifier?: number;
+}
+
+interface UseDraggable {
+    onDragStart: EventHookOn<DraggableHook>;
+    onDrag: EventHookOn<DraggableHook>;
+    onDragStop: EventHookOn<DraggableHook>;
+    onTransformed: EventHookOn<TransformedData>;
+    updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
+}
+
+type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
+
+interface DraggableHook {
+    event: MouseEvent;
+    data: DraggableData;
 }
 ```
 
@@ -211,9 +148,7 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 ```vue
 <template>
-  <Draggable @drag-start="dragStart">
-    <div>Drag me!</div>
-  </Draggable>
+  <div v-draggable @drag-start="dragStart">Drag me!</div>
 </template>
 ... the rest of your code
 
@@ -228,17 +163,18 @@ You might have to handle this case yourself if that is an issue or just pass the
 
 ## useDraggable
 
-Instead of using the wrapper component you can compose your own 
+Instead of using the directive you can compose your own 
 draggable element using the useDraggable hook.
 If provided a valid node reference useDraggable will add all event handlers and
 transformations directly onto the node.
 ```ts
 // useDraggable return
-export interface UseDraggable {
+interface UseDraggable {
     onDragStart: EventHookOn<DraggableHook>;
     onDrag: EventHookOn<DraggableHook>;
     onDragStop: EventHookOn<DraggableHook>;
     onTransformed: EventHookOn<TransformedData>;
+    updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
 }
 ```
 
@@ -251,7 +187,7 @@ export interface UseDraggable {
     </div>
 </template>
 <script>
-export default {
+default {
 setup() {
     const nodeRef = ref<HTMLElement | null>(null);
     onMounted(() => {
@@ -266,23 +202,3 @@ setup() {
 }
 </script>
 ```
-
-## Directive
-Lastly, you have the option of just using the DraggableDirective directly on your element.
-The directive accepts `<Draggable>` props as a directive binding value.
-It will bind the necessary events to the element and will move it (i.e., apply transformation styles).
-````vue {}[App.vue]
-<template>
-  <div 
-    v-draggable="{ onStart, onStop } /* <- Pass DraggableProps as binding value here */" 
-    class="box"
-    @drag-start="" /* you can still hook to events */
-    @drag=""
-    @drag-stop="" 
-   >
-    I use a directive to make myself draggable
-   </div>
-</template>
-<script>
-... the rest of your code
-````
