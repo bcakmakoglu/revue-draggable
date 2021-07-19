@@ -1,6 +1,6 @@
+import { defineComponent, onMounted, PropType, ref } from 'vue-demi';
 import DraggableCore from './DraggableCore';
-import { defineComponent, onBeforeUnmount, onMounted, PropType, ref, reactive } from 'vue-demi';
-import { DraggableProps, MouseTouchEvent } from '../utils/types';
+import { DraggableProps } from '../utils/types';
 import { isVNode } from '../utils/shims';
 import useDraggable from '../hooks/useDraggable';
 
@@ -96,54 +96,16 @@ const Draggable = defineComponent({
   emits: ['drag-start', 'drag-move', 'drag-stop', 'transformed', 'core-start', 'core-move', 'core-stop'],
   setup(props, { slots }) {
     const nodeRef = ref<DraggableProps['nodeRef'] | null>(props.nodeRef ?? null);
-    const draggable = reactive({
-      onMouseDown: (e: MouseTouchEvent) => {},
-      onMouseUp: (e: MouseTouchEvent) => {},
-      onTouchEnd: (e: MouseTouchEvent) => {},
-      onBeforeUnmount: () => {}
-    });
 
     onMounted(() => {
       const node = nodeRef.value && isVNode(nodeRef.value) ? (nodeRef.value as any).$el : nodeRef.value;
-      const {
-        core: { onMouseDown, onMouseUp, onTouchEnd, onBeforeUnmount: unmountCore },
-        onBeforeUnmount
-      } = useDraggable({
+      useDraggable({
         ...(props as DraggableProps),
         nodeRef: node
       });
-      draggable.onMouseDown = (e) => {
-        onMouseDown(e);
-      };
-      draggable.onMouseUp = (e) => {
-        onMouseUp(e);
-      };
-      draggable.onTouchEnd = (e) => {
-        onTouchEnd(e);
-      };
-      draggable.onBeforeUnmount = () => {
-        onBeforeUnmount();
-        unmountCore();
-      };
     });
 
-    onBeforeUnmount(() => {
-      draggable.onBeforeUnmount();
-    });
-
-    return () =>
-      slots.default
-        ? slots
-            .default()
-            .map((node) => (
-              <node
-                ref={nodeRef}
-                onMousedown={draggable.onMouseDown}
-                onMouseUp={draggable.onMouseUp}
-                onTouchend={draggable.onTouchEnd}
-              />
-            ))
-        : [];
+    return () => (slots.default ? slots.default().map((node) => <node ref={nodeRef} />) : []);
   }
 });
 
