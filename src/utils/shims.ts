@@ -1,6 +1,4 @@
 // @credits https://gist.github.com/rogozhnikoff/a43cfed27c41e4e68cdc
-import { VNode } from 'vue-demi';
-
 export function findInArray(array: Array<any> | TouchList, callback: (...args: any[]) => any): any {
   for (let i = 0, length = array.length; i < length; i++) {
     if (callback.apply(callback, [array[i], i, array])) return array[i];
@@ -17,8 +15,4 @@ export function isNum(num: number): boolean {
 
 export function int(a: string): number {
   return parseInt(a, 10);
-}
-
-export function isVNode(node: HTMLElement | VNode<any>): node is VNode {
-  return '$el' in node || 'el' in node;
 }
