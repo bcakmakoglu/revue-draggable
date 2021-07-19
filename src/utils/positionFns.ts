@@ -128,19 +128,19 @@ export function createDraggableData({
   scale,
   x,
   y,
-  coreData
+  data
 }: {
   scale: number;
   x: number;
   y: number;
-  coreData: DraggableData;
+  data: DraggableData;
 }): DraggableData {
   return {
-    node: coreData.node,
-    x: x + coreData.deltaX / scale,
-    y: y + coreData.deltaY / scale,
-    deltaX: coreData.deltaX / scale,
-    deltaY: coreData.deltaY / scale,
+    node: data.node,
+    x: x + data.deltaX / scale,
+    y: y + data.deltaY / scale,
+    deltaX: data.deltaX / scale,
+    deltaY: data.deltaY / scale,
     lastX: x,
     lastY: y
   };

@@ -55,9 +55,8 @@ const app = createApp();
 // Use as Plugin (registers directives and components)
 app.use(DraggablePlugin);
 
-// or register only what you need
+// or
 app.directive('draggable', DraggableDirective)
-app.component('Draggable', Draggabl)
 
 app.moun('#root');
 ```
@@ -88,70 +87,7 @@ with no configuration necessary.
 ... the rest of your code
 ````
 
-### 📝 Examples
-
-### Vue3
-
-```vue {}[App.vue]
-<template>
-  <Draggable>
-    <div>Drag me!</div>
-  </Draggable>
-</template>
-<script>
-import Draggable from '@braks/revue-draggable';
-
-export default {
-  components: { Draggable }
-}
-</script>
-```
-
-For full control use `<DraggableCore>` instead. DraggableCore will simply abstract over touch and mouse events but provides
-no transformation. Without callbacks, it does not provide any meaningful functionality. Alternatively you can just use
-the useDraggable and useDraggableCore abstractions which will provide you with the necessary callbacks and reactive
-fields to make your element draggable.
-
-### Vue2
-
-The components cannot be used in Vue2 as they're written in Vue3 JSX, which sadly is not downward compatible. You can
-use the useDraggable and useDraggableCore hooks to add draggability to your elements.
-
-```vue
-
-<template>
-  <div
-      ref="dragme"
-      @mousedown="onMouseDown"
-      @mouseup="onMouseUp"
-      @touchend="onTouchEnd"
-  >
-    Drag me please!
-  </div>
-</template>
-<script>
-import {useDraggable} from '@braks/revue-draggable';
-
-export default {
-  mounted() {
-    const draggable = useDraggable(this.$refs.dragme, {});
-    this.onMouseUp = draggable.core.onMouseUp;
-    this.onMouseDown = draggable.core.onMouseDown;
-    this.onTouchEnd = draggable.core.onTouchEnd;
-  },
-  methods: {
-    onMouseUp() {
-    },
-    onMouseDown() {
-    },
-    onTouchEnd() {
-    }
-  }
-}
-</script>
-```
-
-Check [the example file](./example/App.vue) for more.
+Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or syncing states.
 
 ## 🧪 Development
 This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https://rollupjs.org/) to create a distribution.

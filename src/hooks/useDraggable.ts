@@ -6,12 +6,23 @@ import {
   DraggableEventHandler,
   DraggableHook,
   DraggableProps,
+  DraggableState,
   TransformedData,
   UseDraggable
 } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
+
+const useDraggableState = (state: Partial<DraggableState> = {}) => ({
+  _state: state as DraggableState,
+  get state() {
+    return this._state;
+  },
+  set state(state: DraggableState) {
+    Object.assign(this._state, state);
+  }
+});
 
 const useDraggable = ({
   nodeRef,
@@ -27,33 +38,55 @@ const useDraggable = ({
   defaultClassName = 'revue-draggable',
   defaultPosition = { x: 0, y: 0 },
   bounds,
+  update,
   ...rest
 }: Partial<DraggableProps>): UseDraggable => {
-  const instance = getCurrentInstance();
-  const emitter =
-    getCurrentInstance()?.emit ??
-    ((arg, data) => {
-      const event = new CustomEvent(arg, data);
-      nodeRef?.dispatchEvent(event);
-    });
-
   if (!nodeRef) {
     console.warn(
       'You are trying to use <Draggable> without passing a valid node reference. This will cause errors down the line.'
     );
   }
-  let dragging = false,
-    dragged = false,
-    stateX = position ? position.x : defaultPosition.x,
-    stateY = position ? position.y : defaultPosition.y,
-    prevPropsPosition = position ? { ...position } : { x: 0, y: 0 },
-    slackX = 0,
-    slackY = 0,
-    isElementSVG = false;
+
+  const instance = getCurrentInstance();
+  const emitter =
+    instance?.emit ??
+    ((arg, data) => {
+      const event = new CustomEvent(arg, { detail: data });
+      nodeRef?.dispatchEvent(event);
+    });
+
+  const draggable = useDraggableState({
+    ...rest,
+    nodeRef,
+    position,
+    positionOffset,
+    scale,
+    onStart,
+    onStop,
+    onDrag: onDragProp,
+    axis,
+    defaultClassNameDragging,
+    defaultClassNameDragged,
+    defaultClassName,
+    defaultPosition,
+    bounds,
+    dragging: false,
+    dragged: false,
+    x: position ? position.x : defaultPosition.x,
+    y: position ? position.y : defaultPosition.y,
+    prevPropsPosition: position ? { ...position } : { x: 0, y: 0 },
+    slackX: 0,
+    slackY: 0,
+    isElementSVG: false,
+    update
+  } as DraggableState);
+
   const onDragStartHook = createEventHook<DraggableHook>(),
     onDragHook = createEventHook<DraggableHook>(),
     onDragStopHook = createEventHook<DraggableHook>(),
-    onTransformedHook = createEventHook<TransformedData>();
+    onTransformedHook = createEventHook<TransformedData>(),
+    onUpdateHook = createEventHook<Partial<DraggableState>>();
+
   if (position && !(onDragProp || onStop)) {
     console.warn(
       'A `position` was applied to this <Draggable>, without drag handlers. This will make this ' +
@@ -62,36 +95,34 @@ const useDraggable = ({
     );
   }
 
-  const onDragStart: DraggableEventHandler = (e, coreData) => {
-    log('Draggable: onDragStart: %j', coreData);
+  const onDragStart: DraggableEventHandler = (e, data) => {
+    log('Draggable: onDragStart: %j', data);
 
-    const shouldStart = onStart(
-      e,
-      createDraggableData({
-        coreData,
-        x: stateX,
-        y: stateY,
-        scale: scale
-      })
-    );
-    emitter('drag-start', coreData);
-    onDragStartHook.trigger({ event: e, data: coreData });
-    if (shouldStart === false) return false;
+    const uiData = createDraggableData({
+      data,
+      x: draggable.state.x,
+      y: draggable.state.y,
+      scale: draggable.state.scale
+    });
+    const shouldStart = onStart(e, uiData);
+    emitter('drag-start', { event: e, data: uiData });
+    onDragStartHook.trigger({ event: e, data: uiData });
+    if (shouldStart === false || draggable.state.update === false) return false;
 
-    dragging = true;
-    dragged = true;
+    draggable.state.dragging = true;
+    draggable.state.dragged = true;
     transform();
   };
 
-  const onDrag: DraggableEventHandler = (e, coreData) => {
-    if (!dragging) return false;
-    log('Draggable: onDrag: %j', coreData);
+  const onDrag: DraggableEventHandler = (e, data) => {
+    if (!draggable.state.dragging) return false;
+    log('Draggable: onDrag: %j', data);
 
     const uiData = createDraggableData({
-      coreData,
-      x: stateX,
-      y: stateY,
-      scale: scale
+      data,
+      x: draggable.state.x,
+      y: draggable.state.y,
+      scale: draggable.state.scale
     });
 
     const newState = {
@@ -101,93 +132,94 @@ const useDraggable = ({
       slackY: NaN
     };
 
-    if (bounds) {
+    if (draggable.state.bounds) {
       const { x, y } = newState;
 
-      newState.x += slackX;
-      newState.y += slackY;
+      newState.x += draggable.state.slackX;
+      newState.y += draggable.state.slackY;
 
       const [newStateX, newStateY] = getBoundPosition({
-        bounds: bounds,
+        bounds: draggable.state.bounds,
         x: newState.x,
         y: newState.y,
-        node: coreData.node
+        node: data.node
       });
       newState.x = newStateX;
       newState.y = newStateY;
 
-      newState.slackX = slackX + (x - newState.x);
-      newState.slackY = slackY + (y - newState.y);
+      newState.slackX = draggable.state.slackX + (x - newState.x);
+      newState.slackY = draggable.state.slackY + (y - newState.y);
 
       uiData.x = newState.x;
       uiData.y = newState.y;
-      uiData.deltaX = newState.x - stateX;
-      uiData.deltaY = newState.y - stateY;
+      uiData.deltaX = newState.x - draggable.state.x;
+      uiData.deltaY = newState.y - draggable.state.y;
     }
 
     const shouldUpdate = onDragProp(e, uiData);
-    instance?.emit('drag-move', coreData);
-    onDragHook.trigger({ event: e, data: coreData });
-    if (shouldUpdate === false) return false;
-    stateX = newState.x;
-    stateY = newState.y;
-    if (newState.slackX) slackX = newState.slackX;
-    if (newState.slackY) slackY = newState.slackY;
+    emitter('drag-move', { event: e, data: uiData });
+    onDragHook.trigger({ event: e, data: uiData });
+    if (shouldUpdate === false || draggable.state.update === false) return false;
+    draggable.state.x = newState.x;
+    draggable.state.y = newState.y;
+    if (newState.slackX) draggable.state.slackX = newState.slackX;
+    if (newState.slackY) draggable.state.slackY = newState.slackY;
     transform();
   };
 
-  const onDragStop: DraggableEventHandler = (e, coreData) => {
-    if (!dragging) return false;
+  const onDragStop: DraggableEventHandler = (e, data) => {
+    if (!draggable.state.dragging) return false;
 
-    const shouldContinue = onStop(
-      e,
-      createDraggableData({
-        scale: scale,
-        x: stateX,
-        y: stateY,
-        coreData
-      })
-    );
-    emitter('drag-stop', coreData);
-    onDragStopHook.trigger({ event: e, data: coreData });
-    if (shouldContinue === false) return false;
+    const uiData = createDraggableData({
+      scale: draggable.state.scale,
+      x: draggable.state.x,
+      y: draggable.state.y,
+      data
+    });
+    const shouldContinue = onStop(e, uiData);
+    emitter('drag-stop', { event: e, data: uiData });
+    onDragStopHook.trigger({ event: e, data: uiData });
+    if (shouldContinue === false || draggable.state.update === false) return false;
 
-    log('Draggable: onDragStop: %j', coreData);
+    log('Draggable: onDragStop: %j', data);
 
-    const controlled = Boolean(position);
-    if (controlled && position) {
-      stateX = position.x;
-      stateY = position.y;
+    const controlled = Boolean(draggable.state.position);
+    if (controlled && draggable.state.position) {
+      draggable.state.x = draggable.state.position.x;
+      draggable.state.y = draggable.state.position.y;
     }
 
-    dragging = false;
-    slackX = 0;
-    slackY = 0;
+    draggable.state.dragging = false;
+    draggable.state.slackX = 0;
+    draggable.state.slackY = 0;
     transform();
   };
 
   const transform = () => {
     // If this is controlled, we don't want to move it - unless it's dragging.
-    const controlled = Boolean(position);
-    const draggable = !controlled || dragging;
+    const controlled = Boolean(draggable.state.position);
+    const canDrag = !controlled || draggable.state.dragging;
 
-    const validPosition = position || defaultPosition;
+    const validPosition = draggable.state.position || draggable.state.defaultPosition;
+
     const transformOpts = () => {
       return {
         // Set left if horizontal drag is enabled
-        x: canDragX(axis) && draggable ? stateX : validPosition.x,
+        x: canDragX(draggable.state.axis) && canDrag ? draggable.state.x : validPosition.x,
 
         // Set top if vertical drag is enabled
-        y: canDragY(axis) && draggable ? stateY : validPosition.y
+        y: canDragY(draggable.state.axis) && canDrag ? draggable.state.y : validPosition.y
       };
     };
 
-    const styles = !isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
-    const svgTransform = isElementSVG && createSVGTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
+    const styles =
+      !draggable.state.isElementSVG && createCSSTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
+    const svgTransform =
+      draggable.state.isElementSVG && createSVGTransform(transformOpts(), positionOffset as DraggableProps['positionOffset']);
     const classes = {
       [defaultClassName]: true,
-      [defaultClassNameDragging]: dragging,
-      [defaultClassNameDragged]: dragged
+      [defaultClassNameDragging]: draggable.state.dragging,
+      [defaultClassNameDragged]: draggable.state.dragged
     };
 
     if (typeof svgTransform === 'string') {
@@ -206,32 +238,38 @@ const useDraggable = ({
       transform: svgTransform,
       classes
     } as TransformedData;
+
     emitter('transformed', transformedData);
     onTransformedHook.trigger(transformedData);
   };
 
   const lifeCycleHooks = {
     onUpdated: () => {
-      if (position && (!prevPropsPosition || position.x !== prevPropsPosition.x || position.y !== prevPropsPosition.y)) {
+      if (
+        draggable.state.position &&
+        (!draggable.state.prevPropsPosition ||
+          draggable.state.position.x !== draggable.state.prevPropsPosition.x ||
+          draggable.state.position.y !== draggable.state.prevPropsPosition.y)
+      ) {
         log('Draggable: Updated %j', {
-          position: position,
-          prevPropsPosition: prevPropsPosition
+          position: draggable.state.prevPropsPosition,
+          prevPropsPosition: draggable.state.prevPropsPosition
         });
-        stateX = position.x;
-        stateY = position.y;
-        prevPropsPosition = { ...position };
+        draggable.state.x = draggable.state.position.x;
+        draggable.state.y = draggable.state.position.y;
+        draggable.state.prevPropsPosition = { ...draggable.state.position };
       }
       transform();
     },
     onMounted: () => {
       // Check to see if the element passed is an instanceof SVGElement
       if (typeof window.SVGElement !== 'undefined' && nodeRef instanceof window.SVGElement) {
-        isElementSVG = true;
+        draggable.state.isElementSVG = true;
       }
       transform();
     },
     onBeforeUnmount: () => {
-      dragging = false; // prevents invariant if unmounted while dragging
+      draggable.state.dragging = false; // prevents invariant if unmounted while dragging
     }
   };
 
@@ -241,13 +279,13 @@ const useDraggable = ({
     }, instance);
 
     onBeforeUnmount(() => {
-      dragging = false;
+      draggable.state.dragging = false;
     }, instance);
   }
 
   lifeCycleHooks.onMounted();
 
-  useDraggableCore({
+  const { updateState } = useDraggableCore({
     nodeRef,
     scale,
     onStart: onDragStart,
@@ -256,7 +294,18 @@ const useDraggable = ({
     ...rest
   } as DraggableCoreProps);
 
+  onUpdateHook.on((state) => {
+    log('Draggable: State Updated %j', state);
+    updateState(state);
+    draggable.state = state as DraggableState;
+    lifeCycleHooks.onUpdated();
+  });
+
   return {
+    updateState: (state) => {
+      onUpdateHook.trigger(state);
+      return draggable.state;
+    },
     onDragStart: onDragStartHook.on,
     onDrag: onDragHook.on,
     onDragStop: onDragStopHook.on,
