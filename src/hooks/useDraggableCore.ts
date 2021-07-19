@@ -1,6 +1,13 @@
 import { getCurrentInstance, onBeforeUnmount } from 'vue-demi';
 import { createEventHook } from '@vueuse/core';
-import { DraggableCoreProps, DraggableHook, EventHandler, MouseTouchEvent, UseDraggableCore } from '../utils/types';
+import {
+  DraggableCoreProps,
+  DraggableCoreState,
+  DraggableHook, DraggableState,
+  EventHandler,
+  MouseTouchEvent,
+  UseDraggableCore
+} from '../utils/types';
 import {
   addEvent,
   addUserSelectStyles,
@@ -30,6 +37,16 @@ const eventsFor = {
 // Default to mouse events.
 let dragEventFor = eventsFor.mouse;
 
+const useDraggableCoreState = (state: Partial<DraggableCoreState> = {}) => ({
+  _state: state as DraggableCoreState,
+  get state() {
+    return this._state;
+  },
+  set state(state: DraggableCoreState) {
+    Object.assign(this._state, state);
+  }
+});
+
 const useDraggableCore = ({
   nodeRef,
   enableUserSelectHack = true,
@@ -50,13 +67,32 @@ const useDraggableCore = ({
       'You are trying to use <DraggableCore> without passing a valid node reference. This will cause errors down the line.'
     );
   }
-  let dragging = false,
-    lastX = NaN,
-    lastY = NaN,
-    touchIdentifier: number | undefined = NaN;
+
+
+  const draggable = useDraggableCoreState({
+    nodeRef,
+    enableUserSelectHack,
+    allowAnyClick,
+    disabled,
+    offsetParent,
+    grid,
+    handle,
+    cancel,
+    scale,
+    onStart,
+    onStop,
+    onDrag,
+    onMouseDown: onMouseDownProp,
+    dragging: false,
+    x: NaN,
+    y: NaN,
+    touchIdentifier: NaN
+  });
+
   const onDragStartHook = createEventHook<DraggableHook>(),
     onDragHook = createEventHook<DraggableHook>(),
     onDragStopHook = createEventHook<DraggableHook>(),
+    onUpdateHook = createEventHook<Partial<DraggableCoreState>>(),
     instance = getCurrentInstance(),
     emitter =
       instance?.emit ??
@@ -66,99 +102,99 @@ const useDraggableCore = ({
       });
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
-    if (isFunction(onMouseDownProp)) {
-      onMouseDownProp(e);
+    if (isFunction(draggable.state.onMouseDown)) {
+      draggable.state.onMouseDown(e);
     }
 
-    if (!allowAnyClick && e.button !== 0) return false;
+    if (!draggable.state.allowAnyClick && e.button !== 0) return false;
 
-    if (!nodeRef || !nodeRef.ownerDocument || !nodeRef.ownerDocument.body) {
+    if (!draggable.state.nodeRef || !draggable.state.nodeRef.ownerDocument || !draggable.state.nodeRef.ownerDocument.body) {
       throw new Error('<DraggableCore> not mounted on DragStart!');
     }
-    const { ownerDocument } = nodeRef;
+    const { ownerDocument } = draggable.state.nodeRef;
 
     if (
       disabled ||
       !(ownerDocument.defaultView && e.target instanceof ownerDocument.defaultView.Node) ||
-      (handle && !matchesSelectorAndParentsTo(e.target, handle, nodeRef)) ||
-      (cancel && matchesSelectorAndParentsTo(e.target, cancel, nodeRef))
+      (handle && !matchesSelectorAndParentsTo(e.target, draggable.state.handle, draggable.state.nodeRef)) ||
+      (cancel && matchesSelectorAndParentsTo(e.target, draggable.state.cancel, draggable.state.nodeRef))
     ) {
       return;
     }
 
     if (e.type === 'touchstart') e.preventDefault();
-    touchIdentifier = getTouchIdentifier(e);
+    draggable.state.touchIdentifier = getTouchIdentifier(e);
 
     const position = getControlPosition({
       e,
-      touchIdentifier,
-      node: nodeRef,
-      offsetContainer: offsetParent,
-      scale: scale
+      touchIdentifier: draggable.state.touchIdentifier,
+      node: draggable.state.nodeRef,
+      offsetContainer: draggable.state.offsetParent,
+      scale: draggable.state.scale
     });
     if (position == null) return;
     const { x, y } = position;
 
     const coreEvent = createCoreData({
-      node: nodeRef,
+      node: draggable.state.nodeRef,
       x,
       y,
-      lastX: lastX,
-      lastY: lastY
+      lastX: draggable.state.x,
+      lastY: draggable.state.y
     });
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
     log('calling', onStart);
 
     const shouldUpdate = onStart(e, coreEvent);
-    emitter('core-start', coreEvent);
+    emitter('core-start', { event: e, data: coreEvent });
     onDragStartHook.trigger({ event: e, data: coreEvent });
     if (shouldUpdate === false) return;
 
     if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
 
-    dragging = true;
-    lastX = x;
-    lastY = y;
+    draggable.state.dragging = true;
+    draggable.state.x = x;
+    draggable.state.y = y;
 
     addEvent(ownerDocument, dragEventFor.move, handleDrag);
     addEvent(ownerDocument, dragEventFor.stop, handleDragStop);
   };
 
   const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
-    if (nodeRef) {
+    if (draggable.state.nodeRef) {
       const position = getControlPosition({
         e,
-        touchIdentifier,
-        node: nodeRef,
-        offsetContainer: offsetParent,
-        scale: scale
+        touchIdentifier: draggable.state.touchIdentifier,
+        node: draggable.state.nodeRef,
+        offsetContainer: draggable.state.offsetParent,
+        scale: draggable.state.scale
       });
       if (position == null) return;
       let { x, y } = position;
 
       // Snap to grid if prop has been provided
       if (Array.isArray(grid)) {
-        let deltaX = x - lastX,
-          deltaY = y - lastY;
+        let deltaX = x - draggable.state.x,
+          deltaY = y - draggable.state.y;
         [deltaX, deltaY] = snapToGrid(grid, deltaX, deltaY);
         if (!deltaX && !deltaY) return;
-        x = lastX + deltaX;
-        y = lastY + deltaY;
+        x = draggable.state.x + deltaX;
+        y = draggable.state.y + deltaY;
       }
 
       const coreEvent = createCoreData({
-        node: nodeRef,
+        node: draggable.state.nodeRef,
         x,
         y,
-        lastX: lastX,
-        lastY: lastY
+        lastX: draggable.state.x,
+        lastY: draggable.state.y
       });
 
       log('DraggableCore: handleDrag: %j', coreEvent);
 
       const shouldUpdate = onDrag(e, coreEvent);
-      emitter('core-move', coreEvent);
+      emitter('core-move', { event: e, data: coreEvent});
       onDragHook.trigger({ event: e, data: coreEvent });
       if (shouldUpdate === false) {
         try {
@@ -173,51 +209,51 @@ const useDraggableCore = ({
         return;
       }
 
-      lastX = x;
-      lastY = y;
+      draggable.state.x = x;
+      draggable.state.y = y;
     }
   };
 
   const handleDragStop: EventHandler<MouseTouchEvent> = (e) => {
-    if (!dragging) return;
+    if (!draggable.state.dragging) return;
 
-    if (nodeRef) {
+    if (draggable.state.nodeRef) {
       const position = getControlPosition({
         e,
-        touchIdentifier,
-        node: nodeRef,
+        touchIdentifier: draggable.state.touchIdentifier,
+        node: draggable.state.nodeRef,
         offsetContainer: offsetParent,
-        scale: scale
+        scale: draggable.state.scale
       });
       if (position == null) return;
       const { x, y } = position;
       const coreEvent = createCoreData({
-        node: nodeRef,
+        node: draggable.state.nodeRef,
         x,
         y,
-        lastX: lastX,
-        lastY: lastY
+        lastX: draggable.state.x,
+        lastY: draggable.state.y
       });
 
       const shouldContinue = onStop(e, coreEvent);
-      emitter('core-stop', { e, coreEvent });
+      emitter('core-stop', { event: e, data: coreEvent });
       onDragStopHook.trigger({ event: e, data: coreEvent });
       if (shouldContinue === false) return false;
 
-      if (nodeRef) {
-        if (enableUserSelectHack) removeUserSelectStyles(nodeRef.ownerDocument as any);
+      if (draggable.state.nodeRef) {
+        if (draggable.state.enableUserSelectHack) removeUserSelectStyles(draggable.state.nodeRef.ownerDocument);
       }
 
       log('DraggableCore: handleDragStop: %j', coreEvent);
 
-      dragging = false;
-      lastX = NaN;
-      lastY = NaN;
+      draggable.state.dragging = false;
+      draggable.state.x = NaN;
+      draggable.state.y = NaN;
 
-      if (nodeRef) {
+      if (draggable.state.nodeRef) {
         log('DraggableCore: Removing handlers');
-        removeEvent(nodeRef.ownerDocument, dragEventFor.move, handleDrag);
-        removeEvent(nodeRef.ownerDocument, dragEventFor.stop, handleDragStop);
+        removeEvent(draggable.state.nodeRef.ownerDocument, dragEventFor.move, handleDrag);
+        removeEvent(draggable.state.nodeRef.ownerDocument, dragEventFor.stop, handleDragStop);
       }
     }
   };
@@ -244,22 +280,22 @@ const useDraggableCore = ({
 
   const lifeCycleHooks = {
     onMounted: () => {
-      if (nodeRef) {
-        addEvent(nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
-        addEvent(nodeRef, eventsFor.touch.stop, onTouchEnd);
-        addEvent(nodeRef, eventsFor.mouse.start, onMouseDown);
-        addEvent(nodeRef, eventsFor.mouse.stop, onMouseUp);
+      if (draggable.state.nodeRef) {
+        addEvent(draggable.state.nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
+        addEvent(draggable.state.nodeRef, eventsFor.touch.stop, onTouchEnd);
+        addEvent(draggable.state.nodeRef, eventsFor.mouse.start, onMouseDown);
+        addEvent(draggable.state.nodeRef, eventsFor.mouse.stop, onMouseUp);
       }
     },
 
     onBeforeUnmount: () => {
-      if (nodeRef) {
-        const { ownerDocument } = nodeRef;
+      if (draggable.state.nodeRef) {
+        const { ownerDocument } = draggable.state.nodeRef;
         removeEvent(ownerDocument, eventsFor.mouse.move, handleDrag);
         removeEvent(ownerDocument, eventsFor.touch.move, handleDrag);
         removeEvent(ownerDocument, eventsFor.mouse.stop, handleDragStop);
         removeEvent(ownerDocument, eventsFor.touch.stop, handleDragStop);
-        removeEvent(nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
+        removeEvent(draggable.state.nodeRef, eventsFor.touch.start, onTouchStart, { passive: false });
         if (enableUserSelectHack) removeUserSelectStyles(ownerDocument);
       }
     }
@@ -271,8 +307,17 @@ const useDraggableCore = ({
     }, instance);
   }
 
+  onUpdateHook.on((state) => {
+    log('DraggableCore: State Updated %j', state);
+    draggable.state = state as DraggableState;
+  });
+
   lifeCycleHooks.onMounted();
   return {
+    updateState: (state) => {
+      onUpdateHook.trigger(state);
+      return draggable.state;
+    },
     onDragStart: onDragStartHook.on,
     onDrag: onDragHook.on,
     onDragStop: onDragStopHook.on

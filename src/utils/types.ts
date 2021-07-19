@@ -43,6 +43,7 @@ export interface DraggableProps extends DraggableCoreProps {
 }
 
 export type TransformedData = {
+  // el should be emitted too
   style: Record<string, string> | false;
   transform: string | false;
   classes: {
@@ -54,6 +55,7 @@ export interface DraggableCoreProps {
   allowAnyClick: boolean;
   cancel: string;
   disabled: boolean;
+  update?: boolean;
   enableUserSelectHack: boolean;
   offsetParent: HTMLElement;
   grid: [number, number];
@@ -66,11 +68,28 @@ export interface DraggableCoreProps {
   nodeRef: HTMLElement;
 }
 
+export type DraggableCoreState = State & DraggableCoreProps;
+
+export type DraggableState = State & DraggableProps;
+
+interface State {
+  dragging: boolean;
+  dragged: boolean;
+  x: number;
+  y: number;
+  prevPropsPosition: { x: number; y: number };
+  slackX: number;
+  slackY: number;
+  isElementSVG: boolean;
+  touchIdentifier?: number;
+}
+
 export interface UseDraggable {
   onDragStart: EventHookOn<DraggableHook>;
   onDrag: EventHookOn<DraggableHook>;
   onDragStop: EventHookOn<DraggableHook>;
   onTransformed: EventHookOn<TransformedData>;
+  updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
 }
 
 export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
