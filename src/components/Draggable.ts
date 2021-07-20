@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType } from 'vue-demi';
+import { Ref, h, defineComponent, PropType, onMounted } from 'vue-demi';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
 import { templateRef } from '@vueuse/core';
@@ -73,30 +73,36 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit }) {
-    const targets = slots.default?.().map((slot, i) => templateRef(`target-${i}`, null));
+    const targets: Ref[] = [];
 
-    targets?.forEach((target) => {
-      const { onDrag, onDragStart, onDragStop, onTransformed } = useDraggable(target, props);
+    onMounted(() => {
+      targets?.forEach((target) => {
+        const { onDrag, onDragStart, onDragStop, onTransformed } = useDraggable(target, props);
 
-      onDrag((dragEvent) => {
-        emit('move', dragEvent);
-      });
+        onDrag((dragEvent) => {
+          emit('move', dragEvent);
+        });
 
-      onDragStart((dragStartEvent) => {
-        emit('start', dragStartEvent);
-      });
+        onDragStart((dragStartEvent) => {
+          emit('start', dragStartEvent);
+        });
 
-      onDragStop((dragStopEvent) => {
-        emit('stop', dragStopEvent);
-      });
+        onDragStop((dragStopEvent) => {
+          emit('stop', dragStopEvent);
+        });
 
-      onTransformed((transformEvent) => {
-        emit('transformed', transformEvent);
+        onTransformed((transformEvent) => {
+          emit('transformed', transformEvent);
+        });
       });
     });
 
     return () => {
-      if (slots.default) return slots.default()?.map((node, i) => h(node, { ref: `target-${i}` }));
+      if (slots.default)
+        return slots.default()?.map((node, i) => {
+          targets.push(templateRef(`target-${i}`, null));
+          return h(node, { ref: `target-${i}` });
+        });
     };
   }
 });
