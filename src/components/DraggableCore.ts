@@ -1,5 +1,5 @@
-import { h, defineComponent, PropType, isVue3 } from 'vue-demi';
-import {DraggableCoreOptions, DraggableOptions} from '../utils/types';
+import { h, defineComponent, PropType, isVue3, onUpdated } from 'vue-demi';
+import { DraggableCoreOptions, DraggableOptions } from '../utils/types';
 import useDraggableCore from '../hooks/useDraggableCore';
 import { templateRef } from '@vueuse/core';
 
@@ -55,7 +55,7 @@ const DraggableCore = defineComponent({
   setup(props, { slots, emit }) {
     const target = templateRef('core-target', null);
 
-    const { onDrag, onDragStart, onDragStop } = useDraggableCore(target, props);
+    const { onDrag, onDragStart, onDragStop, updateState } = useDraggableCore(target, props);
 
     onDrag((dragEvent) => {
       emit('move', dragEvent);
@@ -67,6 +67,10 @@ const DraggableCore = defineComponent({
 
     onDragStop((dragStopEvent) => {
       emit('stop', dragStopEvent);
+    });
+
+    onUpdated(() => {
+      updateState(props);
     });
 
     if (isVue3) {
