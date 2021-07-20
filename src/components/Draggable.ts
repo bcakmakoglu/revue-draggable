@@ -1,6 +1,7 @@
-import { h, defineComponent, PropType, ref } from 'vue-demi';
+import { h, defineComponent, PropType } from 'vue-demi';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
+import { templateRef } from '@vueuse/core';
 
 const Draggable = defineComponent({
   name: 'Draggable',
@@ -72,7 +73,7 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit }) {
-    const target = ref();
+    const target = templateRef('target', null);
 
     const { onDrag, onDragStart, onDragStop, onTransformed } = useDraggable(target, props);
 
@@ -93,7 +94,7 @@ const Draggable = defineComponent({
     });
 
     return () => {
-      if (slots.default) return h('div', { ref: target }, slots.default());
+      if (slots.default) return h('div', { ref: 'target' }, slots.default());
     };
   }
 });
