@@ -182,7 +182,7 @@ const useDraggable = (
   };
 
   const transform = () => {
-    if (!draggable.node) return;
+    if (!draggable.node || draggable.state.disabled || draggable.state.update === false) return;
     // If this is controlled, we don't want to move it - unless it's dragging.
     const controlled = Boolean(draggable.state.position);
     const canDrag = !controlled || draggable.state.dragging;
@@ -256,7 +256,8 @@ const useDraggable = (
   const {
     onDragStart: coreStart,
     onDrag: coreDrag,
-    onDragStop: coreStop
+    onDragStop: coreStop,
+    updateState
   } = useDraggableCore(target, {
     scale,
     ...rest
@@ -286,6 +287,7 @@ const useDraggable = (
 
   onUpdateHook.on((state) => {
     log('Draggable: State Updated %j', state);
+    updateState(state);
     draggable.state = state as DraggableState;
     lifeCycleHooks.onUpdated();
   });

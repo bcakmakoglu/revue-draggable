@@ -1,16 +1,11 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import vueJsx from '@vitejs/plugin-vue-jsx';
+import WindiCSS from 'vite-plugin-windicss';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
     outDir: 'build'
   },
-  plugins: [
-    vue(),
-    vueJsx({
-      // options are passed on to @vue/babel-plugin-jsx
-    })
-  ]
+  plugins: [WindiCSS(), vue()]
 });
