@@ -182,6 +182,7 @@ const useDraggable = (
   };
 
   const transform = () => {
+    if (!draggable.node) return;
     // If this is controlled, we don't want to move it - unless it's dragging.
     const controlled = Boolean(draggable.state.position);
     const canDrag = !controlled || draggable.state.dragging;

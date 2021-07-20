@@ -1,0 +1,27 @@
+{
+  "name": "@braks/revue-draggable-docs",
+  "version": "0.0.0",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcakmakoglu/revue-draggable"
+  },
+  "license": "MIT",
+  "author": "Burak Cakmakoglu",
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt generate",
+    "serve": "nuxt start",
+    "test": "exit 0;",
+    "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
+    "lint": "yarn lint:js"
+  },
+  "devDependencies": {
+    "nuxt": "^2.15.7",
+    "nuxt-windicss": "^1.1.3"
+  },
+  "dependencies": {
+    "@braks/revue-draggable": "latest",
+    "@vue/composition-api": "^1.0.3"
+  }
+}
