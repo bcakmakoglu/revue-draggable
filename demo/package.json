@@ -17,11 +17,14 @@
     "lint": "yarn lint:js"
   },
   "devDependencies": {
+    "vue": "^2.6.14",
     "nuxt": "^2.15.7",
     "nuxt-windicss": "^1.1.3"
   },
   "dependencies": {
     "@braks/revue-draggable": "latest",
-    "@vue/composition-api": "^1.0.3"
+    "@vue/composition-api": "^1.0.3",
+    "@vueuse/core": "^5.1.3",
+    "vue-demi": "latest"
   }
 }
