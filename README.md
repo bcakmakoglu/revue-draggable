@@ -37,13 +37,24 @@ $ yarn add @braks/revue-draggable @vue/composition-api
 # or
 $ npm i --save @braks/revue-draggable @vue/composition-api
 ```
+### Using the components
+#### Webpack (Vue2)
+```js
+// webpack.config.js
 
-For [Nuxt](https://nuxtjs.org/) make sure to include
+resolve: {
+    alias: {
+        vue: 'vue/dist/vue.js'
+    }
+}
+```
+
+#### [Nuxt](https://nuxtjs.org/)
 ```ts {}[nuxt.config.ts]
 // nuxt.config.ts
 export default {
-    build: {
-        transpile: ['@braks/revue-draggable']
+    alias: {
+        vue: 'vue/dist/vue.js'
     }
 }
 ```
@@ -64,7 +75,7 @@ app.use(DraggablePlugin);
 app.directive('draggable', DraggableDirective)
 app.component('Draggable', Draggable);
 
-app.moun('#root');
+app.mount('#root');
 ```
 
 ```ts {}[main.ts]
@@ -94,6 +105,7 @@ with no configuration necessary.
 ````
 
 Or use the component wrapper.
+(Though if you're on Vue2 I urge you not to use it, as you'll have to depend on the runtime compiler for it).
 ````vue {}[App.vue]
 <template>
   <Draggable>
@@ -124,8 +136,8 @@ $ yarn build:dist
 ```
 
 ## 🕵🏻‍♂️ Tests
-Testing is done by Cypress.
+Testing is done with Cypress.
 You can find the specs in the [cypress directory](/cypress);
 ```bash
-$ yarn ci // starts test server and runs tests, make sure port 3000 is open
+$ yarn ci # starts test server and runs tests, make sure port 3000 is open
 ```
