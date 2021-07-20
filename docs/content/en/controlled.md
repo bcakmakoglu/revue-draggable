@@ -6,6 +6,7 @@ position: 4
 ---
 
 `<Draggable>` / `v-draggable` / `useDraggable` are a 'batteries-included' implementation that manages its own state.
+They do not create a wrapper DOM element.
 If you want to completely control the lifecycle of the component, use `<DraggableCore>` / `v-draggable:core` or `useDraggableCore`.
 
 For some users, they may want the nice state management that `<Draggable>` provides,
