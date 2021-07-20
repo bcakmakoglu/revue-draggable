@@ -73,28 +73,30 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit }) {
-    const target = templateRef('target', null);
+    const targets = slots.default?.().map((slot, i) => templateRef(`target-${i}`, null));
 
-    const { onDrag, onDragStart, onDragStop, onTransformed } = useDraggable(target, props);
+    targets?.forEach((target) => {
+      const { onDrag, onDragStart, onDragStop, onTransformed } = useDraggable(target, props);
 
-    onDrag((dragEvent) => {
-      emit('move', dragEvent);
-    });
+      onDrag((dragEvent) => {
+        emit('move', dragEvent);
+      });
 
-    onDragStart((dragStartEvent) => {
-      emit('start', dragStartEvent);
-    });
+      onDragStart((dragStartEvent) => {
+        emit('start', dragStartEvent);
+      });
 
-    onDragStop((dragStopEvent) => {
-      emit('stop', dragStopEvent);
-    });
+      onDragStop((dragStopEvent) => {
+        emit('stop', dragStopEvent);
+      });
 
-    onTransformed((transformEvent) => {
-      emit('transformed', transformEvent);
+      onTransformed((transformEvent) => {
+        emit('transformed', transformEvent);
+      });
     });
 
     return () => {
-      if (slots.default) return h('div', { ref: 'target' }, slots.default());
+      if (slots.default) return slots.default()?.map((node, i) => h(node, { ref: `target-${i}` }));
     };
   }
 });

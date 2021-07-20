@@ -123,6 +123,8 @@
   </Draggable>
   <Draggable @start="onStart" @stop="onStop">
     <div class="box">I use a custom made Draggable Component using composable hooks.</div>
+    <div class="box">I use a custom made Draggable Component using composable hooks.</div>
+    <div class="box">I use a custom made Draggable Component using composable hooks.</div>
   </Draggable>
 </template>
 

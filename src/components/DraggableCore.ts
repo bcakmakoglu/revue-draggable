@@ -58,7 +58,7 @@ const DraggableCore = defineComponent({
     });
 
     return () => {
-      if (slots.default) return h('div', { ref: 'core-target' }, slots.default());
+      if (slots.default) return slots.default()?.map((node) => h(node, { ref: 'core-target' }));
     };
   }
 });
