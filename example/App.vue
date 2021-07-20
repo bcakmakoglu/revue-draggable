@@ -127,7 +127,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from 'vue-demi';
 import ExampleComponent from './ExampleComponent.vue';
 import Draggable from '../src/components/Draggable';
 

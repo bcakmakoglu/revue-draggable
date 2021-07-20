@@ -1,5 +1,6 @@
 import { h, defineComponent, PropType, ref } from 'vue-demi';
-import { DraggableOptions, useDraggable } from '../index';
+import { DraggableOptions } from '../utils/types';
+import useDraggable from '../hooks/useDraggable';
 
 const Draggable = defineComponent({
   name: 'Draggable',

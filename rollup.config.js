@@ -73,7 +73,7 @@ function createConfig(format, output, plugins = []) {
   output.sourcemap = !!process.env.SOURCE_MAP;
   output.banner = banner;
   output.externalLiveBindings = false;
-  output.globals = { vue: 'Vue', 'vue-demi': 'VueDemi' };
+  output.globals = { 'vue-demi': 'VueDemi' };
 
   const isProductionBuild = /\.prod\.js$/.test(output.file);
   const isGlobalBuild = format.startsWith('global');
@@ -102,7 +102,7 @@ function createConfig(format, output, plugins = []) {
   // during a single build.
   hasTSChecked = true;
 
-  const external = ['vue', 'vue-demi'];
+  const external = ['vue-demi', '@vueuse/shared', '@vueuse/core'];
 
   return {
     input: 'src/index.ts',
