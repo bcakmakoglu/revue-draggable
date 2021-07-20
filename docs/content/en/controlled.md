@@ -6,8 +6,11 @@ position: 4
 ---
 
 `<Draggable>` / `v-draggable` / `useDraggable` are a 'batteries-included' implementation that manages its own state.
-They do not create a wrapper DOM element.
-If you want to completely control the lifecycle of the component, use `<DraggableCore>` / `v-draggable:core` or `useDraggableCore`.
+They do not create a wrapper DOM element, except for the wrapper components which need
+a wrapper to work when using *Vue2*. In *Vue3* it works without a wrapper, merging classes and styles
+to the passed slot element.
+
+If you want/need to completely control the lifecycle of the component, use `<DraggableCore>` / `v-draggable:core` or `useDraggableCore`.
 
 For some users, they may want the nice state management that `<Draggable>` provides,
 but occasionally want to programmatically reposition their components.
