@@ -13,7 +13,9 @@
       <h4 class="active-handlers col-span-1" v-draggable @start="onStart" @stop="onStop" @move="onMove">
         Active DragHandlers: {{ activeDrags }}
       </h4>
-      <h4 class="text-1xl dark:text-light col-span-2" v-draggable @start="onStart" @stop="onStop" @move="onMove">Event: {{ event }}</h4>
+      <h4 class="text-1xl dark:text-light col-span-2" v-draggable @start="onStart" @stop="onStop" @move="onMove">
+        Event: {{ event }}
+      </h4>
     </div>
     <div class="demo-boxes">
       <div class="box" v-draggable @start="onStart" @stop="onStop" @move="onMove">I can be dragged anywhere</div>
@@ -143,8 +145,7 @@
         @move="onMove"
       >
         I use <span style="font-weight: 700">rem</span> instead of <span style="font-weight: 700">px</span> for my transforms. I
-        also have absolute positioning.
-        I depend on a CSS hack to avoid double absolute positioning.
+        also have absolute positioning. I depend on a CSS hack to avoid double absolute positioning.
       </div>
       <Draggable @start="onStart" @stop="onStop" @move="onMove">
         <div class="box">3 Slots in a single Draggable Wrapper</div>
@@ -155,12 +156,12 @@
   </div>
 </template>
 <script>
-import Vue from 'vue';
 import { DraggablePlugin } from '@braks/revue-draggable';
+import { Vue2, defineComponent } from 'vue-demi';
 
-Vue.use(DraggablePlugin);
+Vue2.use(DraggablePlugin);
 
-export default {
+export default defineComponent({
   data() {
     return {
       currentEvent: {},
@@ -264,7 +265,7 @@ export default {
       return (this.transform = `translate(${x}, ${y})`);
     }
   }
-};
+});
 </script>
 <style>
 #app {
