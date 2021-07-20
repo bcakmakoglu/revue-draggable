@@ -6,7 +6,6 @@ import { OutputOptions, Plugin, RollupOptions } from 'rollup';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
-// @ts-ignore
 import alias from '@rollup/plugin-alias';
 // @ts-ignore
 import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core';
@@ -24,7 +23,7 @@ const injectVueDemi: Plugin = {
 const activePackages = [
   {
     display: 'Revue-Draggable',
-    external: ['@vueuse/core', '@vueuse/shared']
+    external: ['@vueuse/core']
   }
 ];
 
@@ -32,7 +31,6 @@ const activePackages = [
 for (const { external, iife } of activePackages) {
   const iifeGlobals = {
     'vue-demi': 'VueDemi',
-    '@vueuse/shared': 'VueUse',
     '@vueuse/core': 'VueUse'
   };
 
@@ -103,7 +101,7 @@ for (const { external, iife } of activePackages) {
           babelHelpers: 'bundled'
         })
       ],
-      external: ['vue-demi', '@vueuse/shared', ...(external || [])]
+      external: ['vue-demi', ...(external || [])]
     });
 
     configs.push({
@@ -113,7 +111,7 @@ for (const { external, iife } of activePackages) {
         format: 'es'
       },
       plugins: [dts()],
-      external: ['vue-demi', '@vueuse/shared', ...(external || [])]
+      external: ['vue-demi', ...(external || [])]
     });
   }
 }
