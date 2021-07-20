@@ -285,7 +285,7 @@ export default defineComponent({
 }
 
 .subtitle {
-  @apply font-bold text-4xl self-start dark:text-secondary mb-4 mt-0;
+  @apply font-bold text-4xl self-start dark:text-secondary mb-4 mt-2;
 }
 
 .demo-info {
