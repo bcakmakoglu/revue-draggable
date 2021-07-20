@@ -69,6 +69,18 @@ const Draggable = defineComponent({
     handle: {
       type: String as PropType<DraggableOptions['handle']>,
       default: undefined
+    },
+    start: {
+      type: Function as PropType<DraggableOptions['start']>,
+      default: () => {}
+    },
+    move: {
+      type: Function as PropType<DraggableOptions['move']>,
+      default: () => {}
+    },
+    stop: {
+      type: Function as PropType<DraggableOptions['stop']>,
+      default: () => {}
     }
   },
   emits: ['move', 'start', 'stop', 'transformed'],

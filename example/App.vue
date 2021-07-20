@@ -116,11 +116,11 @@
     <br /><br />
     I depend on a CSS hack to avoid double absolute positioning.
   </div>
-  <Draggable @start="onStart" @stop="onStop">
+  <DraggableCore @start="onStart" @stop="onStop">
     <ExampleComponent>
       <span>I'm in a nested component</span>
     </ExampleComponent>
-  </Draggable>
+  </DraggableCore>
   <Draggable @start="onStart" @stop="onStop">
     <div class="box">I use a custom made Draggable Component using composable hooks.</div>
     <div class="box">I use a custom made Draggable Component using composable hooks.</div>
@@ -132,10 +132,11 @@
 import { defineComponent } from 'vue-demi';
 import ExampleComponent from './ExampleComponent.vue';
 import Draggable from '../src/components/Draggable';
+import DraggableCore from '../src/components/DraggableCore';
 
 export default defineComponent({
   name: 'App',
-  components: { ExampleComponent, Draggable },
+  components: { DraggableCore, ExampleComponent, Draggable },
   data() {
     return {
       transform: 'translate(0rem, 0rem)',

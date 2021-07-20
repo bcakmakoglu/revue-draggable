@@ -61,7 +61,10 @@ const useDraggableCore = (
     grid,
     handle,
     cancel,
-    scale = 1
+    scale = 1,
+    start = () => {},
+    move = () => {},
+    stop = () => {}
   }: Partial<DraggableCoreOptions>
 ): UseDraggableCore => {
   if (!target) {
@@ -82,7 +85,10 @@ const useDraggableCore = (
     dragging: false,
     x: NaN,
     y: NaN,
-    touch: NaN
+    touch: NaN,
+    start,
+    move,
+    stop
   });
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
@@ -131,6 +137,7 @@ const useDraggableCore = (
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
 
+    draggable.state.start?.(e, coreEvent);
     onDragStartHook.trigger({ event: e, data: coreEvent });
     if (draggable.state.update === false) return false;
 
@@ -176,6 +183,7 @@ const useDraggableCore = (
 
       log('DraggableCore: handleDrag: %j', coreEvent);
 
+      draggable.state.move?.(e, coreEvent);
       onDragHook.trigger({ event: e, data: coreEvent });
       if (draggable.state.update === false) {
         try {
@@ -216,6 +224,7 @@ const useDraggableCore = (
         lastY: draggable.state.y
       });
 
+      draggable.state.stop?.(e, coreEvent);
       onDragStopHook.trigger({ event: e, data: coreEvent });
       if (draggable.state.update === false) return false;
 

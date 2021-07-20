@@ -41,6 +41,9 @@ const useDraggable = (
     defaultPosition = { x: 0, y: 0 },
     bounds,
     update,
+    start = () => {},
+    move = () => {},
+    stop = () => {},
     ...rest
   }: Partial<DraggableOptions>
 ): UseDraggable => {
@@ -50,6 +53,9 @@ const useDraggable = (
 
   const draggable = useDraggableState(target, {
     ...rest,
+    start,
+    move,
+    stop,
     position,
     positionOffset,
     scale,
@@ -86,6 +92,7 @@ const useDraggable = (
       scale: draggable.state.scale
     });
 
+    draggable.state.start?.(e, uiData);
     onDragStartHook.trigger({ event: e, data: uiData });
     if (draggable.state.update === false) return false;
 
@@ -136,6 +143,7 @@ const useDraggable = (
       uiData.deltaY = newState.y - draggable.state.y;
     }
 
+    draggable.state.move?.(e, uiData);
     onDragHook.trigger({ event: e, data: uiData });
     if (draggable.state.update === false) return false;
     draggable.state.x = newState.x;
@@ -154,6 +162,8 @@ const useDraggable = (
       y: draggable.state.y,
       data
     });
+
+    draggable.state.stop?.(e, uiData);
     onDragStopHook.trigger({ event: e, data: uiData });
     if (draggable.state.update === false) return false;
 

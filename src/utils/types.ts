@@ -1,7 +1,5 @@
 import { EventHookOn } from '@vueuse/core';
 
-export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
-
 export type DraggableData = {
   node: HTMLElement;
   x: number;
@@ -52,6 +50,9 @@ export interface DraggableCoreOptions {
   grid: [number, number];
   handle: string;
   scale: number;
+  start: DraggableEventHandler;
+  move: DraggableEventHandler;
+  stop: DraggableEventHandler;
 }
 
 export type DraggableCoreState = State & DraggableCoreOptions;
@@ -92,3 +93,6 @@ export interface TransformEvent {
     [x: string]: boolean;
   };
 }
+
+export type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
+export type DraggableEventListener = (draggableEvent: DraggableEvent) => any;
