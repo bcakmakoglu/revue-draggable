@@ -36,7 +36,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "build:demo": "yarn && yarn --cwd demo build",
+    "build:demo": "yarn && yarn --cwd demo && yarn --cwd demo build",
     "build:dist": "rollup -c --environment NODE_ENV:production",
     "serve": "vite preview",
     "prepublishOnly": "yarn build:dist",
