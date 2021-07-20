@@ -1,8 +1,8 @@
 <template>
-  <Draggable :disabled="!active" :update="active">
+  <Draggable :disabled="!active" :update="active" @start="onStart" @stop="onStop" @move="onMove">
     <div id="demo">
       <h1 class="title" v-draggable @start="onStart" @stop="onStop" @move="onMove">
-        <a href="https://github.com/bcakmakoglu/revue-draggable">Revue Draggable</a> 🤏
+        <a @click="github" href="https://github.com/bcakmakoglu/revue-draggable">Revue Draggable</a> 🤏
       </h1>
       <h2 class="subtitle" v-draggable @start="onStart" @stop="onStop" @move="onMove">Make everything draggable!</h2>
 
@@ -271,6 +271,9 @@ export default defineComponent({
       const [x, y] = convertedValues;
 
       return (this.transform = `translate(${x}, ${y})`);
+    },
+    github(e) {
+      e.preventDefault();
     }
   }
 });
