@@ -105,7 +105,7 @@ with no configuration necessary.
 ````
 
 Or use the component wrapper.
-(Though if you're on Vue2 I urge you not to use it, as you'll have to depend on the runtime compiler for it).
+(In Vue2 make sure to include the full-build, runtime-build only works for Vue3.)
 ````vue {}[App.vue]
 <template>
   <Draggable>
