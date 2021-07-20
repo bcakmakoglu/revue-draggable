@@ -1,7 +1,8 @@
 ---
-title: Introduction description: 'Revue Draggable' category: ''
-position: 1 features:
-
+title: Introduction description: 'Revue Draggable' 
+category: ''
+position: 1 
+features:
 - Make any element (including svg) draggable
 - Use the Core to gain full control
 - Built for composition
