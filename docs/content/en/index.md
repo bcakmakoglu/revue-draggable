@@ -34,7 +34,6 @@ $ npm i --save @braks/revue-draggable
 ```
 
 For Vue2 add the composition-api to your dependencies.
-
 ```bash
 # install revue flow
 $ yarn add @braks/revue-draggable @vue/composition-api
@@ -42,14 +41,26 @@ $ yarn add @braks/revue-draggable @vue/composition-api
 # or
 $ npm i --save @braks/revue-draggable @vue/composition-api
 ```
+### Using the components
+#### Webpack (Vue2)
+You'll need to include the full build if you're on Vue2.
+I urge you to instead use the composables or the directive.
+```js
+// webpack.config.js
 
-For [Nuxt](https://nuxtjs.org/) make sure to include
+resolve: {
+    alias: {
+        vue: 'vue/dist/vue.js'
+    }
+}
+```
 
+#### [Nuxt](https://nuxtjs.org/)
 ```ts {}[nuxt.config.ts]
 // nuxt.config.ts
 export default {
-    build: {
-        transpile: ['@braks/revue-draggable']
+    alias: {
+        vue: 'vue/dist/vue.js'
     }
 }
 ```
@@ -58,8 +69,8 @@ export default {
 
 ```ts {}[main.ts]
 // Vue3
-import {createApp} from 'vue';
-import Draggable, {DraggablePlugin, DraggableDirective} from '@braks/revue-draggable';
+import { createApp } from 'vue';
+import Draggable, { DraggablePlugin, DraggableDirective } from '@braks/revue-draggable';
 
 const app = createApp();
 
@@ -70,13 +81,13 @@ app.use(DraggablePlugin);
 app.directive('draggable', DraggableDirective)
 app.component('Draggable', Draggable);
 
-app.moun('#root');
+app.mount('#root');
 ```
 
 ```ts {}[main.ts]
 // Vue2 
 import Vue from 'vue';
-import {DraggablePlugin, DraggableDirective} from '@braks/revue-draggable';
+import { DraggablePlugin, DraggableDirective } from '@braks/revue-draggable';
 
 // Use as Plugin
 Vue.use(DraggablePlugin)
@@ -88,8 +99,8 @@ Vue.component('Draggable', Draggable)
 
 ## 🎮 Quickstart
 
-The easiest way to make your elements draggable is by using the **DraggableDirective** which will handle everything for
-you with no configuration necessary.
+The easiest way to make your elements draggable is by using the **DraggableDirective** which will handle everything for you
+with no configuration necessary.
 
 ````vue {}[App.vue]
 <template>
@@ -100,7 +111,7 @@ you with no configuration necessary.
 ````
 
 Or use the component wrapper.
-
+(Though if you're on Vue2 I urge you not to use it, as you'll have to depend on the runtime compiler for it).
 ````vue {}[App.vue]
 <template>
   <Draggable>
@@ -111,13 +122,10 @@ Or use the component wrapper.
 ... the rest of your code
 ````
 
-Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or
-syncing states.
+Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or syncing states.
 
 ## 🧪 Development
-
-This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https://rollupjs.org/) to create a
-distribution.
+This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https://rollupjs.org/) to create a distribution.
 
 ```bash
 # start (dev)
@@ -134,9 +142,8 @@ $ yarn build:dist
 ```
 
 ## 🕵🏻‍♂️ Tests
-
-Testing is done by Cypress. You can find the specs in the [cypress directory](/cypress);
-
+Testing is done with Cypress.
+You can find the specs in the [cypress directory](/cypress);
 ```bash
 $ yarn ci // starts test server and runs tests, make sure port 3000 is open
 ```

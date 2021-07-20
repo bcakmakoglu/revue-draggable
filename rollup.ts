@@ -5,8 +5,9 @@ import { readFileSync } from 'fs';
 import { OutputOptions, Plugin, RollupOptions } from 'rollup';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import vue from 'rollup-plugin-vue';
 import babel from '@rollup/plugin-babel';
+// @ts-ignore
+import alias from '@rollup/plugin-alias';
 // @ts-ignore
 import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core';
 
@@ -53,7 +54,6 @@ for (const { external, iife } of activePackages) {
     ];
 
     if (iife !== false) {
-      console.log('iife');
       output.push(
         {
           file: `dist/${fn}.iife.js`,
@@ -85,6 +85,9 @@ for (const { external, iife } of activePackages) {
       input,
       output,
       plugins: [
+        alias({
+          entries: [{ find: 'vue', replacement: require.resolve('vue/dist/vue.esm-browser.js') }]
+        }),
         typescript({
           tsconfigOverride: {
             compilerOptions: {
@@ -92,13 +95,12 @@ for (const { external, iife } of activePackages) {
             }
           }
         }),
-        vue(),
         resolve(),
         commonjs({ include: 'node_modules/**' }),
         babel({
           extensions: [...DEFAULT_BABEL_EXTENSIONS, '.ts', '.tsx'],
           exclude: 'node_modules/**',
-          babelHelpers: 'inline'
+          babelHelpers: 'bundled'
         })
       ],
       external: ['vue-demi', '@vueuse/shared', ...(external || [])]
