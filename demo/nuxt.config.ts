@@ -1,3 +1,5 @@
+import { resolve, join } from 'path';
+
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
@@ -32,14 +34,11 @@ export default {
   modules: [],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {
-    extend(config) {
-      config.resolve.alias['vue'] = 'vue/dist/vue.common';
-    }
-  },
+  build: {},
 
   alias: {
-    vue: 'vue/dist/vue.js'
+    vue: 'vue/dist/vue.js',
+    '@vue/composition-api': resolve(join(__dirname, '/node_modules/@vue/composition-api/'))
   },
 
   loading: { color: '#00CD81' }
