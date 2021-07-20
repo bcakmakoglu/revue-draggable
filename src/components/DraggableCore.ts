@@ -1,6 +1,7 @@
-import { h, defineComponent, PropType, ref } from 'vue-demi';
+import { h, defineComponent, PropType } from 'vue-demi';
 import { DraggableCoreOptions } from '../utils/types';
 import useDraggableCore from '../hooks/useDraggableCore';
+import { templateRef } from '@vueuse/core';
 
 const DraggableCore = defineComponent({
   name: 'DraggableCore',
@@ -40,7 +41,7 @@ const DraggableCore = defineComponent({
   },
   emits: ['start', 'move', 'stop'],
   setup(props, { slots, emit }) {
-    const target = ref();
+    const target = templateRef('core-target', null);
 
     const { onDrag, onDragStart, onDragStop } = useDraggableCore(target, props);
 
@@ -49,7 +50,6 @@ const DraggableCore = defineComponent({
     });
 
     onDragStart((dragStartEvent) => {
-      console.log('start');
       emit('start', dragStartEvent);
     });
 
@@ -58,7 +58,7 @@ const DraggableCore = defineComponent({
     });
 
     return () => {
-      if (slots.default) return h('div', { ref: target }, slots.default());
+      if (slots.default) return h('div', { ref: 'core-target' }, slots.default());
     };
   }
 });
