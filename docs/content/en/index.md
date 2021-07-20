@@ -1,5 +1,6 @@
 ---
-title: Introduction description: 'Revue Draggable' 
+title: Introduction 
+description: 'Revue Draggable' 
 category: ''
 position: 1 
 features:
