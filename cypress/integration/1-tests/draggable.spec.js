@@ -8,7 +8,7 @@ describe('draggable', () => {
     cy.get('#app').should('be.visible');
     cy.get('#app')
       .get('.box')
-      .should('have.length.at.least', 23)
+      .should('have.length.at.least', 1)
       .should('have.class', 'revue-draggable')
       .each((el) => {
         const originalPosition = el.position();
