@@ -70,6 +70,10 @@ const Draggable = defineComponent({
       type: String as PropType<DraggableOptions['handle']>,
       default: undefined
     },
+    update: {
+      type: Boolean as PropType<DraggableOptions['update']>,
+      default: true
+    },
     start: {
       type: Function as PropType<DraggableOptions['start']>,
       default: () => {}
@@ -87,7 +91,7 @@ const Draggable = defineComponent({
   setup(props, { slots, emit }) {
     const init = (targets: Ref[]) => {
       targets.forEach((target) => {
-        const { onDrag, onDragStart, onDragStop, onTransformed, updateState } = useDraggable(target, props);
+        const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
 
         onDrag((dragEvent) => {
           emit('move', dragEvent);
@@ -95,6 +99,7 @@ const Draggable = defineComponent({
 
         onDragStart((dragStartEvent) => {
           emit('start', dragStartEvent);
+          return false;
         });
 
         onDragStop((dragStopEvent) => {
@@ -106,7 +111,7 @@ const Draggable = defineComponent({
         });
 
         onUpdated(() => {
-          updateState(props);
+          state.value = { ...state.value, ...props };
         });
       });
     };

@@ -1,21 +1,14 @@
-import { watchEffect } from 'vue-demi';
-import { createEventHook, MaybeRef, unrefElement, useEventListener } from '@vueuse/core';
+import { computed, watchEffect } from 'vue-demi';
+import { get, createEventHook, MaybeRef, unrefElement, useEventListener, useMouse, controlledRef } from '@vueuse/core';
 import {
   DraggableCoreOptions,
   DraggableCoreState,
   DraggableEvent,
-  DraggableState,
   EventHandler,
   MouseTouchEvent,
   UseDraggableCore
 } from '../utils/types';
-import {
-  addUserSelectStyles,
-  getTouchIdentifier,
-  matchesSelectorAndParentsTo,
-  removeEvent,
-  removeUserSelectStyles
-} from '../utils/domFns';
+import { addUserSelectStyles, matchesSelectorAndParentsTo, removeEvent, removeUserSelectStyles } from '../utils/domFns';
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
@@ -37,59 +30,53 @@ const eventsFor = {
 // Default to mouse events.
 let dragEventFor = eventsFor.mouse;
 
-const useDraggableCoreState = (target: MaybeRef<any>, state: Partial<DraggableCoreState> = {}) => ({
-  _state: state as DraggableCoreState,
-  _node: target,
-  get state() {
-    return this._state;
-  },
-  set state(state: DraggableCoreState) {
-    Object.assign(this._state, state);
-  },
-  get node() {
-    return unrefElement(this._node);
-  }
-});
-
-const useDraggableCore = (
-  target: MaybeRef<any>,
-  {
-    enableUserSelectHack = true,
-    allowAnyClick = true,
-    disabled = false,
-    offsetParent,
-    grid,
-    handle,
-    cancel,
-    scale = 1,
-    start = () => {},
-    move = () => {},
-    stop = () => {}
-  }: Partial<DraggableCoreOptions>
-): UseDraggableCore => {
+const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreOptions>): UseDraggableCore => {
   if (!target) {
     console.warn(
       'You are trying to use <DraggableCore> without passing a valid node reference. This will cause errors down the line.'
     );
   }
 
-  const draggable = useDraggableCoreState(target, {
-    enableUserSelectHack,
-    allowAnyClick,
-    disabled,
-    offsetParent,
-    grid,
-    handle,
-    cancel,
-    scale,
-    dragging: false,
-    x: NaN,
-    y: NaN,
-    touch: NaN,
-    start,
-    move,
-    stop
-  });
+  const node = computed(() => unrefElement(target));
+  const state = controlledRef<DraggableCoreState>(
+    Object.assign(
+      {
+        enableUserSelectHack: true,
+        allowAnyClick: true,
+        disabled: false,
+        offsetParent: undefined,
+        grid: undefined,
+        handle: '',
+        cancel: '',
+        dragged: false,
+        update: true,
+        slackX: 0,
+        slackY: 0,
+        scale: 1,
+        dragging: false,
+        x: 0,
+        y: 0,
+        touch: 0,
+        isElementSVG: false,
+        prevPropsPosition: { x: 0, y: 0 },
+        start: () => {},
+        move: () => {},
+        stop: () => {}
+      },
+      options
+    ),
+    {
+      onBeforeChange(val, oldVal) {
+        if (val === oldVal) {
+          return;
+        }
+      },
+      onChanged(val) {
+        onUpdateHook.trigger(val);
+      }
+    }
+  );
+  const { x: mouseX, y: mouseY } = useMouse({ touch: get(state).allowAnyClick });
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -97,95 +84,92 @@ const useDraggableCore = (
     onUpdateHook = createEventHook<Partial<DraggableCoreState>>();
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
-    if (!draggable.state.allowAnyClick && e.button !== 0) return false;
+    if (!get(state).allowAnyClick && e.button !== 0) return false;
 
-    if (!draggable.node || !draggable.node.ownerDocument || !draggable.node.ownerDocument.body) {
-      throw new Error('<DraggableCore> not mounted on DragStart!');
+    if (!get(node) || !get(node).ownerDocument || !get(node).ownerDocument.body) {
+      throw new Error('No ref element found on DragStart!');
     }
-    const { ownerDocument } = draggable.node;
+    const { ownerDocument } = get(node);
 
     if (
-      draggable.state.disabled ||
+      get(state).disabled ||
       !(ownerDocument.defaultView && e.target instanceof ownerDocument.defaultView.Node) ||
-      (draggable.state.handle && !matchesSelectorAndParentsTo(e.target as Node, draggable.state.handle, draggable.node)) ||
-      (draggable.state.cancel && matchesSelectorAndParentsTo(e.target as Node, draggable.state.cancel, draggable.node))
+      (get(state).handle && !matchesSelectorAndParentsTo(e.target as Node, get(state).handle, get(node))) ||
+      (get(state).cancel && matchesSelectorAndParentsTo(e.target as Node, get(state).cancel, get(node)))
     ) {
       return;
     }
 
     const isTouch = e.type === 'touchstart';
     if (isTouch) e.preventDefault();
-    draggable.state.touch = getTouchIdentifier(e);
 
     const position = getControlPosition({
-      e,
-      touch: draggable.state.touch,
-      node: draggable.node,
-      offsetContainer: draggable.state.offsetParent,
-      scale: draggable.state.scale
+      pos: { y: mouseY.value, x: mouseX.value },
+      node: get(node),
+      offsetContainer: get(state).offsetParent,
+      scale: get(state).scale
     });
     if (position == null) return;
     const { x, y } = position;
 
     const coreEvent = createCoreData({
-      node: draggable.node,
+      node: get(node),
       x,
       y,
-      lastX: draggable.state.x,
-      lastY: draggable.state.y
+      lastX: get(state).x,
+      lastY: get(state).y
     });
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
 
-    draggable.state.start?.(e, coreEvent);
+    const shouldUpdate = get(state).start?.(e, coreEvent);
     onDragStartHook.trigger({ event: e, data: coreEvent });
-    if (draggable.state.update === false) return false;
+    if ((shouldUpdate || get(state).update) === false) return false;
 
-    if (enableUserSelectHack) addUserSelectStyles(ownerDocument);
+    if (get(state).enableUserSelectHack) addUserSelectStyles(ownerDocument);
 
-    draggable.state.dragging = true;
-    draggable.state.x = x;
-    draggable.state.y = y;
+    get(state).dragging = true;
+    get(state).x = x;
+    get(state).y = y;
 
     addEvent(ownerDocument, dragEventFor.move, handleDrag);
     addEvent(ownerDocument, dragEventFor.stop, handleDragStop);
   };
 
   const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
-    if (draggable.node) {
+    if (get(node)) {
       const position = getControlPosition({
-        e,
-        touch: draggable.state.touch,
-        node: draggable.node,
-        offsetContainer: draggable.state.offsetParent,
-        scale: draggable.state.scale
+        pos: { y: mouseY.value, x: mouseX.value },
+        node: get(node),
+        offsetContainer: get(state).offsetParent,
+        scale: get(state).scale
       });
       if (position == null) return;
       let { x, y } = position;
 
       // Snap to grid if prop has been provided
-      if (Array.isArray(grid)) {
-        let deltaX = x - draggable.state.x,
-          deltaY = y - draggable.state.y;
-        [deltaX, deltaY] = snapToGrid(grid, deltaX, deltaY);
+      if (Array.isArray(get(state).grid)) {
+        let deltaX = x - get(state).x,
+          deltaY = y - get(state).y;
+        [deltaX, deltaY] = snapToGrid(get(state).grid as [number, number], deltaX, deltaY);
         if (!deltaX && !deltaY) return;
-        x = draggable.state.x + deltaX;
-        y = draggable.state.y + deltaY;
+        x = get(state).x + deltaX;
+        y = get(state).y + deltaY;
       }
 
       const coreEvent = createCoreData({
-        node: draggable.node,
+        node: get(node),
         x,
         y,
-        lastX: draggable.state.x,
-        lastY: draggable.state.y
+        lastX: get(state).x,
+        lastY: get(state).y
       });
 
       log('DraggableCore: handleDrag: %j', coreEvent);
 
-      draggable.state.move?.(e, coreEvent);
+      const shouldUpdate = get(state).move?.(e, coreEvent);
       onDragHook.trigger({ event: e, data: coreEvent });
-      if (draggable.state.update === false) {
+      if ((shouldUpdate || get(state).update) === false) {
         try {
           handleDragStop(new MouseEvent('mouseup') as MouseTouchEvent);
         } catch (err) {
@@ -198,56 +182,50 @@ const useDraggableCore = (
         return;
       }
 
-      draggable.state.x = x;
-      draggable.state.y = y;
+      get(state).x = x;
+      get(state).y = y;
     }
   };
 
   const handleDragStop: EventHandler<MouseTouchEvent> = (e) => {
-    if (!draggable.state.dragging) return;
+    if (!get(state).dragging) return;
 
-    if (draggable.node) {
+    if (get(node)) {
       const position = getControlPosition({
-        e,
-        touch: draggable.state.touch,
-        node: draggable.node,
-        offsetContainer: offsetParent,
-        scale: draggable.state.scale
+        pos: { y: mouseY.value, x: mouseX.value },
+        node: get(node),
+        offsetContainer: get(state).offsetParent,
+        scale: get(state).scale
       });
       if (position == null) return;
       const { x, y } = position;
       const coreEvent = createCoreData({
-        node: draggable.node,
+        node: get(node),
         x,
         y,
-        lastX: draggable.state.x,
-        lastY: draggable.state.y
+        lastX: get(state).x,
+        lastY: get(state).y
       });
 
-      draggable.state.stop?.(e, coreEvent);
+      const shouldUpdate = get(state).stop?.(e, coreEvent);
       onDragStopHook.trigger({ event: e, data: coreEvent });
-      if (draggable.state.update === false) return false;
+      if ((shouldUpdate || get(state).update) === false) return false;
 
-      if (draggable.node) {
-        if (draggable.state.enableUserSelectHack) removeUserSelectStyles(draggable.node.ownerDocument);
-      }
+      if (get(state).enableUserSelectHack) removeUserSelectStyles(get(node).ownerDocument);
 
       log('DraggableCore: handleDragStop: %j', coreEvent);
 
-      draggable.state.dragging = false;
-      draggable.state.x = NaN;
-      draggable.state.y = NaN;
+      get(state).dragging = false;
 
-      if (draggable.node) {
-        log('DraggableCore: Removing handlers');
-        removeEvent(draggable.node.ownerDocument, dragEventFor.move, handleDrag);
-        removeEvent(draggable.node.ownerDocument, dragEventFor.stop, handleDragStop);
-      }
+      log('DraggableCore: Removing handlers');
+      removeEvent(get(node).ownerDocument, dragEventFor.move, handleDrag);
+      removeEvent(get(node).ownerDocument, dragEventFor.stop, handleDragStop);
     }
   };
 
   const onMouseDown: EventHandler<MouseTouchEvent> = (e) => {
     dragEventFor = eventsFor.mouse;
+    if (e.which == 3) return;
     return handleDragStart(e);
   };
 
@@ -268,12 +246,12 @@ const useDraggableCore = (
 
   let initialized = false;
   const init = () => {
-    if (draggable.node && !initialized) {
+    if (get(node) && !initialized) {
       initialized = true;
-      useEventListener(draggable.node, eventsFor.touch.start, onTouchStart, { passive: false });
-      useEventListener(draggable.node, eventsFor.touch.stop, onTouchEnd);
-      useEventListener(draggable.node, eventsFor.mouse.start, onMouseDown);
-      useEventListener(draggable.node, eventsFor.mouse.stop, onMouseUp);
+      useEventListener(get(node), eventsFor.touch.start, onTouchStart, { passive: false });
+      useEventListener(get(node), eventsFor.touch.stop, onTouchEnd);
+      useEventListener(get(node), eventsFor.mouse.start, onMouseDown);
+      useEventListener(get(node), eventsFor.mouse.stop, onMouseUp);
     }
   };
 
@@ -281,17 +259,9 @@ const useDraggableCore = (
     init();
   });
 
-  onUpdateHook.on((state) => {
-    log('DraggableCore: State Updated %j', state);
-    draggable.state = state as DraggableState;
-  });
-
   return {
-    updateState: (state) => {
-      onUpdateHook.trigger(state);
-      init();
-      return draggable.state;
-    },
+    state,
+    onUpdated: onUpdateHook.on,
     onDragStart: onDragStartHook.on,
     onDrag: onDragHook.on,
     onDragStop: onDragStopHook.on

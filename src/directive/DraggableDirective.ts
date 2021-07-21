@@ -1,5 +1,5 @@
-import { Directive, DirectiveHook, getCurrentInstance, isVue3, VNode } from 'vue-demi';
-import { DraggableOptions, UseDraggable } from '../utils/types';
+import { Directive, DirectiveHook, getCurrentInstance, isVue3, Ref, VNode } from 'vue-demi';
+import { DraggableOptions, DraggableState } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
 import useDraggableCore from '../hooks/useDraggableCore';
 
@@ -14,7 +14,7 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
 
   // sort of hacky but we don't want the directive to create multiple instances of the composable and thus apply multiple event listeners etc.
   if (binding.arg === 'core') {
-    const { onDrag, onDragStop, onDragStart, updateState } = useDraggableCore(el, { ...binding.value });
+    const { onDrag, onDragStop, onDragStart, state } = useDraggableCore(el, { ...binding.value });
     onDrag((dragEvent) => {
       emitter('move', dragEvent);
     });
@@ -25,9 +25,9 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
       emitter('stop', dragStopEvent);
     });
     // @ts-ignore
-    el['revue-draggable'] = updateState;
+    el['revue-draggable'] = state;
   } else {
-    const { onDrag, onDragStop, onDragStart, updateState, onTransformed } = useDraggable(el, { ...binding.value });
+    const { onDrag, onDragStop, onDragStart, onTransformed, state } = useDraggable(el, { ...binding.value });
     onDrag((dragEvent) => {
       emitter('move', dragEvent);
     });
@@ -41,7 +41,7 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
       emitter('transformed', transformEvent);
     });
     // @ts-ignore
-    el['revue-draggable'] = updateState;
+    el['revue-draggable'] = state;
   }
 };
 
@@ -49,8 +49,8 @@ const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
   // typehack as we store the draggable instance on the element, see the comment above
   const element = el as any;
   if (typeof element['revue-draggable'] !== 'undefined' && binding.value) {
-    const updateState = element['revue-draggable'] as UseDraggable['updateState'];
-    updateState(binding.value);
+    const state = element['revue-draggable'] as Ref<Partial<DraggableState>>;
+    state.value = { ...state.value, ...binding.value };
   }
 };
 

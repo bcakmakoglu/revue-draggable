@@ -1,7 +1,6 @@
 import { isNum, int } from './shims';
-import { getTouch, innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
-import { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types';
-import {useMouse} from "@vueuse/core";
+import { innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
+import { Bounds, ControlPosition, DraggableData, DraggableOptions } from './types';
 
 export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: any }): [number, number] {
   // If no bounds, short-circuit and move on
@@ -12,12 +11,8 @@ export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: numbe
   if (typeof bounds === 'string') {
     const { ownerDocument } = node;
     const ownerWindow = ownerDocument.defaultView;
-    let boundNode;
-    if (bounds === 'parent') {
-      boundNode = node.parentNode;
-    } else {
-      boundNode = ownerDocument.querySelector(bounds);
-    }
+    const boundNode = bounds === 'parent' ? node.parentNode : ownerDocument.querySelector(bounds);
+
     if (!(ownerWindow && boundNode instanceof ownerWindow.HTMLElement)) {
       throw new Error('Bounds selector "' + bounds + '" could not find an element.');
     }
@@ -68,22 +63,18 @@ export function canDragY(axis: DraggableOptions['axis']): boolean {
 }
 
 export function getControlPosition({
-  e,
-  touch,
+  pos,
   node,
   offsetContainer,
   scale
 }: {
-  e: MouseTouchEvent;
-  touch: number | undefined;
+  pos: { x: number; y: number };
   node: HTMLElement;
   offsetContainer?: HTMLElement;
   scale: number;
 }): ControlPosition | null {
-  const touchObj = typeof touch === 'number' ? getTouch(e, touch) : null;
-  if (typeof touch === 'number' && !touchObj) return null; // not the right touch
   const offsetParent = offsetContainer || node.offsetParent || node.ownerDocument.body;
-  return offsetXYFromParent(touchObj || e, offsetParent, scale);
+  return offsetXYFromParent(pos, offsetParent, scale);
 }
 
 export function createCoreData({
