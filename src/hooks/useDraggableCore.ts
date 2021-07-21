@@ -12,6 +12,7 @@ import { addUserSelectStyles, matchesSelectorAndParentsTo, removeEvent, removeUs
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
+import { stringSame } from '../utils/shims';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -67,11 +68,12 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     ),
     {
       onBeforeChange(val, oldVal) {
-        if (val === oldVal) {
+        if (stringSame(val, oldVal)) {
           return;
         }
       },
       onChanged(val) {
+        init();
         onUpdateHook.trigger(val);
       }
     }

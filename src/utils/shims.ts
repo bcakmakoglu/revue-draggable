@@ -16,3 +16,6 @@ export function isNum(num: number): boolean {
 export function int(a: string): number {
   return parseInt(a, 10);
 }
+
+export const stringSame = (obj: Record<string, any>, toCompare: Record<string, any>) =>
+  JSON.stringify(obj) === JSON.stringify(toCompare);

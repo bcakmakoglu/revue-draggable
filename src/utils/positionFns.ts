@@ -2,7 +2,7 @@ import { isNum, int } from './shims';
 import { innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
 import { Bounds, ControlPosition, DraggableData, DraggableOptions } from './types';
 
-export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: any }): [number, number] {
+export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: HTMLElement }): [number, number] {
   // If no bounds, short-circuit and move on
   if (!bounds) return [x, y];
   // Clone new bounds
@@ -12,16 +12,16 @@ export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: numbe
     const { ownerDocument } = node;
     const ownerWindow = ownerDocument.defaultView;
     const boundNode = bounds === 'parent' ? node.parentNode : ownerDocument.querySelector(bounds);
-
     if (!(ownerWindow && boundNode instanceof ownerWindow.HTMLElement)) {
       throw new Error('Bounds selector "' + bounds + '" could not find an element.');
     }
     const nodeStyle = ownerWindow.getComputedStyle(node);
     const boundNodeStyle = ownerWindow.getComputedStyle(boundNode);
+
     // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
     bounds = {
-      left: -node.offsetLeft + int(boundNodeStyle.paddingLeft) + int(nodeStyle.marginLeft),
-      top: -node.offsetTop + int(boundNodeStyle.paddingTop) + int(nodeStyle.marginTop),
+      left: -(node.offsetLeft - boundNode.offsetLeft) + int(boundNodeStyle.paddingLeft) + int(nodeStyle.marginLeft),
+      top: -(node.offsetTop - boundNode.offsetTop) + int(boundNodeStyle.paddingTop) + int(nodeStyle.marginTop),
       right:
         innerWidth(boundNode) -
         outerWidth(node) -

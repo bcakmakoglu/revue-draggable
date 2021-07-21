@@ -88,7 +88,7 @@ const Draggable = defineComponent({
     }
   },
   emits: ['move', 'start', 'stop', 'transformed'],
-  setup(props, { slots, emit }) {
+  setup(props, { slots, emit, attrs }) {
     const draggableState = ref();
     const init = (targets: Ref[]) => {
       targets.forEach((target) => {
@@ -101,7 +101,6 @@ const Draggable = defineComponent({
 
         onDragStart((dragStartEvent) => {
           emit('start', dragStartEvent);
-          return false;
         });
 
         onDragStop((dragStopEvent) => {
@@ -113,7 +112,7 @@ const Draggable = defineComponent({
         });
 
         onUpdated(() => {
-          state.value = { ...state.value, ...props };
+          state.value = { ...state.value, update: props.update };
         });
       });
     };
@@ -122,7 +121,8 @@ const Draggable = defineComponent({
       const targets = slots.default?.().map((slot, i) => templateRef(`target-${i}`, null));
       targets && init(targets);
       return () => {
-        if (slots.default) return slots.default({ state: draggableState })?.map((node, i) => h(node, { ref: `target-${i}` }));
+        if (slots.default)
+          return slots.default({ state: draggableState })?.map((node, i) => h(node, { ref: `target-${i}`, ...attrs }));
       };
     } else {
       const target = templateRef('target', null);
@@ -131,7 +131,7 @@ const Draggable = defineComponent({
         if (slots.default)
           return h(
             'div',
-            { ref: 'target' },
+            { ref: 'target', ...attrs },
             slots.default({
               state: draggableState
             })

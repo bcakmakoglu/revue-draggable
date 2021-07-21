@@ -12,6 +12,7 @@ import {
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
+import { stringSame } from '../utils/shims';
 
 const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>): UseDraggable => {
   if (!target) {
@@ -58,17 +59,14 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
         if (stringSame(val, oldVal)) {
           return;
         }
-        coreState.value = { ...coreState.value, ...state.value };
+        coreState.value = { ...coreState.value, ...val };
       },
       onChanged(val) {
-        lifeCycleHooks.onUpdated();
+        onUpdated();
         onUpdateHook.trigger(val);
       }
     }
   );
-
-  const stringSame = (obj: Record<string, any>, toCompare: Record<string, any>) =>
-    JSON.stringify(obj) === JSON.stringify(toCompare);
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -119,14 +117,14 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       newState.x += get(state).slackX;
       newState.y += get(state).slackY;
 
-      const [newStateX, newStateY] = getBoundPosition({
+      const [boundX, boundY] = getBoundPosition({
         bounds: get(state).bounds,
         x: newState.x,
         y: newState.y,
         node: data.node
       });
-      newState.x = newStateX;
-      newState.y = newStateY;
+      newState.x = boundX;
+      newState.y = boundY;
 
       newState.slackX = get(state).slackX + (x - newState.x);
       newState.slackY = get(state).slackY + (y - newState.y);
@@ -223,23 +221,21 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     onTransformedHook.trigger(transformedData);
   };
 
-  const lifeCycleHooks = {
-    onUpdated: () => {
-      const pos = get(state).position;
-      if (
-        pos &&
-        (!get(state).prevPropsPosition || pos.x !== get(state).prevPropsPosition.x || pos.y !== get(state).prevPropsPosition.y)
-      ) {
-        log('Draggable: Updated %j', {
-          position: get(state).prevPropsPosition,
-          prevPropsPosition: get(state).prevPropsPosition
-        });
-        get(state).x = pos.x;
-        get(state).y = pos.y;
-        get(state).prevPropsPosition = { ...pos };
-      }
-      transform();
+  const onUpdated = () => {
+    const pos = get(state).position;
+    if (
+      pos &&
+      (!get(state).prevPropsPosition || pos.x !== get(state).prevPropsPosition.x || pos.y !== get(state).prevPropsPosition.y)
+    ) {
+      log('Draggable: Updated %j', {
+        position: get(state).prevPropsPosition,
+        prevPropsPosition: get(state).prevPropsPosition
+      });
+      get(state).x = pos.x;
+      get(state).y = pos.y;
+      get(state).prevPropsPosition = { ...pos };
     }
+    transform();
   };
 
   tryOnUnmounted(() => {
