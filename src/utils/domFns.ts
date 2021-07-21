@@ -1,7 +1,7 @@
 import { findInArray, int, isFunction } from './shims';
 import browserPrefix, { browserPrefixToKey } from './getPrefix';
 
-import { ControlPosition, EventHandler, MouseTouchEvent, PositionOffsetControlPosition } from './types';
+import { ControlPosition, EventHandler, PositionOffsetControlPosition } from './types';
 
 let matchesSelectorFunc = '';
 
@@ -95,36 +95,32 @@ export function innerWidth(node: HTMLElement): number {
 }
 
 // Get from offsetParent
-export function offsetXYFromParent(
-  evt: { clientX: number; clientY: number },
-  offsetParent: Element,
-  scale: number
-): ControlPosition {
+export function offsetXYFromParent(evt: { x: number; y: number }, offsetParent: Element, scale: number): ControlPosition {
   const isBody = offsetParent === offsetParent.ownerDocument.body;
   const offsetParentRect = isBody ? { left: 0, top: 0 } : offsetParent.getBoundingClientRect();
 
-  const x = (evt.clientX + offsetParent.scrollLeft - offsetParentRect.left) / scale;
-  const y = (evt.clientY + offsetParent.scrollTop - offsetParentRect.top) / scale;
+  const x = (evt.x + offsetParent.scrollLeft - offsetParentRect.left) / scale;
+  const y = (evt.y + offsetParent.scrollTop - offsetParentRect.top) / scale;
 
   return { x, y };
 }
 
 export function createCSSTransform(
   controlPos: ControlPosition,
-  positionOffset: PositionOffsetControlPosition
+  positionOffset?: PositionOffsetControlPosition
 ): Record<string, string> {
-  const translation = getTranslation(controlPos, positionOffset, 'px');
+  const translation = getTranslation(controlPos, 'px', positionOffset);
   return { [browserPrefixToKey('transform', browserPrefix)]: translation };
 }
 
-export function createSVGTransform(controlPos: ControlPosition, positionOffset: PositionOffsetControlPosition): string {
-  return getTranslation(controlPos, positionOffset, '');
+export function createSVGTransform(controlPos: ControlPosition, positionOffset?: PositionOffsetControlPosition): string {
+  return getTranslation(controlPos, '', positionOffset);
 }
 
 export function getTranslation(
   { x, y }: ControlPosition,
-  positionOffset: PositionOffsetControlPosition,
-  unitSuffix: string
+  unitSuffix = 'px',
+  positionOffset?: PositionOffsetControlPosition
 ): string {
   let translation = `translate(${x}${unitSuffix},${y}${unitSuffix})`;
   if (positionOffset) {
@@ -133,18 +129,6 @@ export function getTranslation(
     translation = `translate(${defaultX}, ${defaultY})` + translation;
   }
   return translation;
-}
-
-export function getTouch(e: MouseTouchEvent, identifier: number): { clientX: number; clientY: number } {
-  return (
-    (e.targetTouches && findInArray(e.targetTouches, (t) => identifier === t.identifier)) ||
-    (e.changedTouches && findInArray(e.changedTouches, (t) => identifier === t.identifier))
-  );
-}
-
-export function getTouchIdentifier(e: MouseTouchEvent): number | undefined {
-  if (e.targetTouches && e.targetTouches[0]) return e.targetTouches[0].identifier;
-  if (e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].identifier;
 }
 
 export function addUserSelectStyles(doc: Document): void {

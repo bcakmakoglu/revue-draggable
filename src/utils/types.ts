@@ -1,4 +1,5 @@
 import { EventHookOn } from '@vueuse/core';
+import { Ref } from 'vue-demi';
 
 export type DraggableData = {
   node: HTMLElement;
@@ -36,19 +37,19 @@ export interface DraggableOptions extends DraggableCoreOptions {
   defaultClassNameDragging: string;
   defaultClassNameDragged: string;
   defaultPosition: ControlPosition;
-  positionOffset: PositionOffsetControlPosition;
-  position: ControlPosition;
+  positionOffset?: PositionOffsetControlPosition;
+  position?: ControlPosition;
 }
 
 export interface DraggableCoreOptions {
   allowAnyClick: boolean;
-  cancel: string;
-  disabled: boolean;
-  update?: boolean;
   enableUserSelectHack: boolean;
-  offsetParent: HTMLElement;
-  grid: [number, number];
+  disabled: boolean;
+  update: boolean;
+  offsetParent?: HTMLElement;
+  grid?: [number, number];
   handle: string;
+  cancel: string;
   scale: number;
   start: DraggableEventHandler;
   move: DraggableEventHandler;
@@ -76,7 +77,8 @@ export interface UseDraggable {
   onDrag: EventHookOn<DraggableEvent>;
   onDragStop: EventHookOn<DraggableEvent>;
   onTransformed: EventHookOn<TransformEvent>;
-  updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
+  onUpdated: EventHookOn<Partial<DraggableState>>;
+  state: Ref<Partial<DraggableState>>;
 }
 
 export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
@@ -87,6 +89,7 @@ export interface DraggableEvent {
 }
 
 export interface TransformEvent {
+  el: any;
   style: Record<string, string> | false;
   transform: string | false;
   classes: {
