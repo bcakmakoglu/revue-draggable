@@ -259,12 +259,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   });
 
   watchEffect(() => {
-    if (get(node) && get(state).update !== false) {
-      // Check to see if the element passed is an instanceof SVGElement
-      if (window && typeof window.SVGElement !== 'undefined' && get(node) instanceof window.SVGElement) {
-        get(state).isElementSVG = true;
-      }
-    }
+    transform();
   });
 
   return {

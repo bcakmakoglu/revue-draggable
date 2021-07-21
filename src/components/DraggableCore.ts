@@ -55,7 +55,7 @@ const DraggableCore = defineComponent({
   setup(props, { slots, emit }) {
     const target = templateRef('core-target', null);
 
-    const { onDrag, onDragStart, onDragStop, updateState } = useDraggableCore(target, props);
+    const { onDrag, onDragStart, onDragStop, state } = useDraggableCore(target, props);
 
     onDrag((dragEvent) => {
       emit('move', dragEvent);
@@ -70,16 +70,28 @@ const DraggableCore = defineComponent({
     });
 
     onUpdated(() => {
-      updateState(props);
+      state.value = { ...state.value, ...props };
     });
 
     if (isVue3) {
       return () => {
-        if (slots.default) return slots.default()?.map((node) => h(node, { ref: 'core-target' }));
+        if (slots.default)
+          return slots
+            .default({
+              state
+            })
+            ?.map((node) => h(node, { ref: 'core-target' }));
       };
     } else {
       return () => {
-        if (slots.default) return h('div', { ref: 'core-target' }, slots.default());
+        if (slots.default)
+          return h(
+            'div',
+            { ref: 'core-target' },
+            slots.default({
+              state
+            })
+          );
       };
     }
   }
