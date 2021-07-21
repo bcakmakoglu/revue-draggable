@@ -56,6 +56,9 @@ export default defineConfig({
       colors
     }
   },
+  shortcuts: {
+    'primary-gradient': 'bg-gradient-to-b from-accent-500 via-accent-700 to-accent-900'
+  },
   darkMode: 'media',
   plugins: [
     typography({

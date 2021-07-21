@@ -1,7 +1,7 @@
-import { h, defineComponent, PropType, isVue3, Ref, onUpdated } from 'vue-demi';
+import { h, defineComponent, PropType, isVue3, Ref, onUpdated, ref } from 'vue-demi';
+import { syncRef, templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
-import { templateRef } from '@vueuse/core';
 
 const Draggable = defineComponent({
   name: 'Draggable',
@@ -89,9 +89,11 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit }) {
+    const draggableState = ref();
     const init = (targets: Ref[]) => {
       targets.forEach((target) => {
         const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
+        syncRef(state, draggableState);
 
         onDrag((dragEvent) => {
           emit('move', dragEvent);
@@ -120,13 +122,20 @@ const Draggable = defineComponent({
       const targets = slots.default?.().map((slot, i) => templateRef(`target-${i}`, null));
       targets && init(targets);
       return () => {
-        if (slots.default) return slots.default()?.map((node, i) => h(node, { ref: `target-${i}` }));
+        if (slots.default) return slots.default({ state: draggableState })?.map((node, i) => h(node, { ref: `target-${i}` }));
       };
     } else {
       const target = templateRef('target', null);
       init([target]);
       return () => {
-        if (slots.default) return h('div', { ref: 'target' }, slots.default());
+        if (slots.default)
+          return h(
+            'div',
+            { ref: 'target' },
+            slots.default({
+              state: draggableState
+            })
+          );
       };
     }
   }
