@@ -52,7 +52,7 @@ const DraggableCore = defineComponent({
     }
   },
   emits: ['start', 'move', 'stop'],
-  setup(props, { slots, emit }) {
+  setup(props, { slots, emit, attrs }) {
     const target = templateRef('core-target', null);
 
     const { onDrag, onDragStart, onDragStop, state } = useDraggableCore(target, props);
@@ -80,14 +80,14 @@ const DraggableCore = defineComponent({
             .default({
               state
             })
-            ?.map((node) => h(node, { ref: 'core-target' }));
+            ?.map((node) => h(node, { ref: 'core-target', ...attrs }));
       };
     } else {
       return () => {
         if (slots.default)
           return h(
             'div',
-            { ref: 'core-target' },
+            { ref: 'core-target', ...attrs },
             slots.default({
               state
             })
