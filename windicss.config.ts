@@ -17,5 +17,8 @@ export default defineConfig({
       dark: true
     })
   ],
+  extract: {
+    include: ['index.html', 'example/**/*.{vue,html,jsx,tsx}']
+  },
   safelist: ['grid', 'grid-cols-2', 'grid-cols-3']
 });
