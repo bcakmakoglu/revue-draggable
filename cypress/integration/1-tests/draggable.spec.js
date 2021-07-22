@@ -7,7 +7,7 @@ describe('draggable', () => {
   it('Displays the example page and moves boxes around', () => {
     cy.get('#app').should('be.visible');
     cy.get('#app')
-      .get('.box')
+      .get('.wrapper-box')
       .should('have.length.at.least', 1)
       .should('have.class', 'revue-draggable')
       .each((el) => {
