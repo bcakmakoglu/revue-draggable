@@ -1,5 +1,5 @@
 import { isNum, int } from './shims';
-import {innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight, getTouch} from './domFns';
+import { innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight, getTouch } from './domFns';
 import { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types';
 
 export function getBoundPosition({

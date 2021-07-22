@@ -192,7 +192,6 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         return;
       }
 
-      console.log(x, y);
       get(state).x = x;
       get(state).y = y;
     }
@@ -260,16 +259,6 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   const init = () => {
     if (get(node) && !initialized) {
       initialized = true;
-      useEventListener(
-        'scroll',
-        () => {
-          console.log('scrolling');
-        },
-        {
-          capture: false,
-          passive: true
-        }
-      );
       useEventListener(get(node), eventsFor.touch.start, onTouchStart, { passive: false });
       useEventListener(get(node), eventsFor.touch.stop, onTouchEnd);
       useEventListener(get(node), eventsFor.mouse.start, onMouseDown);
