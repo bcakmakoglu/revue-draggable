@@ -112,7 +112,7 @@ const Draggable = defineComponent({
         });
 
         onUpdated(() => {
-          state.value = { ...state.value, update: props.update };
+          state.value = { ...state.value, ...props };
         });
       });
     };
