@@ -7,7 +7,7 @@
       </div>
 
       <Draggable @start="onStart" @stop="onStop" @move="onMove">
-        <div class="flex flex-col bg-light-500 max-w-lg py-4 px-8 shadow-lg rounded-2xl absolute left-1/2">
+        <div style="z-index: 9999" class="flex flex-col bg-light-500 max-w-lg py-4 px-8 shadow-lg rounded-2xl absolute left-1/2">
           <h4 class="active-handlers col-span-1">Active DragHandlers: {{ activeDrags }}</h4>
           <h4 class="demo-info col-span-2">Event: {{ event }}</h4>
         </div>
@@ -364,6 +364,7 @@ export default defineComponent({
 <style>
 #demo {
   @apply min-h-100vh flex flex-col justify-center p-12 dark:bg-dark-800;
+  overflow: scroll;
 }
 
 .title {
@@ -393,6 +394,7 @@ export default defineComponent({
 html,
 body {
   height: 100%;
+  overflow: scroll;
 }
 
 body {

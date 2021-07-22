@@ -1,6 +1,7 @@
 <template>
   <Draggable v-bind="draggableOptions" @start="start" @move="move" @stop="stop">
     <div
+      style="z-index: 0"
       :class="`bg-${color}`"
       class="max-w-xs h-60 w-xs py-4 px-8 shadow-lg rounded-2xl mx-4 my-2 mix-blend-normal border-solid border-black border-1/2"
     >
