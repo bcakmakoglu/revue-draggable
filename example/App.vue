@@ -183,7 +183,7 @@
       <WrapperBox
         title="🎨 Styling"
         description="I already have an absolute position."
-        style="position: absolute; bottom: 100px; right: 100px"
+        style="position: absolute; bottom: 10px; right: 0"
         @start="onStart"
         @stop="onStop"
         @move="onMove"
@@ -208,10 +208,10 @@
       />
 
       <WrapperBox
-        title="🪄 Rem or Px"
+        title="🪄 Rem or Px positioning"
         :transform="translateTransformToRem(transform, 16)"
         class="rem-position-fix"
-        style="position: absolute; bottom: 6.25rem; right: 18rem"
+        style="position: absolute; bottom: 0; right: 22rem"
         @start="onStart"
         @stop="onStop"
         @move="onMove"
