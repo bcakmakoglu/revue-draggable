@@ -18,7 +18,16 @@ export default defineConfig({
     })
   ],
   extract: {
-    include: ['index.html', 'example/**/*.{vue,html,jsx,tsx}']
+    include: ['index.html', 'example/**/*.{vue,html,jsx,tsx}', 'src/**/*']
   },
-  safelist: ['grid', 'grid-cols-2', 'grid-cols-3']
+  // @ts-ignore
+  safelist: [
+    'grid',
+    'grid-cols-2',
+    'grid-cols-3',
+    ...Object.keys(colors).map((color) => {
+      const range = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      return range.map((num) => `bg-${color}-${num}00`);
+    })
+  ]
 });

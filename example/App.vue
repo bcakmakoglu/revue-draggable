@@ -7,7 +7,7 @@
       </div>
 
       <Draggable @start="onStart" @stop="onStop" @move="onMove">
-        <div class="flex flex-col bg-light max-w-lg py-4 px-8 shadow-lg rounded-2xl absolute left-1/2">
+        <div class="flex flex-col bg-light-500 max-w-lg py-4 px-8 shadow-lg rounded-2xl absolute left-1/2">
           <h4 class="active-handlers col-span-1">Active DragHandlers: {{ activeDrags }}</h4>
           <h4 class="demo-info col-span-2">Event: {{ event }}</h4>
         </div>
@@ -40,7 +40,6 @@
         @start="onStart"
         @stop="onStop"
         @move="onMove"
-        @click="toggleDraggable"
       />
 
       <WrapperBox
@@ -376,11 +375,11 @@ export default defineComponent({
 }
 
 .demo-info {
-  @apply font-bold text-xl dark:text-secondary;
+  @apply font-semibold text-xl dark:text-secondary;
 }
 
 .active-handlers {
-  @apply text-2xl self-start dark:text-accent-400 m-0;
+  @apply text-2xl font-semibold self-start dark:text-accent-400 m-0;
 }
 
 .demo-boxes {
@@ -431,7 +430,7 @@ body {
 }
 
 .box {
-  @apply bg-light;
+  @apply bg-light-500;
   border: 1px solid #999;
   border-radius: 3px;
   width: 180px;
