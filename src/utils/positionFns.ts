@@ -1,8 +1,18 @@
 import { isNum, int } from './shims';
-import { innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight } from './domFns';
-import { Bounds, ControlPosition, DraggableData, DraggableOptions } from './types';
+import {innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight, getTouch} from './domFns';
+import { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types';
 
-export function getBoundPosition({ bounds, x, y, node }: { bounds: any; x: number; y: number; node: HTMLElement }): [number, number] {
+export function getBoundPosition({
+  bounds,
+  x,
+  y,
+  node
+}: {
+  bounds: any;
+  x: number;
+  y: number;
+  node: HTMLElement;
+}): [number, number] {
   // If no bounds, short-circuit and move on
   if (!bounds) return [x, y];
   // Clone new bounds
@@ -63,18 +73,22 @@ export function canDragY(axis: DraggableOptions['axis']): boolean {
 }
 
 export function getControlPosition({
-  pos,
+  e,
+  touch,
   node,
   offsetContainer,
   scale
 }: {
-  pos: { x: number; y: number };
+  e: MouseTouchEvent;
+  touch: number | undefined;
   node: HTMLElement;
   offsetContainer?: HTMLElement;
   scale: number;
 }): ControlPosition | null {
+  const touchObj = typeof touch === 'number' ? getTouch(e, touch) : null;
+  if (typeof touch === 'number' && !touchObj) return null; // not the right touch
   const offsetParent = offsetContainer || node.offsetParent || node.ownerDocument.body;
-  return offsetXYFromParent(pos, offsetParent, scale);
+  return offsetXYFromParent(touchObj || e, offsetParent, scale);
 }
 
 export function createCoreData({

@@ -1,5 +1,5 @@
 import { computed, watchEffect } from 'vue-demi';
-import { get, createEventHook, MaybeRef, unrefElement, useEventListener, useMouse, controlledRef } from '@vueuse/core';
+import { get, createEventHook, MaybeRef, unrefElement, useEventListener, controlledRef } from '@vueuse/core';
 import {
   DraggableCoreOptions,
   DraggableCoreState,
@@ -8,7 +8,13 @@ import {
   MouseTouchEvent,
   UseDraggableCore
 } from '../utils/types';
-import { addUserSelectStyles, matchesSelectorAndParentsTo, removeEvent, removeUserSelectStyles } from '../utils/domFns';
+import {
+  addUserSelectStyles,
+  getTouchIdentifier,
+  matchesSelectorAndParentsTo,
+  removeEvent,
+  removeUserSelectStyles
+} from '../utils/domFns';
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
@@ -78,7 +84,6 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
       }
     }
   );
-  const { x: mouseX, y: mouseY } = useMouse({ touch: get(state).allowAnyClick });
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -104,9 +109,11 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
 
     const isTouch = e.type === 'touchstart';
     if (isTouch) e.preventDefault();
+    get(state).touch = getTouchIdentifier(e);
 
     const position = getControlPosition({
-      pos: { y: mouseY.value, x: mouseX.value },
+      e,
+      touch: get(state).touch,
       node: get(node),
       offsetContainer: get(state).offsetParent,
       scale: get(state).scale
@@ -141,7 +148,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
     if (get(node)) {
       const position = getControlPosition({
-        pos: { y: mouseY.value, x: mouseX.value },
+        e,
+        touch: get(state).touch,
         node: get(node),
         offsetContainer: get(state).offsetParent,
         scale: get(state).scale
@@ -184,6 +192,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         return;
       }
 
+      console.log(x, y);
       get(state).x = x;
       get(state).y = y;
     }
@@ -194,7 +203,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
 
     if (get(node)) {
       const position = getControlPosition({
-        pos: { y: mouseY.value, x: mouseX.value },
+        e,
+        touch: get(state).touch,
         node: get(node),
         offsetContainer: get(state).offsetParent,
         scale: get(state).scale
@@ -250,6 +260,16 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   const init = () => {
     if (get(node) && !initialized) {
       initialized = true;
+      useEventListener(
+        'scroll',
+        () => {
+          console.log('scrolling');
+        },
+        {
+          capture: false,
+          passive: true
+        }
+      );
       useEventListener(get(node), eventsFor.touch.start, onTouchStart, { passive: false });
       useEventListener(get(node), eventsFor.touch.stop, onTouchEnd);
       useEventListener(get(node), eventsFor.mouse.start, onMouseDown);

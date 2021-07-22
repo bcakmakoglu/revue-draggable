@@ -1,7 +1,7 @@
 import { findInArray, int, isFunction } from './shims';
 import browserPrefix, { browserPrefixToKey } from './getPrefix';
 
-import { ControlPosition, EventHandler, PositionOffsetControlPosition } from './types';
+import { ControlPosition, EventHandler, MouseTouchEvent, PositionOffsetControlPosition } from './types';
 
 let matchesSelectorFunc = '';
 
@@ -78,6 +78,18 @@ export function outerWidth(node: HTMLElement): number {
   return width;
 }
 
+export function getTouch(e: MouseTouchEvent, identifier: number): { clientX: number; clientY: number } {
+  return (
+    (e.targetTouches && findInArray(e.targetTouches, (t) => identifier === t.identifier)) ||
+    (e.changedTouches && findInArray(e.changedTouches, (t) => identifier === t.identifier))
+  );
+}
+
+export function getTouchIdentifier(e: MouseTouchEvent): number | undefined {
+  if (e.targetTouches && e.targetTouches[0]) return e.targetTouches[0].identifier;
+  if (e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].identifier;
+}
+
 export function innerHeight(node: HTMLElement): number {
   let height = node.clientHeight;
   const computedStyle = node.ownerDocument.defaultView?.getComputedStyle(node);
@@ -95,12 +107,12 @@ export function innerWidth(node: HTMLElement): number {
 }
 
 // Get from offsetParent
-export function offsetXYFromParent(evt: { x: number; y: number }, offsetParent: Element, scale: number): ControlPosition {
+export function offsetXYFromParent(evt: { clientX: number; clientY: number }, offsetParent: Element, scale: number): ControlPosition {
   const isBody = offsetParent === offsetParent.ownerDocument.body;
   const offsetParentRect = isBody ? { left: 0, top: 0 } : offsetParent.getBoundingClientRect();
 
-  const x = (evt.x + offsetParent.scrollLeft - offsetParentRect.left) / scale;
-  const y = (evt.y + offsetParent.scrollTop - offsetParentRect.top) / scale;
+  const x = (evt.clientX + offsetParent.scrollLeft - offsetParentRect.left) / scale;
+  const y = (evt.clientY + offsetParent.scrollTop - offsetParentRect.top) / scale;
 
   return { x, y };
 }
