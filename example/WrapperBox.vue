@@ -1,6 +1,9 @@
 <template>
   <Draggable v-bind="draggableOptions" @start="start" @move="move" @stop="stop">
-    <div :class="`bg-[${color}]`" class="max-w-xs h-60 w-xs py-4 px-8 shadow-lg rounded-2xl mx-4 my-2">
+    <div
+      :class="`bg-${color}`"
+      class="max-w-xs h-60 w-xs py-4 px-8 shadow-lg rounded-2xl mx-4 my-2 mix-blend-normal border-solid border-black border-1/2"
+    >
       <div>
         <h2 class="text-dark-800 text-2xl font-semibold mt-2 mb-0">{{ title }}</h2>
         <p class="text-dark-800 text-xl mt-2">{{ description }}</p>
@@ -52,7 +55,8 @@ export default {
     };
     const randomColor = () => {
       const keys = shuffle(Object.keys(colors));
-      return colors[keys[randomInt(0, keys.length)]][400] || '#fff';
+      const bgKey = randomInt(3, 6);
+      return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff';
     };
 
     return {

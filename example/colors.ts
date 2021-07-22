@@ -48,4 +48,4 @@ export const colors = {
   indigo: windiColors.indigo,
   orange: windiColors.orange,
   amber: windiColors.amber
-} as const;
+};
