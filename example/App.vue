@@ -16,7 +16,7 @@
     <div id="demo-boxes" class="demo-boxes">
       <WrapperBox
         title="🎮 Quickstart"
-        description="This example uses no options at all. Plug and Play fun!"
+        description="I don't use any options. Just Plug and Play fun!"
         @start="onStart"
         @move="onMove"
         @stop="onStop"
@@ -45,26 +45,25 @@
 
       <WrapperBox
         :title="active ? '✅ Draggable' : '❌ Undraggable'"
-        description="This element has set the update option to false. It will not listen to events or update it's position until the option is set to true. Click on the box to activate it."
+        description="I don't want to be dragged until my update options is set to a non-false value. Click on me to toggle draggability."
         :draggable-options="{ update: active }"
+        @click="toggleDraggable"
       />
-      <div class="box" v-draggable @move="handleDrag" @start="onStart" @stop="onStop">
-        <div>I track my deltas</div>
+
+      <WrapperBox
+        title="🖲 Tracking"
+        description="I track my deltas. Useful if you need to know my position!"
+        @move="handleDrag"
+        @start="onStart"
+        @stop="onStop"
+      >
         <div>x: {{ deltaPosition.x.toFixed(0) }}, y: {{ deltaPosition.y.toFixed(0) }}</div>
-      </div>
-      <div class="box no-cursor" v-draggable="{ handle: 'strong' }" @start="onStart" @stop="onStop" @move="onMove">
-        <strong class="cursor">
-          <div>Drag here</div>
-        </strong>
-        <div>You must click my handle to drag me</div>
-      </div>
-      <div class="box" v-draggable="{ bounds: 'body' }" @start="onStart" @stop="onStop" @move="onMove">
-        I can only be moved within the confines of the body element.
-      </div>
-      <div
-        class="box no-cursor"
-        style="display: flex; flex-direction: column"
-        v-draggable="{ handle: 'strong' }"
+      </WrapperBox>
+
+      <WrapperBox
+        title="✋ Handle"
+        description="I can only be dragged by my handle. I use querySelector under the hood."
+        :draggable-options="{ handle: 'strong' }"
         @start="onStart"
         @stop="onStop"
         @move="onMove"
@@ -72,114 +71,184 @@
         <strong class="cursor">
           <div>Drag here</div>
         </strong>
-        <div style="overflow: scroll">
-          <div style="background: yellow; white-space: pre-wrap">
-            I have long scrollable content with a handle
-            {{ '\n' + Array(40).fill('x').join('\n') }}
+      </WrapperBox>
+
+      <WrapperBox
+        title="🖼 Bounds"
+        description="I can only be moved withing the confines of the body element."
+        :draggable-options="{ bounds: 'body' }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="🤸‍♀️ Scrollable content"
+        :draggable-options="{ handle: 'strong' }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      >
+        <div style="display: flex; flex-direction: column; max-height: 140px">
+          <strong class="cursor"> Drag here </strong>
+          <div style="overflow: scroll">
+            <div class="bg-gray-500" style="white-space: pre-wrap">
+              I have long scrollable content and a handle ✋.
+              {{ '\n' + Array(40).fill('x').join('\n') }}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="box" v-draggable="{ cancel: 'strong' }" @start="onStart" @stop="onStop" @move="onMove">
+      </WrapperBox>
+
+      <WrapperBox
+        title="👎 Non-draggable handle"
+        :draggable-options="{ cancel: 'strong' }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      >
         <strong class="no-cursor">Can't drag here</strong>
         <div>Dragging here works</div>
-      </div>
-      <div class="box" v-draggable="{ grid: [25, 25] }" @start="onStart" @stop="onStop" @move="onMove">
-        I snap to a 25 x 25 grid
-      </div>
-      <div class="box" v-draggable="{ grid: [50, 50] }" @start="onStart" @stop="onStop" @move="onMove">
-        I snap to a 50 x 50 grid
-      </div>
-      <div
-        v-draggable
-        class="box drop-target"
+      </WrapperBox>
+
+      <WrapperBox
+        title="🧩 Grid"
+        description="I snap to a 25 x 25 grid"
+        :draggable-options="{ grid: [25, 25] }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="🧩 Grid"
+        description="I snap to a 50 x 50 grid"
+        :draggable-options="{ grid: [50, 50] }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="🏈 Drag and Drop"
+        description="I can detect drops from the other Drag and Drop box."
+        class="drop-target"
         @mouseenter="onDropAreaMouseEnter"
         @mouseleave="onDropAreaMouseLeave"
         @start="onStart"
         @stop="onStop"
         @move="onMove"
-      >
-        I can detect drops from the next box.
-      </div>
-      <div v-draggable @start="onStart" @stop="onDrop" :class="`box ${activeDrags ? 'no-pointer-events' : ''}`">
-        I can be dropped onto another box.
-      </div>
-      <div class="box" style="height: 500px; width: 500px; position: relative; overflow: auto; padding: 0">
-        <div style="height: 1000px; width: 1000px; padding: 10px">
-          <div class="box" v-draggable="{ bounds: 'parent' }" @start="onStart" @stop="onStop" @move="onMove">
-            I can only be moved within my offsetParent.<br /><br />
-            Both parent padding and child margin work properly.
-          </div>
-          <div class="box" v-draggable="{ bounds: 'parent' }" @start="onStart" @stop="onStop" @move="onMove">
-            I also can only be moved within my offsetParent.<br /><br />
-            Both parent padding and child margin work properly.
-          </div>
-        </div>
-      </div>
-      <div
-        class="box"
-        style="position: absolute; bottom: 100px; right: 100px"
-        v-draggable
+      />
+
+      <WrapperBox
+        title="🏈 Drag and Drop"
+        description="I can be dropped onto the other Drag and Drop box."
+        :class="`${activeDrags ? 'no-pointer-events' : ''}`"
+        @start="onStart"
+        @stop="onDrop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="🧪 Programmatic usage"
+        description="I sync my state with a dragHandler."
+        :draggable-options="{ position: controlledPosition }"
+        @move="onControlledDrag"
         @start="onStart"
         @stop="onStop"
-        @move="onMove"
       >
-        I already have an absolute position.
-      </div>
-      <div class="box" v-draggable="{ defaultPosition: { x: 25, y: 25 } }" @start="onStart" @stop="onStop" @move="onMove">
-        {{ "I have a default position of {x: 25, y: 25}, so I'm slightly offset." }}
-      </div>
-      <div class="box" v-draggable="{ positionOffset: { x: '-10%', y: '-10%' } }" @start="onStart" @stop="onStop" @move="onMove">
-        {{ "I have a default position based on percents {x: '-10%', y: '-10%'}, so I'm slightly offset." }}
-      </div>
-      <div class="box" v-draggable="{ position: controlledPosition }" @move="onControlledDrag" @start="onStart" @stop="onStop">
-        My position can be changed programmatically. <br />
-        I have a drag handler to sync state.
         <div>
-          <button @click="adjustXPos">Adjust x ({{ controlledPosition.x }})</button>
+          <a href="#" @click="adjustXPos">Adjust x ({{ controlledPosition.x }})</a>
         </div>
         <div>
-          <button @click="adjustYPos">Adjust y ({{ controlledPosition.y }})</button>
+          <a href="#" @click="adjustYPos">Adjust y ({{ controlledPosition.y }})</a>
         </div>
-      </div>
-      <div
-        class="box"
-        v-draggable="{ position: controlledPosition }"
+      </WrapperBox>
+
+      <WrapperBox
+        title="🧪 Programmatic usage"
+        description="I have a dragStop handler to sync state."
+        :draggable-options="{ position: controlledPosition }"
         @move="onMove"
         @start="onStart"
         @stop="onControlledDragStop"
       >
-        My position can be changed programmatically. <br />
-        I have a dragStop handler to sync state.
         <div>
-          <button @click="adjustXPos">Adjust x ({{ controlledPosition.x }})</button>
+          <a href="#" @click="adjustXPos">Adjust x ({{ controlledPosition.x }})</a>
         </div>
         <div>
-          <button @click="adjustYPos">Adjust y ({{ controlledPosition.y }})</button>
+          <a href="#" @click="adjustYPos">Adjust y ({{ controlledPosition.y }})</a>
         </div>
-      </div>
-      <div
+      </WrapperBox>
+
+      <WrapperBox
+        title="🎨 Styling"
+        description="I already have an absolute position."
+        style="position: absolute; bottom: 100px; right: 100px"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="📔 Default position"
+        description="I have a default position of { x: 25, y: 25 }, so I'm slightly offset."
+        :draggable-options="{ defaultPosition: { x: 25, y: 25 } }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="🏌️‍♀️ Offset"
+        description="I have a default position based on percents { x: '-10%', y: '-10%' }, so I'm slightly offset."
+        :draggable-options="{ positionOffset: { x: '-10%', y: '-10%' } }"
+        @start="onStart"
+        @stop="onStop"
+        @move="onMove"
+      />
+
+      <WrapperBox
+        title="🪄 Rem or Px"
         :transform="translateTransformToRem(transform, 16)"
-        class="box rem-position-fix"
+        class="rem-position-fix"
         style="position: absolute; bottom: 6.25rem; right: 18rem"
-        v-draggable
         @start="onStart"
         @stop="onStop"
         @move="onMove"
       >
         I use <span style="font-weight: 700">rem</span> instead of <span style="font-weight: 700">px</span> for my transforms. I
         also have absolute positioning. I depend on a CSS hack to avoid double absolute positioning.
-      </div>
-      <Draggable @start="onStart" @stop="onStop">
+      </WrapperBox>
+
+      <WrapperBox title="🐥 Nested" @start="onStart" @stop="onStop" @move="onMove">
         <ExampleComponent>
-          <span>I'm in a nested component</span>
+          <span>I'm in a nested component!</span>
         </ExampleComponent>
-      </Draggable>
-      <Draggable @start="onStart" @stop="onStop" @move="onMove">
-        <div class="box">3 Slots in a single Draggable Wrapper</div>
-        <div class="box">3 Slots in a single Draggable Wrapper</div>
-        <div class="box">3 Slots in a single Draggable Wrapper</div>
-      </Draggable>
-      -->
+      </WrapperBox>
+
+      <div class="box" style="height: 400px; width: 400px; position: relative; overflow: auto; padding: 0">
+        <div style="height: 1000px; width: 1000px; padding: 10px">
+          <WrapperBox
+            title="👨‍👨‍👧 Parent boundaries"
+            description="I can only be moved within my offsetParent. Both parent padding and child margin work properly."
+            :draggable-options="{ bounds: 'parent' }"
+            @start="onStart"
+            @stop="onStop"
+            @move="onMove"
+          >
+          </WrapperBox>
+          <WrapperBox
+            title="👨‍👨‍👧 Parent boundaries"
+            description="I'm stuck in here too..."
+            :draggable-options="{ bounds: 'parent' }"
+            @start="onStart"
+            @stop="onStop"
+            @move="onMove"
+          >
+          </WrapperBox>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -220,11 +289,11 @@ export default defineComponent({
       this.active = !this.active;
     },
     handleDrag(e) {
-      this.currentEvent = e.detail;
+      this.currentEvent = e;
       const { x, y } = this.deltaPosition;
       this.deltaPosition = {
-        x: x + e.detail.data.deltaX,
-        y: y + e.detail.data.deltaY
+        x: x + e.data.deltaX,
+        y: y + e.data.deltaY
       };
     },
     onMove(e) {
@@ -241,10 +310,9 @@ export default defineComponent({
     onDrop(e) {
       this.currentEvent = {};
       this.activeDrags--;
-      // get the original event
-      if (e.detail.event.target.classList.contains('drop-target')) {
+      if (e.event.target.classList.contains('drop-target')) {
         alert('Dropped!');
-        e.detail.event.target.classList.remove('hovered');
+        e.event.target.classList.remove('hovered');
       }
     },
     onDropAreaMouseEnter(e) {
@@ -269,8 +337,8 @@ export default defineComponent({
       this.controlledPosition = { x, y: y - 10 };
     },
     onControlledDrag(e) {
-      this.currentEvent = e.detail;
-      const { x, y } = e.detail.data;
+      this.currentEvent = e;
+      const { x, y } = e.data;
       this.controlledPosition.x = x;
       this.controlledPosition.y = y;
     },
@@ -290,9 +358,6 @@ export default defineComponent({
       const [x, y] = convertedValues;
 
       return (this.transform = `translate(${x}, ${y})`);
-    },
-    github(e) {
-      e.preventDefault();
     }
   }
 });
@@ -385,10 +450,6 @@ body {
 
 .rem-position-fix {
   @apply static;
-}
-
-button {
-  @apply font-bold text-blue-500;
 }
 
 a {
