@@ -89,7 +89,7 @@
     "vite-svg-loader": "^2.1.0",
     "vue": ">=3.0.5",
     "vue-router": "4",
-    "vue-tsc": "^0.0.24",
+    "vue-tsc": "^0.2.2",
     "vue2": "npm:vue@2",
     "windicss": "^3.1.5"
   },
