@@ -1,54 +1,45 @@
 <template>
   <Draggable v-bind="draggableOptions" @start="start" @move="move" @stop="stop">
-    <div
-      style="z-index: 0"
-      :class="`bg-${color}`"
-      class="
-        wrapper-box
-        max-w-xs
-        h-60
-        w-xs
-        py-4
-        px-8
-        shadow-lg
-        rounded-2xl
-        mx-4
-        my-2
-        mix-blend-normal
-        border-solid border-black border-1/2
-      "
-    >
+    <div style="z-index: 0" :class="`bg-${color}`" class="wrapper-box">
       <div>
-        <h2 class="text-dark-800 text-2xl font-semibold mt-2 mb-0">{{ title }}</h2>
+        <h2 class="flex items-center text-dark-800 text-2xl font-semibold mt-2 mb-0">
+          {{ title }}
+          <InfoIcon class="fixed right-2 top-2 cursor-info" @click="showInfo = true" />
+        </h2>
         <p class="text-dark-800 text-xl mt-2">{{ description }}</p>
         <slot></slot>
       </div>
+      <InfoBox :info="info" :color="color" :title="title" :show="showInfo" @close="showInfo = false"></InfoBox>
     </div>
   </Draggable>
 </template>
 <script lang="ts">
 import { Draggable } from '../src';
 import { colors } from './colors';
+import InfoBox from './InfoBox.vue';
+import InfoIcon from './assets/info.svg';
 
 export default {
-  components: { Draggable },
+  components: { InfoBox, Draggable, InfoIcon },
   emits: ['start', 'move', 'stop'],
   props: {
     title: String,
     description: String,
-    draggableOptions: Object
+    draggableOptions: Object,
+    info: String
   },
   data() {
     return {
-      state: {}
+      state: {},
+      showInfo: false
     };
   },
   methods: {
     start(e) {
-      this.$emit('start', e);
+      this.$emit('start', e, this.title);
     },
     move(e) {
-      this.$emit('move', e);
+      this.$emit('move', e, this.title);
     },
     stop(e) {
       this.$emit('stop', e);
@@ -79,3 +70,24 @@ export default {
   }
 };
 </script>
+<style>
+.wrapper-box {
+  @apply max-w-xs
+  h-60
+  w-xs
+  py-4
+  px-8
+  shadow-lg
+  rounded-2xl
+  mx-4
+  my-2
+  mix-blend-normal
+  border-solid border-black border-1/2;
+}
+
+.cursor-info {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🕵🏻‍♂️</text></svg>")
+      16 0,
+    auto;
+}
+</style>
