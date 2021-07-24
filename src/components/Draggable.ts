@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, isVue3, Ref, onUpdated, ref } from 'vue-demi';
+import { h, defineComponent, PropType, Ref, onUpdated, ref } from 'vue-demi';
 import { syncRef, templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
@@ -90,54 +90,36 @@ const Draggable = defineComponent({
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit, attrs }) {
     const draggableState = ref();
-    const init = (targets: Ref[]) => {
-      targets.forEach((target) => {
-        const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
-        syncRef(state, draggableState);
+    const init = (target: Ref) => {
+      const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
+      syncRef(state, draggableState);
 
-        onDrag((dragEvent) => {
-          emit('move', dragEvent);
-        });
+      onDrag((dragEvent) => {
+        emit('move', dragEvent);
+      });
 
-        onDragStart((dragStartEvent) => {
-          emit('start', dragStartEvent);
-        });
+      onDragStart((dragStartEvent) => {
+        emit('start', dragStartEvent);
+      });
 
-        onDragStop((dragStopEvent) => {
-          emit('stop', dragStopEvent);
-        });
+      onDragStop((dragStopEvent) => {
+        emit('stop', dragStopEvent);
+      });
 
-        onTransformed((transformEvent) => {
-          emit('transformed', transformEvent);
-        });
+      onTransformed((transformEvent) => {
+        emit('transformed', transformEvent);
+      });
 
-        onUpdated(() => {
-          state.value = { ...state.value, ...props };
-        });
+      onUpdated(() => {
+        state.value = { ...state.value, ...props };
       });
     };
 
-    if (isVue3) {
-      const targets = slots.default?.().map((slot, i) => templateRef(`target-${i}`, null));
-      targets && init(targets);
-      return () => {
-        if (slots.default)
-          return slots.default({ state: draggableState })?.map((node, i) => h(node, { ref: `target-${i}`, ...attrs }));
-      };
-    } else {
-      const target = templateRef('target', null);
-      init([target]);
-      return () => {
-        if (slots.default)
-          return h(
-            'div',
-            { ref: 'target', ...attrs },
-            slots.default({
-              state: draggableState
-            })
-          );
-      };
-    }
+    const target = templateRef('target', null);
+    init(target);
+    return () => {
+      if (slots.default) return h(slots.default()[0], { ref: 'target', ...attrs }, {});
+    };
   }
 });
 
