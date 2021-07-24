@@ -1,15 +1,15 @@
 <template>
   <Draggable v-bind="draggableOptions" @start="start" @move="move" @stop="stop">
-    <div style="z-index: 0" :class="`bg-${color}`" class="wrapper-box">
+    <div :class="`bg-${color}`" class="wrapper-box">
       <div>
         <h2 class="flex items-center text-dark-800 text-2xl font-semibold mt-2 mb-0">
           {{ title }}
-          <InfoIcon class="fixed right-2 top-2 cursor-info" @click="showInfo = true" />
         </h2>
+        <InfoIcon class="fixed right-8 top-6 cursor-info" @click="showInfo = true" />
         <p class="text-dark-800 text-xl mt-2">{{ description }}</p>
         <slot></slot>
       </div>
-      <InfoBox :info="info" :color="color" :title="title" :show="showInfo" @close="showInfo = false"></InfoBox>
+      <InfoBox :info="info" :color="color" :title="title" :show="showInfo" @close="showInfo = false" />
     </div>
   </Draggable>
 </template>
@@ -30,7 +30,6 @@ export default {
   },
   data() {
     return {
-      state: {},
       showInfo: false
     };
   },
@@ -72,7 +71,7 @@ export default {
 </script>
 <style>
 .wrapper-box {
-  @apply max-w-xs
+  @apply max-w-70 lg:max-w-xs
   h-60
   w-xs
   py-4
@@ -89,5 +88,9 @@ export default {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🕵🏻‍♂️</text></svg>")
       16 0,
     auto;
+}
+
+.revue-draggable-dragging {
+  z-index: 999;
 }
 </style>
