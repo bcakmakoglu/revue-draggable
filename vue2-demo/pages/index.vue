@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="demo">
     <h1 class="title" v-draggable @start="onStart" @stop="onStop" @move="onMove">
       <a href="https://github.com/bcakmakoglu/revue-draggable">Revue Draggable</a> 🤏
     </h1>
@@ -156,10 +156,7 @@
   </div>
 </template>
 <script>
-import { DraggablePlugin } from '@braks/revue-draggable';
-import { Vue2, defineComponent } from 'vue-demi';
-
-Vue2.use(DraggablePlugin);
+import { defineComponent } from 'vue-demi';
 
 export default defineComponent({
   data() {
@@ -268,28 +265,29 @@ export default defineComponent({
 });
 </script>
 <style>
-#app {
-  @apply min-h-100vh flex flex-col justify-center p-12 dark:bg-black;
+#demo {
+  @apply min-h-100vh flex flex-col justify-center p-12 dark:bg-dark-800;
+  overflow: scroll;
 }
 
 .title {
-  @apply font-extrabold text-6xl self-start dark:text-primary;
+  @apply font-extrabold text-6xl self-start dark:text-primary my-4;
 }
 
 .subtitle {
-  @apply font-bold text-4xl self-start dark:text-secondary mb-4;
+  @apply font-bold text-4xl self-start dark:text-secondary mb-4 mt-2;
 }
 
 .demo-info {
-  @apply font-bold text-3xl self-start dark:text-accent;
+  @apply font-semibold text-xl dark:text-secondary;
 }
 
 .active-handlers {
-  @apply text-2xl self-start dark:text-gray-200 mt-4;
+  @apply text-2xl font-semibold self-start dark:text-accent-400 m-0;
 }
 
 .demo-boxes {
-  @apply flex flex-row flex-1 flex-wrap mt-4;
+  @apply flex flex-row flex-1 flex-wrap mt-16;
 }
 
 * {
@@ -299,6 +297,7 @@ export default defineComponent({
 html,
 body {
   height: 100%;
+  overflow: scroll;
 }
 
 body {
@@ -309,8 +308,8 @@ body {
 .revue-draggable,
 .cursor {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:24px;'><text y='50%'>🤏</text></svg>")
-      16 0,
-    auto;
+  16 0,
+  auto;
 }
 
 .no-cursor {
@@ -336,7 +335,7 @@ body {
 }
 
 .box {
-  @apply bg-light;
+  @apply bg-light-500;
   border: 1px solid #999;
   border-radius: 3px;
   width: 180px;
@@ -346,7 +345,7 @@ body {
 }
 
 .no-pointer-events {
-  @apply pointer-none;
+  pointer-events: none;
 }
 
 .hovered {
@@ -357,7 +356,7 @@ body {
   @apply static;
 }
 
-button {
-  @apply font-bold text-blue-500;
+a {
+  text-decoration-line: none;
 }
 </style>

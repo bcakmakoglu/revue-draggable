@@ -22,7 +22,7 @@
   "dependencies": {
     "@braks/revue-draggable": "latest",
     "@nuxtjs/composition-api": "^0.24.7",
-    "@vue/composition-api": "^1.0.3",
+    "@vue/composition-api": "^1.0.4",
     "@vueuse/core": "^5.1.3",
     "nuxt": "^2.15.7",
     "nuxt-windicss": "^1.1.3",
