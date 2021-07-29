@@ -66,7 +66,7 @@
     "@vue/compiler-sfc": "^3.0.5",
     "@vue/eslint-config-typescript": "^7.0.0",
     "babel-eslint": "latest",
-    "cypress": "^7.7.0",
+    "cypress": "^8.0.0",
     "esbuild-register": "^2.6.0",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.1.0",
