@@ -2,6 +2,7 @@ import { Directive, DirectiveHook, getCurrentInstance, isVue3, Ref, VNode } from
 import { DraggableOptions, DraggableState } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
 import useDraggableCore from '../hooks/useDraggableCore';
+import { stringSame } from '../utils/shims';
 
 const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el, binding) => {
   const instance = getCurrentInstance();
@@ -50,13 +51,15 @@ const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
   const element = el as any;
   if (typeof element['revue-draggable'] !== 'undefined' && binding.value) {
     const state = element['revue-draggable'] as Ref<Partial<DraggableState>>;
-    state.value = { ...state.value, ...binding.value };
+    const updatedState = { ...state.value, ...binding.value };
+    if (stringSame(state.value, updatedState)) return;
+    state.value = updatedState;
   }
 };
 
 const DraggableDirective: Directive<HTMLElement | VNode, DraggableOptions> = {
   [isVue3 ? 'mounted' : 'inserted']: onMounted,
-  [isVue3 ? 'updated' : 'componentUpdated']: onUpdated
+  [isVue3 ? 'beforeUpdate' : 'update']: onUpdated
 };
 
 export default DraggableDirective;
