@@ -69,7 +69,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       }
     });
   } else {
-    state = ref<DraggableState>(stateObj);
+    state = ref<any>(stateObj);
     watch(state, (val, oldVal) => {
       if (equal(val, oldVal)) {
         return;

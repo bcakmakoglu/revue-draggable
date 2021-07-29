@@ -87,7 +87,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
       }
     });
   } else {
-    state = ref<DraggableCoreState>(stateObj);
+    state = ref<any>(stateObj);
     watch(state, (val, oldVal) => {
       if (equal(val, oldVal)) {
         return;
