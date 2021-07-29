@@ -28,7 +28,7 @@ export default {
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: ['@nuxtjs/composition-api/module', 'nuxt-windicss'],
+  buildModules: ['@nuxt/typescript-build', '@nuxtjs/composition-api/module', 'nuxt-windicss'],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [],
@@ -37,7 +37,8 @@ export default {
   build: {},
 
   alias: {
-    vue: 'vue/dist/vue.js'
+    vue: 'vue/dist/vue.js',
+    '@vue/composition-api': resolve(join(__dirname, '/node_modules/@vue/composition-api/'))
   },
 
   loading: { color: '#00CD81' }

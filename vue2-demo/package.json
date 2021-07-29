@@ -17,9 +17,11 @@
     "lint": "yarn lint:js"
   },
   "devDependencies": {
+    "@nuxt/types": "^2.15.7",
+    "@nuxt/typescript-build": "^2.1.0"
   },
   "dependencies": {
-    "@braks/revue-draggable": "latest",
+    "@braks/revue-draggable": "^0.2.7",
     "@nuxtjs/composition-api": "^0.24.7",
     "@vue/composition-api": "^1.0.4",
     "@vueuse/core": "^5.1.3",
