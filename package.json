@@ -34,7 +34,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vue-tsc --noEmit && vite",
     "build": "vue-tsc --noEmit && vite build",
     "build:demo": "yarn && yarn --cwd vue2-demo && yarn --cwd vue2-demo build",
     "build:dist": "rollup -c --environment NODE_ENV:production",
