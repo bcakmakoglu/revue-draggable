@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, Ref, onUpdated, ref } from 'vue-demi';
+import { h, defineComponent, PropType, Ref, onUpdated, ref, isVue3 } from 'vue-demi';
 import { syncRef, templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
@@ -117,9 +117,19 @@ const Draggable = defineComponent({
 
     const target = templateRef('target', null);
     init(target);
-    return () => {
-      if (slots.default) return h(slots.default()[0], { ref: 'target', ...attrs }, {});
-    };
+    if (isVue3) {
+      return () => {
+        if (slots.default) {
+          return h(slots.default()[0], { ref: 'target', ...attrs }, {});
+        }
+      };
+    } else {
+      return () => {
+        if (slots.default) {
+          return h('div', { ref: 'target', ...attrs }, slots.default());
+        }
+      };
+    }
   }
 });
 

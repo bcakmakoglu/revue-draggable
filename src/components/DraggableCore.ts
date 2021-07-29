@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, isVue3, onUpdated } from 'vue-demi';
+import { h, defineComponent, PropType, onUpdated, isVue3 } from 'vue-demi';
 import { DraggableCoreOptions, DraggableOptions } from '../utils/types';
 import useDraggableCore from '../hooks/useDraggableCore';
 import { templateRef } from '@vueuse/core';
@@ -75,23 +75,15 @@ const DraggableCore = defineComponent({
 
     if (isVue3) {
       return () => {
-        if (slots.default)
-          return slots
-            .default({
-              state
-            })
-            ?.map((node) => h(node, { ref: 'core-target', ...attrs }));
+        if (slots.default) {
+          return h(slots.default()[0], { ref: 'core-target', ...attrs }, {});
+        }
       };
     } else {
       return () => {
-        if (slots.default)
-          return h(
-            'div',
-            { ref: 'core-target', ...attrs },
-            slots.default({
-              state
-            })
-          );
+        if (slots.default) {
+          return h('div', { ref: 'core-target', ...attrs }, slots.default());
+        }
       };
     }
   }
