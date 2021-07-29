@@ -1,4 +1,4 @@
-import { watchEffect, computed } from 'vue-demi';
+import { watchEffect, computed, isVue3, ref, Ref, watch } from 'vue-demi';
 import { controlledRef, createEventHook, get, MaybeRef, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
@@ -19,42 +19,44 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     console.warn('You are trying to use <Draggable> without passing a valid target reference.');
   }
 
-  const node = computed(() => unrefElement(target));
-  const state = controlledRef<DraggableState>(
-    Object.assign(
-      {
-        allowAnyClick: true,
-        cancel: '',
-        handle: '',
-        disabled: false,
-        enableUserSelectHack: true,
-        offsetParent: undefined,
-        grid: undefined,
-        start: () => {},
-        move: () => {},
-        stop: () => {},
-        position: undefined as any,
-        positionOffset: undefined,
-        scale: 1,
-        axis: 'both',
-        defaultClassNameDragging: 'revue-draggable-dragging',
-        defaultClassNameDragged: 'revue-draggable-dragged',
-        defaultClassName: 'revue-draggable',
-        defaultPosition: { x: 0, y: 0 },
-        bounds: false,
-        dragging: false,
-        dragged: false,
-        x: 0,
-        y: 0,
-        prevPropsPosition: { x: 0, y: 0 },
-        slackX: 0,
-        slackY: 0,
-        isElementSVG: false,
-        update: true
-      },
-      options
-    ),
+  const stateObj: DraggableState = Object.assign(
     {
+      allowAnyClick: true,
+      cancel: '',
+      handle: '',
+      disabled: false,
+      enableUserSelectHack: true,
+      offsetParent: undefined,
+      grid: undefined,
+      start: () => {},
+      move: () => {},
+      stop: () => {},
+      position: undefined as any,
+      positionOffset: undefined,
+      scale: 1,
+      axis: 'both',
+      defaultClassNameDragging: 'revue-draggable-dragging',
+      defaultClassNameDragged: 'revue-draggable-dragged',
+      defaultClassName: 'revue-draggable',
+      defaultPosition: { x: 0, y: 0 },
+      bounds: false,
+      dragging: false,
+      dragged: false,
+      x: 0,
+      y: 0,
+      prevPropsPosition: { x: 0, y: 0 },
+      slackX: 0,
+      slackY: 0,
+      isElementSVG: false,
+      update: true
+    },
+    options
+  );
+
+  const node = computed(() => unrefElement(target));
+  let state: Ref<DraggableState>;
+  if (isVue3) {
+    state = controlledRef<DraggableState>(stateObj, {
       onBeforeChange(val, oldVal) {
         if (stringSame(val, oldVal)) {
           return;
@@ -65,8 +67,18 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
         onUpdated();
         onUpdateHook.trigger(val);
       }
-    }
-  );
+    });
+  } else {
+    state = ref<DraggableState>(stateObj);
+    watch(state, (val, oldVal) => {
+      if (stringSame(val, oldVal)) {
+        return;
+      }
+      coreState.value = { ...coreState.value, ...val };
+      onUpdated();
+      onUpdateHook.trigger(val);
+    });
+  }
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -254,9 +266,12 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     onDragStop(event, data);
   });
 
-  watchEffect(() => {
-    transform();
-  });
+  watchEffect(
+    () => {
+      transform();
+    },
+    { flush: 'post' }
+  );
 
   return {
     state,

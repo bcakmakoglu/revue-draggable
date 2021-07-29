@@ -1,4 +1,4 @@
-import { computed, watchEffect } from 'vue-demi';
+import { computed, isVue3, ref, Ref, watch, watchEffect } from 'vue-demi';
 import { get, createEventHook, MaybeRef, unrefElement, useEventListener, controlledRef } from '@vueuse/core';
 import {
   DraggableCoreOptions,
@@ -44,35 +44,38 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     );
   }
 
-  const node = computed(() => unrefElement(target));
-  const state = controlledRef<DraggableCoreState>(
-    Object.assign(
-      {
-        enableUserSelectHack: true,
-        allowAnyClick: true,
-        disabled: false,
-        offsetParent: undefined,
-        grid: undefined,
-        handle: '',
-        cancel: '',
-        dragged: false,
-        update: true,
-        slackX: 0,
-        slackY: 0,
-        scale: 1,
-        dragging: false,
-        x: 0,
-        y: 0,
-        touch: 0,
-        isElementSVG: false,
-        prevPropsPosition: { x: 0, y: 0 },
-        start: () => {},
-        move: () => {},
-        stop: () => {}
-      },
-      options
-    ),
+  const stateObj: DraggableCoreState = Object.assign(
     {
+      enableUserSelectHack: true,
+      allowAnyClick: true,
+      disabled: false,
+      offsetParent: undefined,
+      grid: undefined,
+      handle: '',
+      cancel: '',
+      dragged: false,
+      update: true,
+      slackX: 0,
+      slackY: 0,
+      scale: 1,
+      dragging: false,
+      x: 0,
+      y: 0,
+      touch: 0,
+      isElementSVG: false,
+      prevPropsPosition: { x: 0, y: 0 },
+      start: () => {},
+      move: () => {},
+      stop: () => {}
+    },
+    options
+  );
+
+  const node = computed(() => unrefElement(target));
+  let state: Ref<DraggableCoreState>;
+
+  if (isVue3) {
+    state = controlledRef<DraggableCoreState>(stateObj, {
       onBeforeChange(val, oldVal) {
         if (stringSame(val, oldVal)) {
           return;
@@ -82,8 +85,17 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         init();
         onUpdateHook.trigger(val);
       }
-    }
-  );
+    });
+  } else {
+    state = ref<DraggableCoreState>(stateObj);
+    watch(state, (val, oldVal) => {
+      if (stringSame(val, oldVal)) {
+        return;
+      }
+      init();
+      onUpdateHook.trigger(val);
+    });
+  }
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -266,9 +278,12 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     }
   };
 
-  watchEffect(() => {
-    init();
-  });
+  watchEffect(
+    () => {
+      init();
+    },
+    { flush: 'post' }
+  );
 
   return {
     state,
