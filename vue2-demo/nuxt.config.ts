@@ -37,8 +37,7 @@ export default {
   build: {},
 
   alias: {
-    vue: 'vue/dist/vue.js',
-    '@vue/composition-api': resolve(join(__dirname, '/node_modules/@vue/composition-api/'))
+    vue: 'vue/dist/vue.js'
   },
 
   loading: { color: '#00CD81' }

@@ -1,6 +1,6 @@
 import { defineConfig } from 'windicss/helpers';
 import typography from 'windicss/plugin/typography';
-import { colors } from '../example/colors';
+import { colors } from './colors';
 
 export default defineConfig({
   theme: {
