@@ -2,7 +2,7 @@ import { Directive, DirectiveHook, getCurrentInstance, isVue3, Ref, VNode } from
 import { DraggableOptions, DraggableState } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
 import useDraggableCore from '../hooks/useDraggableCore';
-import { stringSame } from '../utils/shims';
+import equal from 'fast-deep-equal/es6';
 
 const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el, binding) => {
   const instance = getCurrentInstance();
@@ -52,7 +52,7 @@ const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
   if (typeof element['revue-draggable'] !== 'undefined' && binding.value) {
     const state = element['revue-draggable'] as Ref<Partial<DraggableState>>;
     const updatedState = { ...state.value, ...binding.value };
-    if (stringSame(state.value, updatedState)) return;
+    if (equal(state.value, updatedState)) return;
     state.value = updatedState;
   }
 };

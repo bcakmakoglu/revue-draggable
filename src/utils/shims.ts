@@ -17,5 +17,11 @@ export function int(a: string): number {
   return parseInt(a, 10);
 }
 
-export const stringSame = (obj: Record<string, any>, toCompare: Record<string, any>) =>
-  JSON.stringify(obj) === JSON.stringify(toCompare);
+export function deepEqual(x: any, y: any): boolean {
+  const ok = Object.keys,
+    tx = typeof x,
+    ty = typeof y;
+  return x && y && tx === 'object' && tx === ty
+    ? ok(x).length === ok(y).length && ok(x).every((key) => deepEqual(x[key], y[key]))
+    : x === y;
+}

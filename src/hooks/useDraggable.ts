@@ -12,7 +12,7 @@ import {
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
-import { stringSame } from '../utils/shims';
+import equal from 'fast-deep-equal/es6';
 
 const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>): UseDraggable => {
   if (!target) {
@@ -58,7 +58,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   if (isVue3) {
     state = controlledRef<DraggableState>(stateObj, {
       onBeforeChange(val, oldVal) {
-        if (stringSame(val, oldVal)) {
+        if (equal(val, oldVal)) {
           return;
         }
         coreState.value = { ...coreState.value, ...val };
@@ -71,7 +71,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   } else {
     state = ref<DraggableState>(stateObj);
     watch(state, (val, oldVal) => {
-      if (stringSame(val, oldVal)) {
+      if (equal(val, oldVal)) {
         return;
       }
       coreState.value = { ...coreState.value, ...val };

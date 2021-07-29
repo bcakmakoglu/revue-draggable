@@ -18,7 +18,7 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
-import { stringSame } from '../utils/shims';
+import equal from 'fast-deep-equal/es6';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -77,7 +77,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   if (isVue3) {
     state = controlledRef<DraggableCoreState>(stateObj, {
       onBeforeChange(val, oldVal) {
-        if (stringSame(val, oldVal)) {
+        if (equal(val, oldVal)) {
           return;
         }
       },
@@ -89,7 +89,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   } else {
     state = ref<DraggableCoreState>(stateObj);
     watch(state, (val, oldVal) => {
-      if (stringSame(val, oldVal)) {
+      if (equal(val, oldVal)) {
         return;
       }
       init();
