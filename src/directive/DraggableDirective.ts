@@ -6,7 +6,7 @@ import equal from 'fast-deep-equal/es6';
 
 const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el, binding) => {
   const instance = getCurrentInstance();
-  const emitter =
+  const emit =
     instance?.emit ??
     ((arg, data) => {
       const event = new CustomEvent(arg, { detail: data });
@@ -17,29 +17,29 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
   if (binding.arg === 'core') {
     const { onDrag, onDragStop, onDragStart, state } = useDraggableCore(el, { ...binding.value });
     onDrag((dragEvent) => {
-      emitter('move', dragEvent);
+      emit('move', dragEvent);
     });
     onDragStart((dragStartEvent) => {
-      emitter('start', dragStartEvent);
+      emit('start', dragStartEvent);
     });
     onDragStop((dragStopEvent) => {
-      emitter('stop', dragStopEvent);
+      emit('stop', dragStopEvent);
     });
     // @ts-ignore
     el['revue-draggable'] = state;
   } else {
     const { onDrag, onDragStop, onDragStart, onTransformed, state } = useDraggable(el, { ...binding.value });
     onDrag((dragEvent) => {
-      emitter('move', dragEvent);
+      emit('move', dragEvent);
     });
     onDragStart((dragStartEvent) => {
-      emitter('start', dragStartEvent);
+      emit('start', dragStartEvent);
     });
     onDragStop((dragStopEvent) => {
-      emitter('stop', dragStopEvent);
+      emit('stop', dragStopEvent);
     });
     onTransformed((transformEvent) => {
-      emitter('transformed', transformEvent);
+      emit('transformed', transformEvent);
     });
     // @ts-ignore
     el['revue-draggable'] = state;
