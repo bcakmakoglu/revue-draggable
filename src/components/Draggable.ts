@@ -1,5 +1,5 @@
-import { h, defineComponent, PropType, Ref, onUpdated, ref, isVue3 } from 'vue-demi';
-import { syncRef, templateRef } from '@vueuse/core';
+import { h, defineComponent, PropType, Ref, onUpdated, isVue3 } from 'vue-demi';
+import { templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
 
@@ -89,10 +89,8 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit, attrs }) {
-    const draggableState = ref();
     const init = (target: Ref) => {
       const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
-      syncRef(state, draggableState);
 
       onDrag((dragEvent) => {
         emit('move', dragEvent);
