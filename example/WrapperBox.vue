@@ -5,7 +5,7 @@
         <h2 class="flex items-center text-dark-800 text-2xl font-semibold mt-2 mb-0">
           {{ title }}
         </h2>
-        <InfoIcon class="fixed right-8 top-6 cursor-info" @click="showInfo = true" />
+        <InfoIcon class="fixed right-4 top-4 cursor-info" @click="showInfo = true" />
         <p class="text-dark-800 text-xl mt-2">{{ description }}</p>
         <slot></slot>
       </div>
