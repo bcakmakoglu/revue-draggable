@@ -115,13 +115,19 @@ const Draggable = defineComponent({
     if (isVue3) {
       return () => {
         if (slots.default) {
-          return h(slots.default()[0], { ref: 'target', ...attrs }, {});
+          return h(
+            slots.default({
+              state
+            })[0],
+            { ref: 'target', ...attrs },
+            {}
+          );
         }
       };
     } else {
       return () => {
         if (slots.default) {
-          return h('div', { ref: 'target', ...attrs }, slots.default());
+          return h('div', { ref: 'target', ...attrs }, slots.default({ state }));
         }
       };
     }
