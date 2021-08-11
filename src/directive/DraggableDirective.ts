@@ -50,7 +50,7 @@ const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
   // typehack as we store the draggable instance on the element, see the comment above
   const element = el as any;
   if (typeof element['revue-draggable'] !== 'undefined' && binding.value) {
-    const state = element['revue-draggable'] as Ref<Partial<DraggableState>>;
+    const state = element['revue-draggable'] as Ref<DraggableState>;
     const updatedState = { ...state.value, ...binding.value };
     if (equal(state.value, updatedState)) return;
     state.value = updatedState;

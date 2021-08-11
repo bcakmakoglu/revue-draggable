@@ -89,32 +89,29 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit, attrs }) {
-    const init = (target: Ref) => {
-      const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
-
-      onDrag((dragEvent) => {
-        emit('move', dragEvent);
-      });
-
-      onDragStart((dragStartEvent) => {
-        emit('start', dragStartEvent);
-      });
-
-      onDragStop((dragStopEvent) => {
-        emit('stop', dragStopEvent);
-      });
-
-      onTransformed((transformEvent) => {
-        emit('transformed', transformEvent);
-      });
-
-      onUpdated(() => {
-        state.value = { ...state.value, ...props };
-      });
-    };
-
     const target = templateRef('target', null);
-    init(target);
+    const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
+
+    onDrag((dragEvent) => {
+      emit('move', dragEvent);
+    });
+
+    onDragStart((dragStartEvent) => {
+      emit('start', dragStartEvent);
+    });
+
+    onDragStop((dragStopEvent) => {
+      emit('stop', dragStopEvent);
+    });
+
+    onTransformed((transformEvent) => {
+      emit('transformed', transformEvent);
+    });
+
+    onUpdated(() => {
+      state.value = { ...state.value, ...props };
+    });
+
     if (isVue3) {
       return () => {
         if (slots.default) {
