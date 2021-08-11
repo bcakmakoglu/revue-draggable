@@ -19,44 +19,45 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     console.warn('You are trying to use <Draggable> without passing a valid target reference.');
   }
 
-  const stateObj: DraggableState = Object.assign(
-    {
-      allowAnyClick: true,
-      cancel: '',
-      handle: '',
-      disabled: false,
-      enableUserSelectHack: true,
-      offsetParent: undefined,
-      grid: undefined,
-      start: () => {},
-      move: () => {},
-      stop: () => {},
-      position: undefined as any,
-      positionOffset: undefined,
-      scale: 1,
-      axis: 'both',
-      defaultClassNameDragging: 'revue-draggable-dragging',
-      defaultClassNameDragged: 'revue-draggable-dragged',
-      defaultClassName: 'revue-draggable',
-      defaultPosition: { x: 0, y: 0 },
-      bounds: false,
-      dragging: false,
-      dragged: false,
-      x: 0,
-      y: 0,
-      prevPropsPosition: { x: 0, y: 0 },
-      slackX: 0,
-      slackY: 0,
-      isElementSVG: false,
-      update: true
-    },
-    options
-  );
+  const initState = (initialState: Partial<DraggableState>): DraggableState =>
+    Object.assign(
+      {
+        allowAnyClick: true,
+        cancel: '',
+        handle: '',
+        disabled: false,
+        enableUserSelectHack: true,
+        offsetParent: undefined,
+        grid: undefined,
+        start: () => {},
+        move: () => {},
+        stop: () => {},
+        position: undefined,
+        positionOffset: undefined,
+        scale: 1,
+        axis: 'both',
+        defaultClassNameDragging: 'revue-draggable-dragging',
+        defaultClassNameDragged: 'revue-draggable-dragged',
+        defaultClassName: 'revue-draggable',
+        defaultPosition: { x: 0, y: 0 },
+        bounds: false,
+        dragging: false,
+        dragged: false,
+        x: 0,
+        y: 0,
+        prevPropsPosition: { x: 0, y: 0 },
+        slackX: 0,
+        slackY: 0,
+        isElementSVG: false,
+        update: true
+      },
+      initialState
+    );
 
   const node = computed(() => unrefElement(target));
   let state: Ref<DraggableState>;
   if (isVue3) {
-    state = controlledRef<DraggableState>(stateObj, {
+    state = controlledRef<DraggableState>(initState(options), {
       onBeforeChange(val, oldVal) {
         if (equal(val, oldVal)) {
           return;
@@ -69,7 +70,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       }
     });
   } else {
-    state = ref<any>(stateObj);
+    state = ref(initState(options)) as Ref<DraggableState>;
     watch(state, (val, oldVal) => {
       if (equal(val, oldVal)) {
         return;

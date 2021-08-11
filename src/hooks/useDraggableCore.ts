@@ -44,38 +44,39 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     );
   }
 
-  const stateObj: DraggableCoreState = Object.assign(
-    {
-      enableUserSelectHack: true,
-      allowAnyClick: true,
-      disabled: false,
-      offsetParent: undefined,
-      grid: undefined,
-      handle: '',
-      cancel: '',
-      dragged: false,
-      update: true,
-      slackX: 0,
-      slackY: 0,
-      scale: 1,
-      dragging: false,
-      x: 0,
-      y: 0,
-      touch: 0,
-      isElementSVG: false,
-      prevPropsPosition: { x: 0, y: 0 },
-      start: () => {},
-      move: () => {},
-      stop: () => {}
-    },
-    options
-  );
+  const initState = (initialState: Partial<DraggableCoreState>): DraggableCoreState =>
+    Object.assign(
+      {
+        enableUserSelectHack: true,
+        allowAnyClick: true,
+        disabled: false,
+        offsetParent: undefined,
+        grid: undefined,
+        handle: '',
+        cancel: '',
+        dragged: false,
+        update: true,
+        slackX: 0,
+        slackY: 0,
+        scale: 1,
+        dragging: false,
+        x: 0,
+        y: 0,
+        touch: 0,
+        isElementSVG: false,
+        prevPropsPosition: { x: 0, y: 0 },
+        start: () => {},
+        move: () => {},
+        stop: () => {}
+      },
+      initialState
+    );
 
   const node = computed(() => unrefElement(target));
   let state: Ref<DraggableCoreState>;
 
   if (isVue3) {
-    state = controlledRef<DraggableCoreState>(stateObj, {
+    state = controlledRef<DraggableCoreState>(initState(options), {
       onBeforeChange(val, oldVal) {
         if (equal(val, oldVal)) {
           return;
@@ -87,7 +88,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
       }
     });
   } else {
-    state = ref<any>(stateObj);
+    state = ref(initState(options)) as Ref<DraggableCoreState>;
     watch(state, (val, oldVal) => {
       if (equal(val, oldVal)) {
         return;
