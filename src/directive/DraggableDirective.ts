@@ -15,7 +15,7 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
 
   // sort of hacky but we don't want the directive to create multiple instances of the composable and thus apply multiple event listeners etc.
   if (binding.arg === 'core') {
-    const { onDrag, onDragStop, onDragStart, state } = useDraggableCore(el, { ...binding.value });
+    const { onDrag, onDragStop, onDragStart, state } = useDraggableCore(el, binding.value);
     onDrag((dragEvent) => {
       emit('move', dragEvent);
     });
@@ -28,7 +28,7 @@ const onMounted: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
     // @ts-ignore
     el['revue-draggable'] = state;
   } else {
-    const { onDrag, onDragStop, onDragStart, onTransformed, state } = useDraggable(el, { ...binding.value });
+    const { onDrag, onDragStop, onDragStart, onTransformed, state } = useDraggable(el, binding.value);
     onDrag((dragEvent) => {
       emit('move', dragEvent);
     });
