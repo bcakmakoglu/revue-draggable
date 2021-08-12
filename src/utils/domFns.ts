@@ -138,10 +138,10 @@ export function getTranslation(
   unitSuffix = 'px',
   positionOffset?: PositionOffsetControlPosition
 ): string {
-  let translation = `translate(${x}${unitSuffix},${y}${unitSuffix})`;
+  let translation = `translate(${Math.round(x)}${unitSuffix},${Math.round(y)}${unitSuffix})`;
   if (positionOffset) {
-    const defaultX = `${typeof positionOffset.x === 'string' ? positionOffset.x : positionOffset.x + unitSuffix}`;
-    const defaultY = `${typeof positionOffset.y === 'string' ? positionOffset.y : positionOffset.y + unitSuffix}`;
+    const defaultX = `${typeof positionOffset.x === 'string' ? positionOffset.x : Math.round(positionOffset.x) + unitSuffix}`;
+    const defaultY = `${typeof positionOffset.y === 'string' ? positionOffset.y : Math.round(positionOffset.y) + unitSuffix}`;
     translation = `translate(${defaultX}, ${defaultY})` + translation;
   }
   return translation;
@@ -149,14 +149,14 @@ export function getTranslation(
 
 export function addUserSelectStyles(doc: Document): void {
   if (!doc) return;
-  let styleEl = doc.getElementById('revue-draggable-style-el');
+  const styleEl = doc.getElementById('revue-draggable-style-el');
   if (!styleEl) {
-    styleEl = doc.createElement('style');
-    (styleEl as any).type = 'text/css';
-    styleEl.id = 'revue-draggable-style-el';
-    styleEl.innerHTML = '.revue-draggable-transparent-selection *::-moz-selection {all: inherit;}\n';
-    styleEl.innerHTML += '.revue-draggable-transparent-selection *::selection {all: inherit;}\n';
-    doc.getElementsByTagName('head')[0].appendChild(styleEl);
+    const el = doc.createElement('style');
+    el.type = 'text/css';
+    el.id = 'revue-draggable-style-el';
+    el.innerHTML = '.revue-draggable-transparent-selection *::-moz-selection {all: inherit;}\n';
+    el.innerHTML += '.revue-draggable-transparent-selection *::selection {all: inherit;}\n';
+    doc.getElementsByTagName('head')[0].appendChild(el);
   }
   if (doc.body) addClassName(doc.body, 'revue-draggable-transparent-selection');
 }
