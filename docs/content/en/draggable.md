@@ -6,7 +6,7 @@ position: 2
 ---
 A `<Draggable>` element wraps an existing element and extends it with new event handlers and styles.
 You can either use a component wrapper, which creates an element in the DOM, a directive, which will not create
-an element or a composable and it's hooks (no element included either).
+an element or a composable, and it's hooks (no element included either).
 
 Draggable items move using CSS Transforms.
 This allows items to be dragged regardless of their current positioning (relative, absolute, or static). 
@@ -75,8 +75,12 @@ interface DraggableOptions extends DraggableCoreOptions {
     defaultClassNameDragging: string;
     defaultClassNameDragged: string;
     defaultPosition: ControlPosition;
-    positionOffset: PositionOffsetControlPosition;
-    position: ControlPosition;
+    positionOffset?: PositionOffsetControlPosition;
+    position?: ControlPosition;
+    prevPropsPosition: { x: number; y: number };
+    isElementSVG: boolean;
+    x: number;
+    y: number;
 }
 
 type TransformedData = {
@@ -87,35 +91,13 @@ type TransformedData = {
     };
 };
 
-interface DraggableCoreOptions {
-    allowAnyClick: boolean;
-    cancel: string;
-    disabled: boolean;
-    update?: boolean;
-    enableUserSelectHack: boolean;
-    offsetParent: HTMLElement;
-    grid: [number, number];
-    handle: string;
-    onStart: DraggableEventHandler;
-    onDrag: DraggableEventHandler;
-    onStop: DraggableEventHandler;
-    onMouseDown: (e: MouseEvent) => void;
-    scale: number;
-}
-
-type DraggableCoreState = State & DraggableCoreOptions;
-
 type DraggableState = State & DraggableOptions;
 
 interface State {
     dragging: boolean;
     dragged: boolean;
-    x: number;
-    y: number;
-    prevPropsPosition: { x: number; y: number };
     slackX: number;
     slackY: number;
-    isElementSVG: boolean;
     touch?: number;
 }
 
@@ -124,10 +106,8 @@ interface UseDraggable {
     onDrag: EventHookOn<DraggableHook>;
     onDragStop: EventHookOn<DraggableHook>;
     onTransformed: EventHookOn<TransformedData>;
-    updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
+    state: Ref<DraggableState>;
 }
-
-type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
 
 interface DraggableEvent {
     event: MouseEvent;
@@ -152,6 +132,32 @@ interface DraggableEvent {
 * `stop` - Called after native `mouseup` or `touchend` event and `stop` event of `<DraggableCore>`. Emits `DraggableEvent`.
 * `transformed` - Called after the element has been transformed (i.e., styles to move it have been applied). Emits `TransformEvent`
 
+
+#### Scoped Slot
+
+A scoped slot is available containing the state of the Draggable component.
+Overwriting the state will trigger Draggable to transform and update it's internal state.
+
+```vue
+<Draggable>
+    <template #default="props">
+      <div @click="reset(props.state)"></div> 
+    </template>
+</Draggable>
+
+...
+<script>
+export default {
+  methods: {
+    // reset the elements state back to its initial position
+    reset(state) {
+      state.value = { ...state.value, position:{ x: 0, y: 0 } };
+    }
+  }
+}
+</script>
+```
+
 ## useDraggable
 
 Instead of using the directive you can compose your own 
@@ -166,7 +172,7 @@ interface UseDraggable {
     onDrag: EventHookOn<DraggableHook>;
     onDragStop: EventHookOn<DraggableHook>;
     onTransformed: EventHookOn<TransformedData>;
-    updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
+    state: Ref<DraggableState>;
 }
 ```
 
@@ -182,8 +188,9 @@ interface UseDraggable {
 default {
 setup() {
     const nodeRef = ref<HTMLElement | null>(null);
+    const options = { defaultPosition: { x: 10, y: 0 } };
     onMounted(() => {
-      const { onDrag } = useDraggable({ nodeRef });
+      const { onDrag } = useDraggable(nodeRef, options);
       onDrag(() => console.log('dragging')); // called when element is dragged
     })
     

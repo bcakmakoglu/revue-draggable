@@ -31,19 +31,27 @@ type DraggableData = {
 
 export interface DraggableCoreOptions {
     allowAnyClick: boolean;
-    cancel: string;
-    disabled: boolean;
-    update?: boolean;
     enableUserSelectHack: boolean;
-    offsetParent: HTMLElement;
-    grid: [number, number];
+    disabled: boolean;
+    update: boolean;
+    offsetParent?: HTMLElement;
+    grid?: [number, number];
     handle: string;
-    onStart: DraggableEventHandler;
-    onDrag: DraggableEventHandler;
-    onStop: DraggableEventHandler;
-    onMouseDown: (e: MouseEvent) => void;
+    cancel: string;
     scale: number;
-    nodeRef: HTMLElement;
+    start: DraggableEventHandler;
+    move: DraggableEventHandler;
+    stop: DraggableEventHandler;
+}
+
+type DraggableCoreState = State & DraggableCoreOptions;
+
+interface State {
+    dragging: boolean;
+    dragged: boolean;
+    slackX: number;
+    slackY: number;
+    touch?: number;
 }
 ```
 
@@ -84,7 +92,7 @@ interface UseDraggable {
     onDrag: EventHookOn<DraggableHook>;
     onDragStop: EventHookOn<DraggableHook>;
     onTransformed: EventHookOn<TransformedData>;
-    updateState: (state: Partial<DraggableState>) => Partial<DraggableState> | void;
+    state: Ref<DraggableState>;
 }
 
 // useDraggableCore hooks
