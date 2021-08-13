@@ -18,7 +18,6 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
-import equal from 'fast-deep-equal/es6';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -60,48 +59,34 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         slackY: 0,
         scale: 1,
         dragging: false,
-        x: 0,
-        y: 0,
         touch: 0,
-        isElementSVG: false,
-        prevPropsPosition: { x: 0, y: 0 },
         start: () => {},
         move: () => {},
         stop: () => {}
       },
       initialState
     );
+  let [posX, posY] = [0, 0];
 
   const node = computed(() => unrefElement(target));
   let state: Ref<DraggableCoreState>;
 
   if (isVue3) {
     state = controlledRef<DraggableCoreState>(initState(options), {
-      onBeforeChange(val, oldVal) {
-        if (equal(val, oldVal)) {
-          return;
-        }
-      },
-      onChanged(val) {
+      onChanged() {
         init();
-        onUpdateHook.trigger(val);
       }
     });
   } else {
     state = ref(initState(options)) as Ref<DraggableCoreState>;
-    watch(state, (val, oldVal) => {
-      if (equal(val, oldVal)) {
-        return;
-      }
+    watch(state, () => {
       init();
-      onUpdateHook.trigger(val);
     });
   }
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
-    onDragStopHook = createEventHook<DraggableEvent>(),
-    onUpdateHook = createEventHook<Partial<DraggableCoreState>>();
+    onDragStopHook = createEventHook<DraggableEvent>();
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
     if (!get(state).allowAnyClick && e.button !== 0) return false;
@@ -138,8 +123,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
       node: get(node),
       x,
       y,
-      lastX: get(state).x,
-      lastY: get(state).y
+      lastX: posX,
+      lastY: posY
     });
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
@@ -151,8 +136,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     if (get(state).enableUserSelectHack) addUserSelectStyles(ownerDocument);
 
     get(state).dragging = true;
-    get(state).x = x;
-    get(state).y = y;
+    posX = x;
+    posY = y;
 
     addEvent(ownerDocument, dragEventFor.move, handleDrag);
     addEvent(ownerDocument, dragEventFor.stop, handleDragStop);
@@ -172,20 +157,20 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
 
       // Snap to grid if prop has been provided
       if (Array.isArray(get(state).grid)) {
-        let deltaX = x - get(state).x,
-          deltaY = y - get(state).y;
+        let deltaX = x - posX,
+          deltaY = y - posY;
         [deltaX, deltaY] = snapToGrid(get(state).grid as [number, number], deltaX, deltaY);
         if (!deltaX && !deltaY) return;
-        x = get(state).x + deltaX;
-        y = get(state).y + deltaY;
+        x = posX + deltaX;
+        y = posY + deltaY;
       }
 
       const coreEvent = createCoreData({
         node: get(node),
         x,
         y,
-        lastX: get(state).x,
-        lastY: get(state).y
+        lastX: posX,
+        lastY: posY
       });
 
       log('DraggableCore: handleDrag: %j', coreEvent);
@@ -205,8 +190,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         return;
       }
 
-      get(state).x = x;
-      get(state).y = y;
+      posX = x;
+      posY = y;
     }
   };
 
@@ -227,8 +212,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         node: get(node),
         x,
         y,
-        lastX: get(state).x,
-        lastY: get(state).y
+        lastX: posX,
+        lastY: posY
       });
 
       const shouldUpdate = get(state).stop?.(e, coreEvent);
@@ -288,7 +273,6 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
 
   return {
     state,
-    onUpdated: onUpdateHook.on,
     onDragStart: onDragStartHook.on,
     onDrag: onDragHook.on,
     onDragStop: onDragStopHook.on

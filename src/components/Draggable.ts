@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, Ref, onUpdated, isVue3 } from 'vue-demi';
+import { h, defineComponent, PropType, onUpdated, isVue3 } from 'vue-demi';
 import { templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';

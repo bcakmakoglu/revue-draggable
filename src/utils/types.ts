@@ -17,6 +17,7 @@ export type Bounds = {
   right?: number;
   bottom?: number;
 };
+
 export type ControlPosition = { x: number; y: number };
 export type PositionOffsetControlPosition = { x: number | string; y: number | string };
 export type EventHandler<T> = (e: T) => void | false;
@@ -39,6 +40,10 @@ export interface DraggableOptions extends DraggableCoreOptions {
   defaultPosition: ControlPosition;
   positionOffset?: PositionOffsetControlPosition;
   position?: ControlPosition;
+  prevPropsPosition: { x: number; y: number };
+  isElementSVG: boolean;
+  x: number;
+  y: number;
 }
 
 export interface DraggableCoreOptions {
@@ -63,12 +68,8 @@ export type DraggableState = State & DraggableOptions;
 interface State {
   dragging: boolean;
   dragged: boolean;
-  x: number;
-  y: number;
-  prevPropsPosition: { x: number; y: number };
   slackX: number;
   slackY: number;
-  isElementSVG: boolean;
   touch?: number;
 }
 
@@ -77,7 +78,6 @@ export interface UseDraggable {
   onDrag: EventHookOn<DraggableEvent>;
   onDragStop: EventHookOn<DraggableEvent>;
   onTransformed: EventHookOn<TransformEvent>;
-  onUpdated: EventHookOn<Partial<DraggableState>>;
   state: Ref<Partial<DraggableState>>;
 }
 

@@ -12,7 +12,6 @@ import {
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
-import equal from 'fast-deep-equal/es6';
 
 const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>): UseDraggable => {
   if (!target) {
@@ -58,34 +57,25 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   let state: Ref<DraggableState>;
   if (isVue3) {
     state = controlledRef<DraggableState>(initState(options), {
-      onBeforeChange(val, oldVal) {
-        if (equal(val, oldVal)) {
-          return;
-        }
+      onBeforeChange(val) {
         coreState.value = { ...coreState.value, ...val };
       },
-      onChanged(val) {
+      onChanged() {
         onUpdated();
-        onUpdateHook.trigger(val);
       }
     });
   } else {
     state = ref(initState(options)) as Ref<DraggableState>;
-    watch(state, (val, oldVal) => {
-      if (equal(val, oldVal)) {
-        return;
-      }
+    watch(state, (val) => {
       coreState.value = { ...coreState.value, ...val };
       onUpdated();
-      onUpdateHook.trigger(val);
     });
   }
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
     onDragStopHook = createEventHook<DraggableEvent>(),
-    onTransformedHook = createEventHook<TransformEvent>(),
-    onUpdateHook = createEventHook<Partial<DraggableState>>();
+    onTransformedHook = createEventHook<TransformEvent>();
 
   const onDragStart: DraggableEventHandler = (e, data) => {
     log('Draggable: onDragStart: %j', data);
@@ -103,7 +93,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     get(state).dragging = true;
     get(state).dragged = true;
-    transform();
   };
 
   const onDrag: DraggableEventHandler = (e, data) => {
@@ -276,7 +265,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
   return {
     state,
-    onUpdated: onUpdateHook.on,
     onDragStart: onDragStartHook.on,
     onDrag: onDragHook.on,
     onDragStop: onDragStopHook.on,
