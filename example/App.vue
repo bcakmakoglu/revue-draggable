@@ -429,12 +429,12 @@ translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
   position: static;
 }
 </style>"
-        :transform="translateTransformToRem(transform, 16)"
         class="rem-position-fix"
         style="position: absolute; bottom: 0; right: 22rem"
         @start="onStart"
         @stop="onStop"
         @move="onMove"
+        @transformed="translateTransformToRem(transform, 16)"
       >
         I use <span style="font-weight: 700">rem</span> instead of <span style="font-weight: 700">px</span> for my transforms. I
         also have absolute positioning. I depend on a CSS hack to avoid double absolute positioning.
