@@ -141,3 +141,7 @@ You can find the specs in the [cypress directory](/cypress);
 ```bash
 $ yarn ci # starts test server and runs tests, make sure port 3000 is open
 ```
+
+# Sponsors 💝
+Special thanks go to sponsors!
+[jfrueh](https://github.com/jfrueh)
