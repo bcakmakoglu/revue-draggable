@@ -34,14 +34,13 @@ export interface DraggableBounds {
 export interface DraggableOptions extends DraggableCoreOptions {
   axis: 'both' | 'x' | 'y' | 'none';
   bounds: DraggableBounds | string | false;
+  enableTransformFix: boolean | { position: 'relative' | 'absolute' };
   defaultClassName: string;
   defaultClassNameDragging: string;
   defaultClassNameDragged: string;
   defaultPosition: ControlPosition;
   positionOffset?: PositionOffsetControlPosition;
   position?: ControlPosition;
-  prevPropsPosition: { x: number; y: number };
-  isElementSVG: boolean;
   x: number;
   y: number;
 }
@@ -59,11 +58,12 @@ export interface DraggableCoreOptions {
   start: DraggableEventHandler;
   move: DraggableEventHandler;
   stop: DraggableEventHandler;
+  mouseDown: (e: MouseEvent) => void;
 }
 
 export type DraggableCoreState = State & DraggableCoreOptions;
 
-export type DraggableState = State & DraggableOptions;
+export type DraggableState = State & DraggableOptions & { prevPropsPosition: { x: number; y: number }; isElementSVG: boolean };
 
 interface State {
   dragging: boolean;

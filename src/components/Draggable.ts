@@ -54,6 +54,10 @@ const Draggable = defineComponent({
       type: Boolean as PropType<DraggableOptions['enableUserSelectHack']>,
       default: true
     },
+    enableTransformFix: {
+      type: [Boolean, Object] as PropType<DraggableOptions['enableTransformFix']>,
+      default: false
+    },
     cancel: {
       type: String as PropType<DraggableOptions['cancel']>,
       default: undefined
@@ -84,6 +88,10 @@ const Draggable = defineComponent({
     },
     stop: {
       type: Function as PropType<DraggableOptions['stop']>,
+      default: () => {}
+    },
+    mouseDown: {
+      type: Function as PropType<DraggableOptions['mouseDown']>,
       default: () => {}
     }
   },

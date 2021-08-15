@@ -17,8 +17,18 @@ It does not set styles or transforms on itself and thus must have callbacks atta
 ### Types
 
 ```ts
+// Return type of draggable-core composable
+interface UseDraggableCore {
+    onDragStart: EventHookOn<DraggableEvent>;
+    onDrag: EventHookOn<DraggableEvent>;
+    onDragStop: EventHookOn<DraggableEvent>;
+    state: Ref<Partial<DraggableState>>;
+}
+
+// Use this type as your event handler in your component, i.e. @start="handler" , handler should be of  type DraggableEventHandler 
 type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
 
+// Data returned from a DraggableEvent
 type DraggableData = {
     node: HTMLElement;
     x: number;
@@ -29,29 +39,62 @@ type DraggableData = {
     lastY: number;
 };
 
-export interface DraggableCoreOptions {
-    allowAnyClick: boolean;
-    enableUserSelectHack: boolean;
-    disabled: boolean;
-    update: boolean;
-    offsetParent?: HTMLElement;
-    grid?: [number, number];
-    handle: string;
-    cancel: string;
-    scale: number;
-    start: DraggableEventHandler;
-    move: DraggableEventHandler;
-    stop: DraggableEventHandler;
+interface DraggableEvent {
+    event: MouseEvent;
+    data: DraggableData;
 }
 
-type DraggableCoreState = State & DraggableCoreOptions;
+// These options can be passed to any of the `DraggableCore` implementations
+// So you can pass any of these options to the directive, component or composable
+// i.e., v-draggable:core="options" | <DraggableCore :allowAnyClick="true" ... > | useDraggableCorenodeRef, options)
+interface DraggableCoreOptions {
+    // If set to `true`, will allow dragging on non left-button clicks.
+    allowAnyClick: boolean;
 
-interface State {
-    dragging: boolean;
-    dragged: boolean;
-    slackX: number;
-    slackY: number;
-    touch?: number;
+    enableUserSelectHack: boolean;
+
+    // If true, will not call any drag handlers.
+    disabled: boolean;
+
+    // If true, will cancel the action (i.e. drag-start, drag-move, drag-end will be canceled)
+    update: boolean;
+
+    // If desired, you can provide your own offsetParent for drag calculations.
+    // By default, we use the Draggable's offsetParent. This can be useful for elements
+    // with odd display types or floats.
+    offsetParent?: HTMLElement;
+
+    // Specifies the x and y that dragging should snap to.
+    grid?: [number, number];
+
+    // Specifies a selector to be used as the handle that initiates drag.
+    // Example: '.handle'
+    handle: string;
+
+    // Specifies a selector to be used to prevent drag initialization. The string is passed to
+    // Element.matches, so it's possible to use multiple selectors like `.first, .second`.
+    // Example: '.body'
+    cancel: string;
+
+    // Specifies the scale of the canvas your are dragging this element on. This allows
+    // you to, for example, get the correct drag deltas while you are zoomed in or out via
+    // a transform or matrix in the parent of this element.
+    scale: number;
+
+    // Called whenever the user mouses down. Called regardless of handle or
+    // disabled status.
+    mouseDown: (e: MouseEvent) => void;
+
+    // Called when dragging starts. If `false` is returned any handler,
+    // the action will cancel. 
+    // Canceling only works if passed as callback (prop or option, not if used as event handler, i.e. @start="handler")
+    start: DraggableEventHandler;
+
+    // Called while dragging.
+    drag: DraggableEventHandler;
+
+    // Called when dragging stops.
+    stop: DraggableEventHandler;
 }
 ```
 
@@ -79,7 +122,6 @@ It is up to the parent to set actual positions on `<DraggableCore>`.
 * `move` - Called after native `mouseup`. Emits `DraggableEvent`.
 * `stop` - Called after native `touchend`. Emits `DraggableEvent`.
 
-
 ## useDraggableCore
 
 Instead of using the directive you can compose your own
@@ -87,14 +129,10 @@ draggable element using the useDraggable hook.
 It will add the necessary events directly to the node to receive the data to make it draggable (i.e., positions etc.).
 
 ```ts
-interface UseDraggable {
-    onDragStart: EventHookOn<DraggableHook>;
-    onDrag: EventHookOn<DraggableHook>;
-    onDragStop: EventHookOn<DraggableHook>;
-    onTransformed: EventHookOn<TransformedData>;
-    state: Ref<DraggableState>;
+interface UseDraggableCore {
+    onDragStart: EventHookOn<DraggableEvent>;
+    onDrag: EventHookOn<DraggableEvent>;
+    onDragStop: EventHookOn<DraggableEvent>;
+    state: Ref<Partial<DraggableState>>;
 }
-
-// useDraggableCore hooks
-export type UseDraggableCore = Omit<UseDraggable, 'onTransformed'>;
 ```

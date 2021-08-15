@@ -56,8 +56,21 @@ For `Revue Draggable` to correctly attach itself to its child, the child element
 ### Types
 
 ```ts
-type DraggableEventHandler = (e: MouseEvent, data: DraggableData) => void | false;
+// Return type of draggable composable
+interface UseDraggable {
+    onDragStart: EventHookOn<DraggableEvent>;
+    onDrag: EventHookOn<DraggableEvent>;
+    onDragStop: EventHookOn<DraggableEvent>;
+    onTransformed: EventHookOn<TransformEvent>;
+    state: Ref<Partial<DraggableState>>;
+}
 
+interface DraggableEvent {
+    event: MouseEvent;
+    data: DraggableData;
+}
+
+// Data returned from a Draggable Event (start, move, stop)
 type DraggableData = {
     node: HTMLElement;
     x: number;
@@ -68,50 +81,119 @@ type DraggableData = {
     lastY: number;
 };
 
-interface DraggableOptions extends DraggableCoreOptions {
-    axis: 'both' | 'x' | 'y' | 'none';
-    bounds: DraggableBounds | string | false;
-    defaultClassName: string;
-    defaultClassNameDragging: string;
-    defaultClassNameDragged: string;
-    defaultPosition: ControlPosition;
-    positionOffset?: PositionOffsetControlPosition;
-    position?: ControlPosition;
-    prevPropsPosition: { x: number; y: number };
-    isElementSVG: boolean;
-    x: number;
-    y: number;
-}
-
-type TransformedData = {
+// Data returned from Transformed Event (transformed)
+interface TransformEvent {
+    el: any;
     style: Record<string, string> | false;
     transform: string | false;
     classes: {
         [x: string]: boolean;
     };
-};
-
-type DraggableState = State & DraggableOptions;
-
-interface State {
-    dragging: boolean;
-    dragged: boolean;
-    slackX: number;
-    slackY: number;
-    touch?: number;
 }
 
-interface UseDraggable {
-    onDragStart: EventHookOn<DraggableHook>;
-    onDrag: EventHookOn<DraggableHook>;
-    onDragStop: EventHookOn<DraggableHook>;
-    onTransformed: EventHookOn<TransformedData>;
-    state: Ref<DraggableState>;
-}
+// These options can be passed to any of the `Draggable` implementations
+// So you can pass any of these options to the directive, component or composable
+// i.e., v-draggable="options" | <Draggable axis="x" ... > | useDraggable(nodeRef, options)
+interface DraggableOptions {
+    // Determines which axis the draggable can move. This only affects
+    // flushing to the DOM. Callbacks will still include all values.
+    // Accepted values:
+    // - `both` allows movement horizontally and vertically (default).
+    // - `x` limits movement to horizontal axis.
+    // - `y` limits movement to vertical axis.
+    // - 'none' stops all movement.
+    axis: 'both' | 'x' | 'y' | 'none';
 
-interface DraggableEvent {
-    event: MouseEvent;
-    data: DraggableData;
+    // Specifies movement boundaries. Accepted values:
+    // - `parent` restricts movement within the node's offsetParent
+    //    (nearest node with position relative or absolute), or
+    // - a selector, restricts movement within the targeted node
+    // - An object with `left, top, right, and bottom` properties.
+    //   These indicate how far in each direction the draggable
+    //   can be moved.
+    bounds: { left?: number, top?: number, right?: number, bottom?: number } | string | false;
+
+    // Class names for draggable UI.
+    // Default to 'react-draggable', 'revue-draggable-dragging', and 'revue-draggable-dragged'    
+    defaultClassName: string;
+    defaultClassNameDragging: string;
+    defaultClassNameDragged: string;
+
+    /* Specifies the `x` and `y` that the dragged item should start at.
+       This is generally not necessary to use (you can use absolute or relative
+       positioning of the child directly), but can be helpful for uniformity in
+       your callbacks and with css transforms.
+     */
+    defaultPosition: { x: number, y: number };
+    
+    // A position offset to start with. Useful for giving an initial position
+    // to the element. Differs from `defaultPosition` in that it does not
+    // affect the postiion returned in draggable callbacks, and in that it
+    // accepts strings, like `{x: '10%', y: '10%'}`.
+    positionOffset: { x: number | string, y: number | string };
+    
+    // If this property is present, the item
+    // becomes 'controlled' and is not responsive to user input. Use `position`
+    // if you need to have direct control of the element.
+    position: { x: number, y: number };
+    
+    // Same as position
+    x: number;
+    y: number;
+
+    // If set to `true`, will allow dragging on non left-button clicks.
+    allowAnyClick: boolean;
+
+    enableUserSelectHack: boolean;
+    
+    // If true, `Draggable` will remove transformation on dragend and apply a position (default `relative`)
+    // and a top & left position. 
+    // This will fix blurriness you might experience on Chrome or IE
+    // be aware that this will overwrite pre-existing position, top and left values.
+    enableTransformFix: boolean | { position: 'absolute' | 'relative' }; 
+
+    // If true, will not call any drag handlers.
+    disabled: boolean;
+
+    // If true, will cancel the action (i.e. drag-start, drag-move, drag-end will be canceled)
+    update: boolean;
+
+    // If desired, you can provide your own offsetParent for drag calculations.
+    // By default, we use the Draggable's offsetParent. This can be useful for elements
+    // with odd display types or floats.
+    offsetParent?: HTMLElement;
+
+    // Specifies the x and y that dragging should snap to.
+    grid?: [number, number];
+
+    // Specifies a selector to be used as the handle that initiates drag.
+    // Example: '.handle'
+    handle: string;
+
+    // Specifies a selector to be used to prevent drag initialization. The string is passed to
+    // Element.matches, so it's possible to use multiple selectors like `.first, .second`.
+    // Example: '.body'
+    cancel: string;
+
+    // Specifies the scale of the canvas your are dragging this element on. This allows
+    // you to, for example, get the correct drag deltas while you are zoomed in or out via
+    // a transform or matrix in the parent of this element.
+    scale: number;
+
+    // Called whenever the user mouses down. Called regardless of handle or
+    // disabled status.
+    mouseDown: (e: MouseEvent) => void;
+
+    // Called when dragging starts. If `false` is returned any handler,
+    // the action will cancel. 
+    // Canceling only works if passed as callback (prop or option, not if used as event handler, i.e. @start="handler")
+    start: DraggableEventHandler;
+
+    // Called while dragging.
+    drag: DraggableEventHandler;
+
+    // Called when dragging stops.
+    stop: DraggableEventHandler,
 }
 ```
 

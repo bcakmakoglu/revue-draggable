@@ -62,7 +62,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         touch: 0,
         start: () => {},
         move: () => {},
-        stop: () => {}
+        stop: () => {},
+        mouseDown: () => {},
       },
       initialState
     );
@@ -234,6 +235,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
 
   const onMouseDown: EventHandler<MouseTouchEvent> = (e) => {
     dragEventFor = eventsFor.mouse;
+    get(state).mouseDown?.(e);
     if (e.which == 3) return;
     return handleDragStart(e);
   };

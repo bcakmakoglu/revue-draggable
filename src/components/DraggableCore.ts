@@ -1,5 +1,5 @@
 import { h, defineComponent, PropType, onUpdated, isVue3 } from 'vue-demi';
-import { DraggableCoreOptions, DraggableOptions } from '../utils/types';
+import { DraggableCoreOptions } from '../utils/types';
 import useDraggableCore from '../hooks/useDraggableCore';
 import { templateRef } from '@vueuse/core';
 
@@ -38,16 +38,20 @@ const DraggableCore = defineComponent({
       type: String as PropType<DraggableCoreOptions['handle']>,
       default: undefined
     },
-    start: {
-      type: Function as PropType<DraggableOptions['start']>,
+    onStart: {
+      type: Function as PropType<DraggableCoreOptions['start']>,
       default: () => {}
     },
-    move: {
-      type: Function as PropType<DraggableOptions['move']>,
+    onMove: {
+      type: Function as PropType<DraggableCoreOptions['move']>,
       default: () => {}
     },
-    stop: {
-      type: Function as PropType<DraggableOptions['stop']>,
+    onStop: {
+      type: Function as PropType<DraggableCoreOptions['stop']>,
+      default: () => {}
+    },
+    onMouseDown: {
+      type: Function as PropType<DraggableCoreOptions['mouseDown']>,
       default: () => {}
     }
   },

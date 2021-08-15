@@ -7,7 +7,8 @@ import {
   DraggableOptions,
   DraggableState,
   TransformEvent,
-  UseDraggable
+  UseDraggable,
+  ControlPosition
 } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
@@ -21,16 +22,18 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   const initState = (initialState: Partial<DraggableState>): DraggableState =>
     Object.assign(
       {
-        allowAnyClick: true,
+        allowAnyClick: false,
         cancel: '',
         handle: '',
         disabled: false,
         enableUserSelectHack: true,
+        enableTransformFix: false,
         offsetParent: undefined,
         grid: undefined,
         start: () => {},
         move: () => {},
         stop: () => {},
+        mouseDown: () => {},
         position: undefined,
         positionOffset: undefined,
         scale: 1,
@@ -145,6 +148,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     get(state).y = newState.y;
     if (newState.slackX) get(state).slackX = newState.slackX;
     if (newState.slackY) get(state).slackY = newState.slackY;
+    if (get(state).enableTransformFix) removeTransformFix();
     transform();
   };
 
@@ -170,12 +174,43 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       get(state).x = pos.x;
       get(state).y = pos.y;
     }
+    if (get(state).enableTransformFix) applyTransformFix();
 
     get(state).dragging = false;
     get(state).slackX = 0;
     get(state).slackY = 0;
-    transform();
   };
+
+  const applyTransformFix = () => {
+    const target = get(node);
+    if (!target) return;
+    target.style.transform = '';
+    target.style.position = 'relative';
+    const { x, y } = transformOpts(canDrag(), validPosition());
+    console.log(canDrag(), validPosition());
+    target.style.left = Math.round(parseInt(<string>get(state).positionOffset?.x) || 0) + Math.round(x) + 'px';
+    target.style.top = Math.round(parseInt(<string>get(state).positionOffset?.y) || 0) + Math.round(y) + 'px';
+  };
+
+  const removeTransformFix = () => {
+    const target = get(node);
+    if (!target) return;
+    target.style.transform = '';
+    target.style.position = '';
+    target.style.left = '';
+    target.style.top = '';
+  };
+
+  const canDrag = () => Boolean(get(state).position) || get(state).dragging;
+  const validPosition = () => get(state).position || get(state).defaultPosition;
+
+  const transformOpts = (canDrag: boolean, validPosition: ControlPosition) => ({
+    // Set left if horizontal drag is enabled
+    x: canDragX(get(state).axis) && canDrag ? get(state).x : validPosition.x,
+
+    // Set top if vertical drag is enabled
+    y: canDragY(get(state).axis) && canDrag ? get(state).y : validPosition.y
+  });
 
   const transform = () => {
     if (!get(node) || get(state).update === false) return;
@@ -184,20 +219,10 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     const canDrag = !controlled || get(state).dragging;
     const validPosition = get(state).position || get(state).defaultPosition;
 
-    const transformOpts = () => {
-      return {
-        // Set left if horizontal drag is enabled
-        x: canDragX(get(state).axis) && canDrag ? get(state).x : validPosition.x,
-
-        // Set top if vertical drag is enabled
-        y: canDragY(get(state).axis) && canDrag ? get(state).y : validPosition.y
-      };
-    };
-
     const offset = get(state).positionOffset;
     const isSvg = get(state).isElementSVG;
-    const styles = (!isSvg && createCSSTransform(transformOpts(), offset)) || false;
-    const svgTransform = (isSvg && createSVGTransform(transformOpts(), offset)) || false;
+    const styles = (!isSvg && createCSSTransform(transformOpts(canDrag, validPosition), offset)) || false;
+    const svgTransform = (isSvg && createSVGTransform(transformOpts(canDrag, validPosition), offset)) || false;
     const classes = {
       [get(state).defaultClassName]: !get(state).disabled,
       [get(state).defaultClassNameDragging]: get(state).dragging,
