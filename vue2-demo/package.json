@@ -21,7 +21,7 @@
     "@nuxt/typescript-build": "^2.1.0"
   },
   "dependencies": {
-    "@braks/revue-draggable": "^0.2.7",
+    "@braks/revue-draggable": "next",
     "@nuxtjs/composition-api": "^0.24.7",
     "@vue/composition-api": "^1.0.4",
     "@vueuse/core": "^5.1.3",
