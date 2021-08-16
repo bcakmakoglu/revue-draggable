@@ -49,8 +49,10 @@ const onUpdated: DirectiveHook<HTMLElement | VNode, any, DraggableOptions> = (el
   // typehack as we store the draggable instance on the element, see the comment above
   const element = el as any;
   if (typeof element['revue-draggable'] !== 'undefined' && binding.value) {
-    const state = element['revue-draggable'] as Ref<DraggableState>;
-    state.value = { ...state.value, ...binding.value };
+    if (JSON.stringify(binding.value) !== JSON.stringify(binding.oldValue)) {
+      const state = element['revue-draggable'] as Ref<DraggableState>;
+      state.value = { ...state.value, ...binding.value };
+    }
   }
 };
 
