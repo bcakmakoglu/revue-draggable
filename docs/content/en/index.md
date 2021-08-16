@@ -126,6 +126,9 @@ Or use the component wrapper.
 
 Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or syncing states.
 
+## 🐛 Debugging
+Set the environment variable `DRAGGABLE_DEBUG` to enable logs on drag handlers.
+
 ## 🧪 Development
 This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https://rollupjs.org/) to create a distribution.
 
