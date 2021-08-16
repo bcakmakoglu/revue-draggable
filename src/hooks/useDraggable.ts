@@ -1,5 +1,5 @@
-import { watchEffect, computed, isVue3, ref, Ref, watch } from 'vue-demi';
-import { controlledRef, createEventHook, get, MaybeRef, tryOnUnmounted, unrefElement } from '@vueuse/core';
+import { computed, isVue3, ref, Ref, watch } from 'vue-demi';
+import { controlledRef, createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
   DraggableEventHandler,
@@ -7,8 +7,7 @@ import {
   DraggableOptions,
   DraggableState,
   TransformEvent,
-  UseDraggable,
-  ControlPosition
+  UseDraggable
 } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
@@ -148,7 +147,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     get(state).y = newState.y;
     if (newState.slackX) get(state).slackX = newState.slackX;
     if (newState.slackY) get(state).slackY = newState.slackY;
-    if (get(state).enableTransformFix) removeTransformFix();
     transform();
   };
 
@@ -186,8 +184,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     if (!target) return;
     target.style.transform = '';
     target.style.position = 'relative';
-    const { x, y } = transformOpts(canDrag(), validPosition());
-    console.log(canDrag(), validPosition());
+    const { x, y } = transformOpts();
     target.style.left = Math.round(parseInt(<string>get(state).positionOffset?.x) || 0) + Math.round(x) + 'px';
     target.style.top = Math.round(parseInt(<string>get(state).positionOffset?.y) || 0) + Math.round(y) + 'px';
   };
@@ -201,42 +198,32 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     target.style.top = '';
   };
 
+  // If this is controlled, we don't want to move it - unless it's dragging.
   const canDrag = () => Boolean(get(state).position) || get(state).dragging;
   const validPosition = () => get(state).position || get(state).defaultPosition;
-
-  const transformOpts = (canDrag: boolean, validPosition: ControlPosition) => ({
+  const transformOpts = () => ({
     // Set left if horizontal drag is enabled
-    x: canDragX(get(state).axis) && canDrag ? get(state).x : validPosition.x,
+    x: canDragX(get(state).axis) && canDrag() ? get(state).x : validPosition().x,
 
     // Set top if vertical drag is enabled
-    y: canDragY(get(state).axis) && canDrag ? get(state).y : validPosition.y
+    y: canDragY(get(state).axis) && canDrag() ? get(state).y : validPosition().y
   });
 
   const transform = () => {
-    if (!get(node) || get(state).update === false) return;
-    // If this is controlled, we don't want to move it - unless it's dragging.
-    const controlled = Boolean(get(state).position);
-    const canDrag = !controlled || get(state).dragging;
-    const validPosition = get(state).position || get(state).defaultPosition;
+    if (!get(node) || get(state).update === false || !get(state).dragging) return;
+    if (get(state).enableTransformFix) removeTransformFix();
 
     const offset = get(state).positionOffset;
     const isSvg = get(state).isElementSVG;
-    const styles = (!isSvg && createCSSTransform(transformOpts(canDrag, validPosition), offset)) || false;
-    const svgTransform = (isSvg && createSVGTransform(transformOpts(canDrag, validPosition), offset)) || false;
-    const classes = {
-      [get(state).defaultClassName]: !get(state).disabled,
-      [get(state).defaultClassNameDragging]: get(state).dragging,
-      [get(state).defaultClassNameDragged]: get(state).dragged
-    };
+    const styles = (!isSvg && createCSSTransform(transformOpts(), offset)) || false;
+    const svgTransform = (isSvg && createSVGTransform(transformOpts(), offset)) || false;
+    const classes = addClasses();
 
     if (typeof svgTransform === 'string') {
       get(node).setAttribute('transform', svgTransform);
     }
     Object.keys(styles).forEach((style) => {
       if (styles) get(node).style[style] = styles[style];
-    });
-    Object.keys(classes).forEach((cl) => {
-      classes[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
     });
 
     const transformedData: TransformEvent = {
@@ -246,6 +233,20 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       classes
     };
     onTransformedHook.trigger(transformedData);
+  };
+
+  const addClasses = () => {
+    const classes = {
+      [get(state).defaultClassName]: !get(state).disabled,
+      [get(state).defaultClassNameDragging]: get(state).dragging,
+      [get(state).defaultClassNameDragged]: get(state).dragged
+    };
+
+    Object.keys(classes).forEach((cl) => {
+      classes[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
+    });
+
+    return classes;
   };
 
   const onUpdated = () => {
@@ -269,6 +270,8 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     get(state).dragging = false;
   });
 
+  tryOnMounted(() => addClasses());
+
   const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
 
   coreDrag(({ event, data }) => {
@@ -280,13 +283,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   coreStop(({ event, data }) => {
     onDragStop(event, data);
   });
-
-  watchEffect(
-    () => {
-      transform();
-    },
-    { flush: 'post' }
-  );
 
   return {
     state,
