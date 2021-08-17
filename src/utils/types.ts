@@ -41,8 +41,6 @@ export interface DraggableOptions extends DraggableCoreOptions {
   defaultPosition: ControlPosition;
   positionOffset?: PositionOffsetControlPosition;
   position?: ControlPosition;
-  x: number;
-  y: number;
 }
 
 export interface DraggableCoreOptions {
@@ -63,7 +61,8 @@ export interface DraggableCoreOptions {
 
 export type DraggableCoreState = State & DraggableCoreOptions;
 
-export type DraggableState = State & DraggableOptions & { prevPropsPosition: { x: number; y: number }; isElementSVG: boolean };
+export type DraggableState = State &
+  DraggableOptions & { x: number; y: number; prevPropsPosition: { x: number; y: number }; isElementSVG: boolean };
 
 interface State {
   dragging: boolean;

@@ -210,7 +210,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   });
 
   const transform = () => {
-    if (!get(node) || get(state).update === false || !get(state).dragging) return;
+    if (!get(node) || get(state).update === false) return;
     if (get(state).enableTransformFix) removeTransformFix();
 
     const offset = get(state).positionOffset;
@@ -263,7 +263,11 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       get(state).y = pos.y;
       get(state).prevPropsPosition = { ...pos };
     }
-    transform();
+    if (get(state).enableTransformFix) {
+      applyTransformFix();
+    } else {
+      transform();
+    }
   };
 
   tryOnUnmounted(() => {
