@@ -136,10 +136,6 @@ interface DraggableOptions {
     // becomes 'controlled' and is not responsive to user input. Use `position`
     // if you need to have direct control of the element.
     position: { x: number, y: number };
-    
-    // Same as position
-    x: number;
-    y: number;
 
     // If set to `true`, will allow dragging on non left-button clicks.
     allowAnyClick: boolean;
