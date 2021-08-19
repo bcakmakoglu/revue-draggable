@@ -228,12 +228,12 @@
       <WrapperBox
         title="🏈 Drag and Drop"
         description="I can detect drops from the other Drag and Drop box."
-        info='<Draggable 
-        class="drop-target" 
+        info='<Draggable
+        class="drop-target"
         @start="onStart"
         @stop="onStop"
         @move="onMove"
-        @mouseenter="onDropAreaMouseEnter" 
+        @mouseenter="onDropAreaMouseEnter"
         @mouseleave="onDropAreaMouseLeave"
         >
     <div>Drag and Drop example</div>
@@ -268,7 +268,7 @@ onDropAreaMouseLeave(e) {
       <WrapperBox
         title="🏈 Drag and Drop"
         description="I can be dropped onto the other Drag and Drop box."
-        info='<Draggable         
+        info='<Draggable
         @start="onStart"
         @stop="onDrop"
         @move="onMove"
@@ -402,9 +402,9 @@ onControlledDragStop(e) {
 
       <WrapperBox
         title="🪄 Rem or Px positioning"
-        info="<Draggable 
-        class=&quot;rem-position-fix&quot; 
-        :transform=&quot;translateTransformToRem(transform, 16)&quot; 
+        info="<Draggable
+        class=&quot;rem-position-fix&quot;
+        :transform=&quot;translateTransformToRem(transform, 16)&quot;
         style=&quot;position: absolute; bottom: 0; right: 22rem&quot;
         >
     <div>Controlled Drag example</div>
@@ -422,7 +422,7 @@ translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
   const [x, y] = convertedValues;
 
   return (this.transform = `translate(${x}, ${y})`);
-} 
+}
 
 <style>
 .rem-position-fix {
@@ -584,8 +584,7 @@ export default defineComponent({
     onControlledDrag(e) {
       this.currentEvent = e;
       const { x, y } = e.data;
-      this.controlledPosition.x = x;
-      this.controlledPosition.y = y;
+      this.controlledPosition = { x, y };
     },
     onControlledDragStop(e) {
       this.currentEvent = {};
