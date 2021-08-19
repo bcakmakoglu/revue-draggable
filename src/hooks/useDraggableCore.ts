@@ -1,5 +1,5 @@
-import { computed, isVue3, ref, Ref, watch, watchEffect } from 'vue-demi';
-import { get, createEventHook, MaybeRef, unrefElement, useEventListener, controlledRef } from '@vueuse/core';
+import { ref, Ref, watch } from 'vue-demi';
+import { get, createEventHook, MaybeRef, unrefElement, useEventListener, tryOnMounted } from '@vueuse/core';
 import {
   DraggableCoreOptions,
   DraggableCoreState,
@@ -18,6 +18,7 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
+import { deepEqual } from '../utils/shims';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -37,12 +38,6 @@ const eventsFor = {
 let dragEventFor = eventsFor.mouse;
 
 const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreOptions>): UseDraggableCore => {
-  if (!target) {
-    console.warn(
-      'You are trying to use <DraggableCore> without passing a valid node reference. This will cause errors down the line.'
-    );
-  }
-
   const initState = (initialState: Partial<DraggableCoreState>): DraggableCoreState =>
     Object.assign(
       {
@@ -63,27 +58,18 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         start: () => {},
         move: () => {},
         stop: () => {},
-        mouseDown: () => {},
+        mouseDown: () => {}
       },
       initialState
     );
   let [posX, posY] = [0, 0];
 
-  const node = computed(() => unrefElement(target));
-  let state: Ref<DraggableCoreState>;
-
-  if (isVue3) {
-    state = controlledRef<DraggableCoreState>(initState(options), {
-      onChanged() {
-        init();
-      }
-    });
-  } else {
-    state = ref(initState(options)) as Ref<DraggableCoreState>;
-    watch(state, () => {
-      init();
-    });
-  }
+  let node = ref();
+  const state = ref(initState(options)) as Ref<DraggableCoreState>;
+  watch(state, (val, oldVal) => {
+    if (deepEqual(val, oldVal)) return;
+    init();
+  });
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -266,12 +252,14 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     }
   };
 
-  watchEffect(
-    () => {
-      init();
-    },
-    { flush: 'post' }
-  );
+  tryOnMounted(() => {
+    node = unrefElement(target);
+    if (!node) {
+      console.error('You are trying to use <DraggableCore> without passing a valid node reference. Canceling initialization.');
+      return;
+    }
+    init();
+  });
 
   return {
     state,

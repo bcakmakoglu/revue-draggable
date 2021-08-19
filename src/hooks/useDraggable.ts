@@ -1,5 +1,5 @@
-import { computed, isVue3, ref, Ref, watch } from 'vue-demi';
-import { controlledRef, createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
+import { ref, Ref, watch } from 'vue-demi';
+import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
   DraggableEventHandler,
@@ -11,13 +11,10 @@ import {
 } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
+import { deepEqual } from '../utils/shims';
 import useDraggableCore from './useDraggableCore';
 
 const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>): UseDraggable => {
-  if (!target) {
-    console.warn('You are trying to use <Draggable> without passing a valid target reference.');
-  }
-
   const initState = (initialState: Partial<DraggableState>): DraggableState =>
     Object.assign(
       {
@@ -55,24 +52,13 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       initialState
     );
 
-  const node = computed(() => unrefElement(target));
-  let state: Ref<DraggableState>;
-  if (isVue3) {
-    state = controlledRef<DraggableState>(initState(options), {
-      onBeforeChange(val) {
-        coreState.value = { ...coreState.value, ...val };
-      },
-      onChanged() {
-        onUpdated();
-      }
-    });
-  } else {
-    state = ref(initState(options)) as Ref<DraggableState>;
-    watch(state, (val) => {
-      coreState.value = { ...coreState.value, ...val };
-      onUpdated();
-    });
-  }
+  let node = ref();
+  const state = ref(initState(options)) as Ref<DraggableState>;
+  watch(state, (val, oldVal) => {
+    if (deepEqual(val, oldVal)) return;
+    coreState.value = { ...coreState.value, ...val };
+    onUpdated();
+  });
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -277,12 +263,18 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   });
 
   tryOnMounted(() => {
-    const startX =
+    node = unrefElement(target);
+    if (!node) {
+      console.error('You are trying to use <Draggable> without passing a valid target reference.');
+      return;
+    }
+    const x =
       (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.top, 10) || 0;
-    const startY =
+    const y =
       (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.left, 10) || 0;
-    get(state).defaultPosition.x = startX;
-    get(state).defaultPosition.y = startY;
+    get(state).defaultPosition = { x, y };
+    get(state).x = x;
+    get(state).y = y;
     addClasses() && onUpdated();
   });
 
