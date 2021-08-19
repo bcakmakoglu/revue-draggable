@@ -183,10 +183,12 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     const target = get(node);
     if (!target) return;
     target.style.transform = '';
+    target.style.left = '';
+    target.style.top = '';
     target.style.position = 'relative';
     const { x, y } = transformOpts();
-    target.style.left = Math.round(parseInt(<string>get(state).positionOffset?.x) || 0) + Math.round(x) + 'px';
-    target.style.top = Math.round(parseInt(<string>get(state).positionOffset?.y) || 0) + Math.round(y) + 'px';
+    target.style.left = Math.round(parseInt(<string>get(state).positionOffset?.x) || 0) + Math.round(Number(x)) + 'px';
+    target.style.top = Math.round(parseInt(<string>get(state).positionOffset?.y) || 0) + Math.round(Number(y)) + 'px';
   };
 
   const removeTransformFix = () => {
@@ -274,7 +276,15 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     get(state).dragging = false;
   });
 
-  tryOnMounted(() => addClasses());
+  tryOnMounted(() => {
+    const startX =
+      (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.top, 10) || 0;
+    const startY =
+      (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.left, 10) || 0;
+    get(state).defaultPosition.x = startX;
+    get(state).defaultPosition.y = startY;
+    addClasses() && onUpdated();
+  });
 
   const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
 
