@@ -86,7 +86,7 @@
     "vite": "^2.3.8",
     "vite-plugin-windicss": "^1.2.7",
     "vite-svg-loader": "^2.1.0",
-    "vue": ">=3.0.5",
+    "vue": ">=3.2.4",
     "vue-router": "4",
     "vue-tsc": "^0.2.2",
     "vue2": "npm:vue@2",
