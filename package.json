@@ -62,7 +62,7 @@
     "@vitejs/plugin-vue": "^1.2.3",
     "@vitejs/plugin-vue-jsx": "^1.1.6",
     "@vue/babel-plugin-jsx": "^1.0.6",
-    "@vue/compiler-sfc": "^3.0.5",
+    "@vue/compiler-sfc": "^3.2.6",
     "@vue/eslint-config-typescript": "^7.0.0",
     "babel-eslint": "latest",
     "cypress": "^7.7.0",
