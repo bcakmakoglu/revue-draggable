@@ -104,9 +104,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     if (get(state).bounds) {
       const { x, y } = newState;
 
-      newState.x += get(state).slackX;
-      newState.y += get(state).slackY;
-
       const [boundX, boundY] = getBoundPosition({
         bounds: get(state).bounds,
         x: newState.x,
