@@ -67,8 +67,6 @@ export type DraggableState = State &
 interface State {
   dragging: boolean;
   dragged: boolean;
-  slackX: number;
-  slackY: number;
   touch?: number;
 }
 
