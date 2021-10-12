@@ -44,8 +44,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
         x: 0,
         y: 0,
         prevPropsPosition: { x: 0, y: 0 },
-        slackX: 0,
-        slackY: 0,
         isElementSVG: false,
         update: true
       },
@@ -96,14 +94,10 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     const newState = {
       x: uiData.x,
-      y: uiData.y,
-      slackX: NaN,
-      slackY: NaN
+      y: uiData.y
     };
 
     if (get(state).bounds) {
-      const { x, y } = newState;
-
       const [boundX, boundY] = getBoundPosition({
         bounds: get(state).bounds,
         x: newState.x,
@@ -112,9 +106,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       });
       newState.x = boundX;
       newState.y = boundY;
-
-      newState.slackX = get(state).slackX + (x - newState.x);
-      newState.slackY = get(state).slackY + (y - newState.y);
 
       uiData.x = newState.x;
       uiData.y = newState.y;
@@ -128,8 +119,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     get(state).x = newState.x;
     get(state).y = newState.y;
-    if (newState.slackX) get(state).slackX = newState.slackX;
-    if (newState.slackY) get(state).slackY = newState.slackY;
     transform();
   };
 
@@ -158,8 +147,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     if (get(state).enableTransformFix) applyTransformFix();
 
     get(state).dragging = false;
-    get(state).slackX = 0;
-    get(state).slackY = 0;
   };
 
   const applyTransformFix = () => {
