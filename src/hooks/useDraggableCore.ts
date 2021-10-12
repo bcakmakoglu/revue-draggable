@@ -50,8 +50,6 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         cancel: '',
         dragged: false,
         update: true,
-        slackX: 0,
-        slackY: 0,
         scale: 1,
         dragging: false,
         touch: 0,
