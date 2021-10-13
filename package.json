@@ -41,7 +41,7 @@
     "serve": "vite preview",
     "prepublishOnly": "yarn build:dist",
     "test": "cypress run",
-    "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
+    "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx,.vue\" --fix --ignore-path .gitignore .",
     "lint": "yarn lint:js",
     "ci": "start-server-and-test dev http-get://localhost:3000 test"
   },
@@ -60,8 +60,6 @@
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
     "@vitejs/plugin-vue": "^1.2.3",
-    "@vitejs/plugin-vue-jsx": "^1.1.6",
-    "@vue/babel-plugin-jsx": "^1.0.6",
     "@vue/compiler-sfc": "^3.0.5",
     "@vue/eslint-config-typescript": "^7.0.0",
     "babel-eslint": "latest",
@@ -83,10 +81,11 @@
     "start-server-and-test": "^1.12.6",
     "tslib": "^2.3.0",
     "typescript": "4.3.5",
+    "unplugin-auto-import": "^0.4.12",
     "vite": "^2.3.8",
     "vite-plugin-windicss": "^1.2.7",
     "vite-svg-loader": "^2.1.0",
-    "vue": ">=3.0.5",
+    "vue": "^3.2.20",
     "vue-router": "4",
     "vue-tsc": "^0.2.2",
     "vue2": "npm:vue@2",
@@ -113,7 +112,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint"
     }
   }
 }

@@ -1,6 +1,6 @@
-import { defineConfig } from 'windicss/helpers';
-import typography from 'windicss/plugin/typography';
-import { colors } from './colors';
+import { defineConfig } from 'windicss/helpers'
+import typography from 'windicss/plugin/typography'
+import { colors } from './colors'
 
 export default defineConfig({
   theme: {
@@ -26,8 +26,8 @@ export default defineConfig({
     'grid-cols-2',
     'grid-cols-3',
     ...Object.keys(colors).map((color) => {
-      const range = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-      return range.map((num) => `bg-${color}-${num}00`);
+      const range = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      return range.map((num) => `bg-${color}-${num}00`)
     })
   ]
-});
+})

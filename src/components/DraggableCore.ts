@@ -1,7 +1,6 @@
-import { h, defineComponent, PropType, onUpdated, isVue3 } from 'vue-demi';
-import { DraggableCoreOptions } from '../utils/types';
-import useDraggableCore from '../hooks/useDraggableCore';
-import { templateRef } from '@vueuse/core';
+import { h, PropType, isVue3 } from 'vue-demi'
+import { DraggableCoreOptions } from '~/utils/types'
+import useDraggableCore from '~/hooks/useDraggableCore'
 
 const DraggableCore = defineComponent({
   name: 'DraggableCore',
@@ -57,40 +56,40 @@ const DraggableCore = defineComponent({
   },
   emits: ['start', 'move', 'stop'],
   setup(props, { slots, emit, attrs }) {
-    const target = templateRef('core-target', null);
+    const target = templateRef('core-target', null)
 
-    const { onDrag, onDragStart, onDragStop, state } = useDraggableCore(target, props);
+    const { onDrag, onDragStart, onDragStop, state } = useDraggableCore(target, props)
 
     onDrag((dragEvent) => {
-      emit('move', dragEvent);
-    });
+      emit('move', dragEvent)
+    })
 
     onDragStart((dragStartEvent) => {
-      emit('start', dragStartEvent);
-    });
+      emit('start', dragStartEvent)
+    })
 
     onDragStop((dragStopEvent) => {
-      emit('stop', dragStopEvent);
-    });
+      emit('stop', dragStopEvent)
+    })
 
     onUpdated(() => {
-      state.value = { ...state.value, ...props };
-    });
+      state.value = { ...state.value, ...props }
+    })
 
     if (isVue3) {
       return () => {
         if (slots.default) {
-          return h(slots.default()[0], { ref: 'core-target', ...attrs }, {});
+          return h(slots.default()[0], { ref: 'core-target', ...attrs }, {})
         }
-      };
+      }
     } else {
       return () => {
         if (slots.default) {
-          return h('div', { ref: 'core-target', ...attrs }, slots.default());
+          return h('div', { ref: 'core-target', ...attrs }, slots.default())
         }
-      };
+      }
     }
   }
-});
+})
 
-export default DraggableCore;
+export default DraggableCore

@@ -12,9 +12,9 @@
   </Draggable>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
-import { Draggable, DraggableEvent } from '@braks/revue-draggable';
-import windiColors from 'windicss/colors';
+import { defineComponent, ref } from '@vue/composition-api'
+import { Draggable, DraggableEvent } from '@braks/revue-draggable'
+import windiColors from 'windicss/colors'
 
 export default defineComponent({
   components: { Draggable },
@@ -72,43 +72,43 @@ export default defineComponent({
       indigo: windiColors.indigo,
       orange: windiColors.orange,
       amber: windiColors.amber
-    };
+    }
     const randomInt = (min: number, max: number) => {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
+      min = Math.ceil(min)
+      max = Math.floor(max)
+      return Math.floor(Math.random() * (max - min + 1)) + min
+    }
     const shuffle = (a: string[]) => {
       for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[a[i], a[j]] = [a[j], a[i]]
       }
-      return a;
-    };
+      return a
+    }
     const randomColor = () => {
-      const keys = shuffle(Object.keys(colors));
-      const bgKey = randomInt(3, 6);
-      return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff';
-    };
+      const keys = shuffle(Object.keys(colors))
+      const bgKey = randomInt(3, 6)
+      return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff'
+    }
 
     const start = (e: DraggableEvent) => {
-      emit('start', e, props.title);
-    };
+      emit('start', e, props.title)
+    }
     const move = (e: DraggableEvent) => {
-      emit('move', e, props.title);
-    };
+      emit('move', e, props.title)
+    }
     const stop = (e: DraggableEvent) => {
-      emit('stop', e);
-    };
+      emit('stop', e)
+    }
 
     return {
       color: randomColor(),
       start,
       move,
       stop
-    };
+    }
   }
-});
+})
 </script>
 <style>
 .wrapper-box {

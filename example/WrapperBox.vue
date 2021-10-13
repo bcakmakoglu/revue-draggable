@@ -13,61 +13,50 @@
     </div>
   </Draggable>
 </template>
-<script lang="ts">
-import { Draggable } from '../src';
-import { colors } from './colors';
-import InfoBox from './InfoBox.vue';
-import InfoIcon from './assets/info.svg';
+<script lang="ts" setup>
+import { Draggable } from '../src'
+import { colors } from './colors'
+import InfoBox from './InfoBox.vue'
+import InfoIcon from './assets/info.svg'
+import { DraggableOptions } from '../src'
 
-export default {
-  components: { InfoBox, Draggable, InfoIcon },
-  emits: ['start', 'move', 'stop'],
-  props: {
-    title: String,
-    description: String,
-    draggableOptions: Object,
-    info: String
-  },
-  data() {
-    return {
-      showInfo: false
-    };
-  },
-  methods: {
-    start(e) {
-      this.$emit('start', e, this.title);
-    },
-    move(e) {
-      this.$emit('move', e, this.title);
-    },
-    stop(e) {
-      this.$emit('stop', e);
-    }
-  },
-  setup() {
-    const randomInt = (min, max) => {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    const shuffle = (a: string[]) => {
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    };
-    const randomColor = () => {
-      const keys = shuffle(Object.keys(colors));
-      const bgKey = randomInt(3, 6);
-      return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff';
-    };
+const props = defineProps<{
+  title?: string
+  description?: string
+  draggableOptions?: DraggableOptions
+  info?: string
+}>()
+const emit = defineEmits(['start', 'move', 'stop'])
 
-    return {
-      color: randomColor()
-    };
+const randomInt = (min: number, max: number) => {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+const shuffle = (a: string[]) => {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
   }
-};
+  return a
+}
+const randomColor = () => {
+  const keys = shuffle(Object.keys(colors))
+  const bgKey = randomInt(3, 6)
+  return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff'
+}
+const color = randomColor()
+const showInfo = false
+
+const start = (e: any): void => {
+  emit('start', e, props.title)
+}
+const move = (e: any): void => {
+  emit('move', e, props.title)
+}
+const stop = (e: any): void => {
+  emit('stop', e)
+}
 </script>
 <style>
 .wrapper-box {

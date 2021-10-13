@@ -1,44 +1,44 @@
-import typescript from 'rollup-plugin-typescript2';
-import { terser } from 'rollup-plugin-terser';
-import dts from 'rollup-plugin-dts';
-import { readFileSync } from 'fs';
-import { OutputOptions, Plugin, RollupOptions } from 'rollup';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
-import alias from '@rollup/plugin-alias';
+import typescript from 'rollup-plugin-typescript2'
+import { terser } from 'rollup-plugin-terser'
+import dts from 'rollup-plugin-dts'
+import { readFileSync } from 'fs'
+import { OutputOptions, Plugin, RollupOptions } from 'rollup'
+import commonjs from '@rollup/plugin-commonjs'
+import resolve from '@rollup/plugin-node-resolve'
+import babel from '@rollup/plugin-babel'
+import alias from '@rollup/plugin-alias'
 // @ts-ignore
-import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core';
+import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core'
 
-const VUE_DEMI_IIFE = readFileSync(require.resolve('vue-demi/lib/index.iife.js'), 'utf-8');
-const configs: RollupOptions[] = [];
+const VUE_DEMI_IIFE = readFileSync(require.resolve('vue-demi/lib/index.iife.js'), 'utf-8')
+const configs: RollupOptions[] = []
 
 const injectVueDemi: Plugin = {
   name: 'inject-vue-demi',
   renderChunk(code) {
-    return `${VUE_DEMI_IIFE};\n;${code}`;
+    return `${VUE_DEMI_IIFE};\n;${code}`
   }
-};
+}
 
 const activePackages = [
   {
     display: 'Revue-Draggable',
     external: ['@vueuse/core']
   }
-];
+]
 
 // @ts-ignore
 for (const { external, iife } of activePackages) {
   const iifeGlobals = {
     'vue-demi': 'VueDemi',
     '@vueuse/core': 'VueUse'
-  };
+  }
 
-  const iifeName = 'RevueDraggable';
-  const functionNames = ['revue-draggable'];
+  const iifeName = 'RevueDraggable'
+  const functionNames = ['revue-draggable']
 
   for (const fn of functionNames) {
-    const input = 'src/index.ts';
+    const input = 'src/index.ts'
 
     const output: OutputOptions[] = [
       {
@@ -49,7 +49,7 @@ for (const { external, iife } of activePackages) {
         file: `dist/${fn}.esm.js`,
         format: 'es'
       }
-    ];
+    ]
 
     if (iife !== false) {
       output.push(
@@ -76,7 +76,7 @@ for (const { external, iife } of activePackages) {
             })
           ]
         }
-      );
+      )
     }
 
     configs.push({
@@ -102,7 +102,7 @@ for (const { external, iife } of activePackages) {
         })
       ],
       external: ['vue-demi', ...(external || [])]
-    });
+    })
 
     configs.push({
       input,
@@ -112,8 +112,8 @@ for (const { external, iife } of activePackages) {
       },
       plugins: [dts()],
       external: ['vue-demi', ...(external || [])]
-    });
+    })
   }
 }
 
-export default configs;
+export default configs

@@ -2,8 +2,8 @@
   <div id="demo">
     <div class="grid grid-cols-2">
       <div class="flex flex-col justify-center items-start">
-        <h1 class="title" v-draggable @start="onStart" @stop="onStop" @move="onMove">Revue Draggable 🤏</h1>
-        <h2 class="subtitle" v-draggable @start="onStart" @stop="onStop" @move="onMove">Make anything draggable!</h2>
+        <h1 v-draggable class="title" @start="onStart" @stop="onStop" @move="onMove">Revue Draggable 🤏</h1>
+        <h2 v-draggable class="subtitle" @start="onStart" @stop="onStop" @move="onMove">Make anything draggable!</h2>
       </div>
 
       <div
@@ -496,9 +496,9 @@ translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
   </div>
 </template>
 <script>
-import { defineComponent } from 'vue-demi';
-import ExampleComponent from './ExampleComponent.vue';
-import WrapperBox from './WrapperBox.vue';
+import { defineComponent } from 'vue-demi'
+import ExampleComponent from './ExampleComponent.vue'
+import WrapperBox from './WrapperBox.vue'
 
 export default defineComponent({
   components: { WrapperBox, ExampleComponent },
@@ -517,79 +517,79 @@ export default defineComponent({
         x: 0,
         y: 0
       }
-    };
+    }
   },
   computed: {
     event() {
       return {
         data: { ...this.currentEvent.data }
-      };
+      }
     }
   },
   methods: {
     toggleDraggable() {
-      this.active = !this.active;
+      this.active = !this.active
     },
     handleDrag(e) {
-      this.currentEvent = e;
-      const { x, y } = this.deltaPosition;
+      this.currentEvent = e
+      const { x, y } = this.deltaPosition
       this.deltaPosition = {
         x: x + e.data.deltaX,
         y: y + e.data.deltaY
-      };
+      }
     },
     onMove(e, name) {
-      this.name = name;
-      this.currentEvent = e;
+      this.name = name
+      this.currentEvent = e
     },
     onStart(e, name) {
-      this.name = name;
-      this.currentEvent = e;
-      this.activeDrags++;
+      this.name = name
+      this.currentEvent = e
+      this.activeDrags++
     },
     onStop() {
-      this.currentEvent = {};
-      this.name = '';
-      this.activeDrags--;
+      this.currentEvent = {}
+      this.name = ''
+      this.activeDrags--
     },
     onDrop(e) {
-      this.currentEvent = {};
-      this.activeDrags--;
+      this.currentEvent = {}
+      this.activeDrags--
       if (e.event.target.classList.contains('drop-target')) {
-        alert('Dropped!');
-        e.event.target.classList.remove('hovered');
+        alert('Dropped!')
+        e.event.target.classList.remove('hovered')
       }
     },
     onDropAreaMouseEnter(e) {
       if (this.activeDrags) {
-        e.target.classList.add('hovered');
+        e.target.classList.add('hovered')
       }
     },
     onDropAreaMouseLeave(e) {
-      e.target.classList.remove('hovered');
+      e.target.classList.remove('hovered')
     },
     // For controlled component
     adjustXPos(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const { x, y } = this.controlledPosition;
-      this.controlledPosition = { x: x - 10, y };
+      e.preventDefault()
+      e.stopPropagation()
+      const { x, y } = this.controlledPosition
+      this.controlledPosition = { x: x - 10, y }
     },
     adjustYPos(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const { x, y } = this.controlledPosition;
-      this.controlledPosition = { x, y: y - 10 };
+      e.preventDefault()
+      e.stopPropagation()
+      const { x, y } = this.controlledPosition
+      this.controlledPosition = { x, y: y - 10 }
     },
     onControlledDrag(e) {
-      this.currentEvent = e;
-      const { x, y } = e.data;
-      this.controlledPosition = { x, y };
+      this.currentEvent = e
+      const { x, y } = e.data
+      this.controlledPosition = { x, y }
     },
     onControlledDragStop(e) {
-      this.currentEvent = {};
-      this.onControlledDrag(e);
-      this.onStop();
+      this.currentEvent = {}
+      this.onControlledDrag(e)
+      this.onStop()
     },
     translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
       const convertedValues = transform
@@ -598,13 +598,13 @@ export default defineComponent({
         .split(',')
         .map((px) => px.replace('px', ''))
         .map((px) => parseInt(px, 10) / remBaseline)
-        .map((x) => `${x}rem`);
-      const [x, y] = convertedValues;
+        .map((x) => `${x}rem`)
+      const [x, y] = convertedValues
 
-      return (this.transform = `translate(${x}, ${y})`);
+      return (this.transform = `translate(${x}, ${y})`)
     }
   }
-});
+})
 </script>
 <style>
 #demo {

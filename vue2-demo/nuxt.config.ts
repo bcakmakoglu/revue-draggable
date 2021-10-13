@@ -1,4 +1,4 @@
-import { resolve, join } from 'path';
+import { resolve, join } from 'path'
 
 export default {
   // Target: https://go.nuxtjs.dev/config-target
@@ -42,4 +42,4 @@ export default {
   },
 
   loading: { color: '#00CD81' }
-};
+}
