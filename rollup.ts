@@ -7,6 +7,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
 import babel from '@rollup/plugin-babel'
 import alias from '@rollup/plugin-alias'
+
 // @ts-ignore
 import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core'
 
@@ -15,7 +16,7 @@ const configs: RollupOptions[] = []
 
 const injectVueDemi: Plugin = {
   name: 'inject-vue-demi',
-  renderChunk(code) {
+  renderChunk(code: string) {
     return `${VUE_DEMI_IIFE};\n;${code}`
   }
 }
@@ -110,7 +111,7 @@ for (const { external, iife } of activePackages) {
         file: `dist/${fn}.d.ts`,
         format: 'es'
       },
-      plugins: [dts()],
+      plugins: [typescript(), dts()],
       external: ['vue-demi', ...(external || [])]
     })
   }
