@@ -10,6 +10,8 @@ features:
 - Supports Vue2 and Vue3! No Problemo!
 ---
 
+<img src="/revue-draggable.gif" alt="Revue Draggable" />
+
 **Make your Vue components draggable. 🤏**
 
 **Supports Vue 2 and Vue 3!** Comes with a 🔋 batteries included component / directive / composable or for users who
@@ -43,8 +45,11 @@ $ yarn add @braks/revue-draggable @vue/composition-api
 # or
 $ npm i --save @braks/revue-draggable @vue/composition-api
 ```
+
 ### Using the components
+
 #### Webpack (Vue2)
+
 You'll need to include the full build if you're on Vue2.
 I urge you to instead use the composables or the directive.
 ```js
@@ -58,6 +63,7 @@ resolve: {
 ```
 
 #### [Nuxt](https://nuxtjs.org/)
+
 ```ts {}[nuxt.config.ts]
 // nuxt.config.ts
 export default {
@@ -126,10 +132,8 @@ Or use the component wrapper.
 
 Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or syncing states.
 
-## 🐛 Debugging
-Set the environment variable `DRAGGABLE_DEBUG` to enable logs on drag handlers.
-
 ## 🧪 Development
+
 This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https://rollupjs.org/) to create a distribution.
 
 ```bash
@@ -146,9 +150,19 @@ $ yarn serve
 $ yarn build:dist
 ```
 
+## 🐛 Debugging
+
+Set the environment variable `DRAGGABLE_DEBUG` to enable logs on drag handlers.
+
 ## 🕵🏻‍♂️ Tests
+
 Testing is done with Cypress.
 You can find the specs in the [cypress directory](/cypress);
 ```bash
 $ yarn ci // starts test server and runs tests, make sure port 3000 is open
 ```
+
+# 💝 Sponsors
+
+Special thanks go to sponsors!
+[jfrueh](https://github.com/jfrueh)

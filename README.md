@@ -1,4 +1,4 @@
-# Revue Draggable 
+![Revue Draggable](./docs/static/revue-draggable.gif)
 
 ![top-language](https://img.shields.io/github/languages/top/bcakmakoglu/revue-draggable)
 [![dependencies Status](https://status.david-dm.org/gh/bcakmakoglu/revue-draggable.svg)](https://david-dm.org/bcakmakoglu/revue-draggable)
@@ -18,6 +18,19 @@ Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggab
 Check the [Docs 📔](https://revue-draggable-docs.vercel.app/) for an in-depth explanation and
 the [Demo 🪄](https://revue-draggable.vercel.app/) to see Revue Draggable in action.
 
+## Table of Contents
+
+* [🛠 Setup](#-setup)
+
+    * [Registering Revue Draggable ](#-registering-revue-draggable)
+
+* [🎮 Quickstart](#-quickstart)
+
+* [🧪 Development](#-development)
+
+* [🕵🏻‍♂️ Tests](#-tests)
+
+* [💝 Sponsors](#-sponsors)
 
 ## 🛠 Setup
 
@@ -37,8 +50,11 @@ $ yarn add @braks/revue-draggable @vue/composition-api
 # or
 $ npm i --save @braks/revue-draggable @vue/composition-api
 ```
+
 ### Using the components
+
 #### Webpack (Vue2)
+
 ```js
 // webpack.config.js
 
@@ -50,6 +66,7 @@ resolve: {
 ```
 
 #### [Nuxt](https://nuxtjs.org/)
+
 ```ts {}[nuxt.config.ts]
 // nuxt.config.ts
 export default {
@@ -59,7 +76,7 @@ export default {
 }
 ```
 
-### 🔌 Registering Draggable 
+### 🔌 Registering Revue Draggable 
 
 ```ts {}[main.ts]
 // Vue3
@@ -119,6 +136,7 @@ Or use the component wrapper.
 Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or syncing states.
 
 ## 🧪 Development
+
 This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https://rollupjs.org/) to create a distribution.
 
 ```bash
@@ -135,13 +153,19 @@ $ yarn serve
 $ yarn build:dist
 ```
 
+## 🐛 Debugging
+
+Set the environment variable `DRAGGABLE_DEBUG` to enable logs on drag handlers.
+
 ## 🕵🏻‍♂️ Tests
+
 Testing is done with Cypress.
 You can find the specs in the [cypress directory](/cypress);
 ```bash
 $ yarn ci # starts test server and runs tests, make sure port 3000 is open
 ```
 
-# Sponsors 💝
+# 💝 Sponsors
+
 Special thanks go to sponsors!
 [jfrueh](https://github.com/jfrueh)
