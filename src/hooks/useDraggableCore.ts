@@ -1,4 +1,4 @@
-import { ref, Ref, watch } from 'vue-demi';
+import { ref, Ref } from 'vue-demi';
 import { get, createEventHook, MaybeRef, unrefElement, useEventListener, tryOnMounted } from '@vueuse/core';
 import {
   DraggableCoreOptions,
@@ -18,7 +18,6 @@ import {
 import { createCoreData, getControlPosition, snapToGrid } from '../utils/positionFns';
 import log from '../utils/log';
 import { addEvent } from '../utils/domFns';
-import { deepEqual } from '../utils/shims';
 
 // Simple abstraction for dragging events names.
 const eventsFor = {
@@ -60,15 +59,10 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
       },
       initialState
     );
-  let [posX, posY] = [0, 0];
+  const pos = ref([NaN, NaN]);
 
   let node = ref();
   const state = ref(initState(options)) as Ref<DraggableCoreState>;
-  watch(state, (val, oldVal) => {
-    if (deepEqual(val, oldVal)) return;
-    init();
-  });
-
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
     onDragStopHook = createEventHook<DraggableEvent>();
@@ -103,13 +97,12 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     });
     if (position == null) return;
     const { x, y } = position;
-
     const coreEvent = createCoreData({
       node: get(node),
       x,
       y,
-      lastX: posX,
-      lastY: posY
+      lastX: pos.value[0],
+      lastY: pos.value[1]
     });
 
     log('DraggableCore: handleDragStart: %j', coreEvent);
@@ -121,8 +114,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     if (get(state).enableUserSelectHack) addUserSelectStyles(ownerDocument);
 
     get(state).dragging = true;
-    posX = x;
-    posY = y;
+    pos.value[0] = x;
+    pos.value[1] = y;
 
     addEvent(ownerDocument, dragEventFor.move, handleDrag);
     addEvent(ownerDocument, dragEventFor.stop, handleDragStop);
@@ -142,20 +135,20 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
 
       // Snap to grid if prop has been provided
       if (Array.isArray(get(state).grid)) {
-        let deltaX = x - posX,
-          deltaY = y - posY;
+        let deltaX = x - pos.value[0],
+          deltaY = y - pos.value[1];
         [deltaX, deltaY] = snapToGrid(get(state).grid as [number, number], deltaX, deltaY);
         if (!deltaX && !deltaY) return;
-        x = posX + deltaX;
-        y = posY + deltaY;
+        x = pos.value[0] + deltaX;
+        y = pos.value[1] + deltaY;
       }
 
       const coreEvent = createCoreData({
         node: get(node),
         x,
         y,
-        lastX: posX,
-        lastY: posY
+        lastX: pos.value[0],
+        lastY: pos.value[1]
       });
 
       log('DraggableCore: handleDrag: %j', coreEvent);
@@ -175,8 +168,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         return;
       }
 
-      posX = x;
-      posY = y;
+      pos.value[0] = x;
+      pos.value[1] = y;
     }
   };
 
@@ -197,8 +190,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         node: get(node),
         x,
         y,
-        lastX: posX,
-        lastY: posY
+        lastX: pos.value[0],
+        lastY: pos.value[1]
       });
 
       const shouldUpdate = get(state).stop?.(e, coreEvent);
@@ -239,10 +232,10 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
     return handleDragStop(e);
   };
 
-  let initialized = false;
+  const initialized = ref(false);
   const init = () => {
-    if (get(node) && !initialized) {
-      initialized = true;
+    if (get(node) && !get(initialized)) {
+      initialized.value = true;
       useEventListener(get(node), eventsFor.touch.start, onTouchStart, { passive: false });
       useEventListener(get(node), eventsFor.touch.stop, onTouchEnd);
       useEventListener(get(node), eventsFor.mouse.start, onMouseDown);

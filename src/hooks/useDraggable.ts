@@ -1,4 +1,4 @@
-import { ref, Ref, watch } from 'vue-demi';
+import { ref, Ref, watch, computed } from 'vue-demi';
 import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
@@ -11,7 +11,6 @@ import {
 } from '../utils/types';
 import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns';
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
-import { deepEqual } from '../utils/shims';
 import useDraggableCore from './useDraggableCore';
 
 const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>): UseDraggable => {
@@ -30,7 +29,10 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
         move: () => {},
         stop: () => {},
         mouseDown: () => {},
-        position: undefined,
+        position: {
+          x: 0,
+          y: 0
+        },
         positionOffset: undefined,
         scale: 1,
         axis: 'both',
@@ -41,8 +43,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
         bounds: false,
         dragging: false,
         dragged: false,
-        x: 0,
-        y: 0,
         prevPropsPosition: { x: 0, y: 0 },
         isElementSVG: false,
         update: true
@@ -51,9 +51,10 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     );
 
   let node = ref();
+  const xPos = ref(NaN);
+  const yPos = ref(NaN);
   const state = ref(initState(options)) as Ref<DraggableState>;
-  watch(state, (val, oldVal) => {
-    if (deepEqual(val, oldVal)) return;
+  watch(state, (val) => {
     coreState.value = { ...coreState.value, ...val };
     onUpdated();
   });
@@ -68,8 +69,8 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     const uiData = createDraggableData({
       data,
-      x: get(state).x,
-      y: get(state).y,
+      x: xPos.value,
+      y: yPos.value,
       scale: get(state).scale
     });
 
@@ -83,12 +84,13 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
   const onDrag: DraggableEventHandler = (e, data) => {
     if (!get(state).dragging) return false;
+
     log('Draggable: onDrag: %j', data);
 
     const uiData = createDraggableData({
       data,
-      x: get(state).x,
-      y: get(state).y,
+      x: xPos.value,
+      y: yPos.value,
       scale: get(state).scale
     });
 
@@ -109,16 +111,16 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
       uiData.x = newState.x;
       uiData.y = newState.y;
-      uiData.deltaX = newState.x - get(state).x;
-      uiData.deltaY = newState.y - get(state).y;
+      uiData.deltaX = newState.x - xPos.value;
+      uiData.deltaY = newState.y - yPos.value;
     }
 
     const shouldUpdate = get(state).move?.(e, uiData);
     onDragHook.trigger({ event: e, data: uiData });
     if ((shouldUpdate || get(state).update) === false) return false;
 
-    get(state).x = newState.x;
-    get(state).y = newState.y;
+    xPos.value = newState.x;
+    yPos.value = newState.y;
     transform();
   };
 
@@ -127,8 +129,8 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     const uiData = createDraggableData({
       scale: get(state).scale,
-      x: get(state).x,
-      y: get(state).y,
+      x: xPos.value,
+      y: yPos.value,
       data
     });
 
@@ -138,12 +140,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     log('Draggable: onDragStop: %j', data);
 
-    const pos = get(state).position;
-    const controlled = Boolean(pos);
-    if (controlled && pos) {
-      get(state).x = pos.x;
-      get(state).y = pos.y;
-    }
     if (get(state).enableTransformFix) applyTransformFix();
 
     get(state).dragging = false;
@@ -156,7 +152,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     target.style.left = '';
     target.style.top = '';
     target.style.position = 'relative';
-    const { x, y } = transformOpts();
+    const { x, y } = transformOpts.value;
     target.style.left = Math.round(parseInt(<string>get(state).positionOffset?.x) || 0) + Math.round(Number(x)) + 'px';
     target.style.top = Math.round(parseInt(<string>get(state).positionOffset?.y) || 0) + Math.round(Number(y)) + 'px';
   };
@@ -171,15 +167,15 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   };
 
   // If this is controlled, we don't want to move it - unless it's dragging.
-  const canDrag = () => Boolean(get(state).position) || get(state).dragging;
-  const validPosition = () => get(state).position || get(state).defaultPosition;
-  const transformOpts = () => ({
+  const canDrag = computed(() => Boolean(get(state).position) || get(state).dragging);
+  const validPosition = computed(() => get(state).position || get(state).defaultPosition);
+  const transformOpts = computed(() => ({
     // Set left if horizontal drag is enabled
-    x: canDragX(get(state).axis) && canDrag() ? get(state).x : validPosition().x,
+    x: canDragX(get(state).axis) && canDrag.value ? xPos.value : validPosition.value.x,
 
     // Set top if vertical drag is enabled
-    y: canDragY(get(state).axis) && canDrag() ? get(state).y : validPosition().y
-  });
+    y: canDragY(get(state).axis) && canDrag.value ? yPos.value : validPosition.value.y
+  }));
 
   const transform = () => {
     if (!get(node) || get(state).update === false) return;
@@ -187,16 +183,19 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     const offset = get(state).positionOffset;
     const isSvg = get(state).isElementSVG;
-    const styles = (!isSvg && createCSSTransform(transformOpts(), offset)) || false;
-    const svgTransform = (isSvg && createSVGTransform(transformOpts(), offset)) || false;
+    const styles = (!isSvg && createCSSTransform(transformOpts.value, offset)) || false;
+    const svgTransform = (isSvg && createSVGTransform(transformOpts.value, offset)) || false;
     const classes = addClasses();
 
     if (typeof svgTransform === 'string') {
       get(node).setAttribute('transform', svgTransform);
     }
-    Object.keys(styles).forEach((style) => {
-      if (styles) get(node).style[style] = styles[style];
-    });
+
+    if (styles) {
+      for (const style of Object.keys(styles)) {
+        get(node).style[style] = styles[style];
+      }
+    }
 
     const transformedData: TransformEvent = {
       el: get(node),
@@ -223,23 +222,19 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
   const onUpdated = () => {
     const pos = get(state).position;
-    if (
-      pos &&
-      (!get(state).prevPropsPosition || pos.x !== get(state).prevPropsPosition.x || pos.y !== get(state).prevPropsPosition.y)
-    ) {
+    const oldPos = get(state).prevPropsPosition;
+    if (pos && (pos.x !== oldPos.x || pos.y !== oldPos.y)) {
       log('Draggable: Updated %j', {
         position: get(state).prevPropsPosition,
         prevPropsPosition: get(state).prevPropsPosition
       });
-      get(state).x = pos.x;
-      get(state).y = pos.y;
+      xPos.value = pos.x;
+      yPos.value = pos.y;
       get(state).prevPropsPosition = { ...pos };
     }
-    if (get(state).enableTransformFix) {
-      applyTransformFix();
-    } else {
-      transform();
-    }
+
+    if (get(state).enableTransformFix) applyTransformFix();
+    else transform();
   };
 
   tryOnUnmounted(() => {
@@ -257,8 +252,8 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     const y =
       (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.left, 10) || 0;
     get(state).defaultPosition = { x, y };
-    get(state).x = x;
-    get(state).y = y;
+    xPos.value = x;
+    yPos.value = y;
     addClasses() && onUpdated();
   });
 
