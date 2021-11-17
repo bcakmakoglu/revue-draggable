@@ -1,9 +1,9 @@
-import { ref, Ref, watch, computed } from 'vue-demi';
+import { computed, Ref, ref, watch } from 'vue-demi';
 import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
-  DraggableEventHandler,
   DraggableEvent,
+  DraggableEventHandler,
   DraggableOptions,
   DraggableState,
   TransformEvent,
@@ -178,14 +178,12 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     const isSvg = get(state).isElementSVG;
     const styles = (!isSvg && createCSSTransform(transformOpts.value, offset)) || false;
     const svgTransform = (isSvg && createSVGTransform(transformOpts.value, offset)) || false;
-    const classes = addClasses();
 
-    if (typeof svgTransform === 'string') {
-      get(node).setAttribute('transform', svgTransform);
-    }
-
+    if (typeof svgTransform === 'string') get(node).setAttribute('transform', svgTransform);
     if (styles) {
       for (const style of Object.keys(styles)) {
+        if (style === 'transform')
+          styles[style] += `${get(node).style[style]}`.replace(/translate\((-?\d+?px,? ?)+\)+/gm, '').trim();
         get(node).style[style] = styles[style];
       }
     }
@@ -194,24 +192,22 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       el: get(node),
       style: styles,
       transform: svgTransform,
-      classes
+      classes: classes.value
     };
     onTransformedHook.trigger(transformedData);
   };
 
-  const addClasses = () => {
-    const classes = {
-      [get(state).defaultClassName]: !get(state).disabled,
-      [get(state).defaultClassNameDragging]: get(state).dragging,
-      [get(state).defaultClassNameDragged]: get(state).dragged
-    };
+  const classes = computed(() => ({
+    [get(state).defaultClassName]: !get(state).disabled,
+    [get(state).defaultClassNameDragging]: get(state).dragging,
+    [get(state).defaultClassNameDragged]: get(state).dragged
+  }));
 
-    Object.keys(classes).forEach((cl) => {
-      classes[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
-    });
-
-    return classes;
-  };
+  watch(classes, (val) =>
+    Object.keys(val).forEach((cl) => {
+      val[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
+    })
+  );
 
   const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
   coreDrag(({ event, data }) => onDrag(event, data));
@@ -258,7 +254,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     xPos.value = x;
     yPos.value = y;
-    addClasses() && onUpdated();
+    onUpdated();
 
     watch(state, (val) => {
       coreState.value = { ...coreState.value, ...val };
