@@ -104,8 +104,8 @@ export function createCoreData({
   lastX: number;
   lastY: number;
 }): DraggableData {
-  const isStart = !isNaN(lastX);
-  if (!isStart) {
+  const isStart = isNaN(lastX);
+  if (isStart) {
     // If this is our first move, use the x and y as last coords.
     return {
       node,

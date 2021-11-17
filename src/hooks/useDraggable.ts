@@ -54,10 +54,6 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   const xPos = ref(NaN);
   const yPos = ref(NaN);
   const state = ref(initState(options)) as Ref<DraggableState>;
-  watch(state, (val) => {
-    coreState.value = { ...coreState.value, ...val };
-    onUpdated();
-  });
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -220,14 +216,18 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     return classes;
   };
 
+  const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
+  coreDrag(({ event, data }) => onDrag(event, data));
+  coreStart(({ event, data }) => onDragStart(event, data));
+  coreStop(({ event, data }) => onDragStop(event, data));
+
   const onUpdated = () => {
     const pos = get(state).position;
-    const oldPos = get(state).prevPropsPosition;
-    if (pos && (pos.x !== oldPos.x || pos.y !== oldPos.y)) {
-      log('Draggable: Updated %j', {
-        position: get(state).prevPropsPosition,
-        prevPropsPosition: get(state).prevPropsPosition
-      });
+    log('Draggable: Updated %j', {
+      position: get(state).prevPropsPosition,
+      prevPropsPosition: get(state).prevPropsPosition
+    });
+    if (pos) {
       xPos.value = pos.x;
       yPos.value = pos.y;
       get(state).prevPropsPosition = { ...pos };
@@ -255,18 +255,11 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     xPos.value = x;
     yPos.value = y;
     addClasses() && onUpdated();
-  });
 
-  const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
-
-  coreDrag(({ event, data }) => {
-    onDrag(event, data);
-  });
-  coreStart(({ event, data }) => {
-    onDragStart(event, data);
-  });
-  coreStop(({ event, data }) => {
-    onDragStop(event, data);
+    watch(state, (val) => {
+      coreState.value = { ...coreState.value, ...val };
+      onUpdated();
+    });
   });
 
   return {

@@ -67,6 +67,7 @@ interface State {
   dragging: boolean;
   dragged: boolean;
   touch?: number;
+  position?: ControlPosition;
 }
 
 export interface UseDraggable {

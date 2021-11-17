@@ -1,4 +1,4 @@
-import { ref, Ref } from 'vue-demi';
+import { ref, Ref, watch } from 'vue-demi';
 import { get, createEventHook, MaybeRef, unrefElement, useEventListener, tryOnMounted } from '@vueuse/core';
 import {
   DraggableCoreOptions,
@@ -55,7 +55,8 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
         start: () => {},
         move: () => {},
         stop: () => {},
-        mouseDown: () => {}
+        mouseDown: () => {},
+        position: undefined
       },
       initialState
     );
@@ -66,6 +67,18 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
     onDragStopHook = createEventHook<DraggableEvent>();
+
+  tryOnMounted(() => {
+    watch(
+      () => get(state),
+      (val) => {
+        if (val.position && !val.dragging) {
+          pos.value[0] = NaN;
+          pos.value[1] = NaN;
+        }
+      }
+    );
+  });
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
     if (!get(state).allowAnyClick && e.button !== 0) return false;
