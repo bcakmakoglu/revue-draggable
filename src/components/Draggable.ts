@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, onUpdated, isVue3 } from 'vue-demi';
+import { h, defineComponent, PropType, isVue3, watch } from 'vue-demi';
 import { templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
@@ -100,25 +100,15 @@ const Draggable = defineComponent({
     const target = templateRef('target', null);
     const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
 
-    onDrag((dragEvent) => {
-      emit('move', dragEvent);
-    });
+    onDrag((dragEvent) => emit('move', dragEvent));
 
-    onDragStart((dragStartEvent) => {
-      emit('start', dragStartEvent);
-    });
+    onDragStart((dragStartEvent) => emit('start', dragStartEvent));
 
-    onDragStop((dragStopEvent) => {
-      emit('stop', dragStopEvent);
-    });
+    onDragStop((dragStopEvent) => emit('stop', dragStopEvent));
 
-    onTransformed((transformEvent) => {
-      emit('transformed', transformEvent);
-    });
+    onTransformed((transformEvent) => emit('transformed', transformEvent));
 
-    onUpdated(() => {
-      state.value = { ...state.value, ...props };
-    });
+    watch(props, (val) => (state.value = { ...state.value, ...val }));
 
     if (isVue3) {
       return () => {
