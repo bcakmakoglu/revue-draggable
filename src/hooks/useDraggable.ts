@@ -202,12 +202,11 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     [get(state).defaultClassNameDragging]: get(state).dragging,
     [get(state).defaultClassNameDragged]: get(state).dragged
   }));
-
-  watch(classes, (val) =>
-    Object.keys(val).forEach((cl) => {
-      val[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
-    })
-  );
+  watch(classes, () => addClasses());
+  const addClasses = () =>
+    Object.keys(classes.value).forEach((cl) => {
+      classes.value[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
+    });
 
   const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
   coreDrag(({ event, data }) => onDrag(event, data));
@@ -254,6 +253,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
 
     xPos.value = x;
     yPos.value = y;
+    addClasses();
     onUpdated();
 
     watch(state, (val) => {
