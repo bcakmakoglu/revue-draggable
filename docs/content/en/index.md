@@ -25,7 +25,7 @@ Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggab
 <list :items="features"></list>
 
 Check the [Repo 🛠](https://github.com/bcakmakoglu/revue-draggable) and
-the [Demo 🪄](https://revue-draggable.vercel.app/) to see Revue Draggable in action.
+the [Demo 🪄](https://draggable.vueflow.dev) to see Revue Draggable in action.
 
 ## 🛠 Setup
 

@@ -16,7 +16,7 @@
   ],
   "license": "MIT",
   "author": "Burak Cakmakoglu<https://github.com/bcakmakoglu>",
-  "homepage": "https://github.com/bcakmakoglu/revue-draggable#readme",
+  "homepage": "https://draggable.vueflow.dev",
   "exports": {
     ".": {
       "import": "./dist/revue-draggable.esm.js",

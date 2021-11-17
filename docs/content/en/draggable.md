@@ -17,7 +17,7 @@ Use an intermediate wrapper (`<div v-draggable><span>...</span></div>`) in this 
 
 ## Usage
 
-View the [Demo](https://revue-draggable.vercel.app/) or its [source](https://github.com/bcakmakoglu/revue-draggable/blob/master/example/App.vue) for more examples.
+View the [Demo](https://draggable.vueflow.dev) or its [source](https://github.com/bcakmakoglu/revue-draggable/blob/master/example/App.vue) for more examples.
 
 ```vue {}[App.vue]
 <template>

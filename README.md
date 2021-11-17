@@ -1,4 +1,4 @@
-![Revue Draggable](./docs/static/revue-draggable.gif)
+[![Revue Draggable](./docs/static/revue-draggable.gif)](https://draggable.vueflow.dev)
 
 ![top-language](https://img.shields.io/github/languages/top/bcakmakoglu/revue-draggable)
 [![dependencies Status](https://status.david-dm.org/gh/bcakmakoglu/revue-draggable.svg)](https://david-dm.org/bcakmakoglu/revue-draggable)
@@ -15,8 +15,8 @@ as a component / directive / composable.
 
 Based on [React Draggable](https://www.npmjs.com/package/react-draggable#draggablecore).
 
-Check the [Docs 📔](https://revue-draggable-docs.vercel.app/) for an in-depth explanation and
-the [Demo 🪄](https://revue-draggable.vercel.app/) to see Revue Draggable in action.
+Check the [Docs 📔](https://draggable-docs.vueflow.dev) for an in-depth explanation and
+the [Demo 🪄](https://draggable.vueflow.dev) to see Revue Draggable in action.
 
 ## Table of Contents
 
