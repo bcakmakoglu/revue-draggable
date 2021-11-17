@@ -71,7 +71,8 @@ export default {
 </script>
 <style>
 .wrapper-box {
-  @apply max-w-70 lg:max-w-xs
+  @apply max-w-70
+  lg:max-w-xs
   h-60
   w-xs
   py-4

@@ -29,10 +29,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
         move: () => {},
         stop: () => {},
         mouseDown: () => {},
-        position: {
-          x: 0,
-          y: 0
-        },
+        position: undefined,
         positionOffset: undefined,
         scale: 1,
         axis: 'both',
@@ -247,11 +244,18 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
       console.error('You are trying to use <Draggable> without passing a valid target reference.');
       return;
     }
-    const x =
-      (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.top, 10) || 0;
-    const y =
-      (get(state).position ? get(state).position?.x : get(state).defaultPosition.x) || parseInt(get(node).style.left, 10) || 0;
-    get(state).defaultPosition = { x, y };
+    let x = 0;
+    let y = 0;
+    const pos = get(state).position;
+    const defaultPos = get(state).defaultPosition;
+    const stylePos = get(node).style;
+    if (pos && typeof pos.x !== 'undefined') x = pos.x;
+    else if (defaultPos && typeof defaultPos.x !== 'undefined') x = defaultPos.x;
+    else if (stylePos.top) x = parseInt(stylePos.top, 10);
+    if (pos && typeof pos.y !== 'undefined') y = pos.y;
+    else if (defaultPos && typeof defaultPos.y !== 'undefined') y = defaultPos.y;
+    else if (stylePos.left) y = parseInt(stylePos.left, 10);
+
     xPos.value = x;
     yPos.value = y;
     addClasses() && onUpdated();
