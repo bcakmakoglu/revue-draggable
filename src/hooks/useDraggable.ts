@@ -256,13 +256,10 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     addClasses();
     onUpdated();
 
-    watch(
-      () => state,
-      (val) => {
-        coreState.value = { ...coreState.value, ...val };
-        onUpdated();
-      }
-    );
+    watch(state, (val) => {
+      coreState.value = { ...coreState.value, ...val };
+      onUpdated();
+    });
   });
 
   return {
