@@ -62,7 +62,7 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
     );
   const pos = ref([NaN, NaN]);
 
-  let node = ref();
+  const node = ref<HTMLElement | SVGElement>();
   const state = ref<DraggableCoreState>(initState(options));
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -81,18 +81,18 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
   });
 
   const handleDragStart: EventHandler<MouseTouchEvent> = (e) => {
+    const n = get(node);
     if (!get(state).allowAnyClick && e.button !== 0) return false;
-
-    if (!get(node) || !get(node).ownerDocument || !get(node).ownerDocument.body) {
+    if (!n || !n.ownerDocument || !n.ownerDocument.body) {
       throw new Error('No ref element found on DragStart!');
     }
-    const { ownerDocument } = get(node);
+    const { ownerDocument } = n;
 
     if (
       get(state).disabled ||
       !(ownerDocument.defaultView && e.target instanceof ownerDocument.defaultView.Node) ||
-      (get(state).handle && !matchesSelectorAndParentsTo(e.target as Node, get(state).handle, get(node))) ||
-      (get(state).cancel && matchesSelectorAndParentsTo(e.target as Node, get(state).cancel, get(node)))
+      (get(state).handle && !matchesSelectorAndParentsTo(e.target as Node, get(state).handle, n)) ||
+      (get(state).cancel && matchesSelectorAndParentsTo(e.target as Node, get(state).cancel, n))
     ) {
       return;
     }
@@ -104,14 +104,14 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
     const position = getControlPosition({
       e,
       touch: get(state).touch,
-      node: get(node),
+      node: n,
       offsetContainer: get(state).offsetParent,
       scale: get(state).scale
     });
     if (position == null) return;
     const { x, y } = position;
     const coreEvent = createCoreData({
-      node: get(node),
+      node: n,
       x,
       y,
       lastX: pos.value[0],
@@ -135,11 +135,12 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
   };
 
   const handleDrag: EventHandler<MouseTouchEvent> = (e) => {
-    if (get(node)) {
+    const n = get(node);
+    if (n) {
       const position = getControlPosition({
         e,
         touch: get(state).touch,
-        node: get(node),
+        node: n,
         offsetContainer: get(state).offsetParent,
         scale: get(state).scale
       });
@@ -157,7 +158,7 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
       }
 
       const coreEvent = createCoreData({
-        node: get(node),
+        node: n,
         x,
         y,
         lastX: pos.value[0],
@@ -187,20 +188,21 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
   };
 
   const handleDragStop: EventHandler<MouseTouchEvent> = (e) => {
+    const n = get(node);
     if (!get(state).dragging) return;
 
-    if (get(node)) {
+    if (n) {
       const position = getControlPosition({
         e,
         touch: get(state).touch,
-        node: get(node),
+        node: n,
         offsetContainer: get(state).offsetParent,
         scale: get(state).scale
       });
       if (position == null) return;
       const { x, y } = position;
       const coreEvent = createCoreData({
-        node: get(node),
+        node: n,
         x,
         y,
         lastX: pos.value[0],
@@ -211,15 +213,15 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
       onDragStopHook.trigger({ event: e, data: coreEvent });
       if ((shouldUpdate || get(state).update) === false) return false;
 
-      if (get(state).enableUserSelectHack) removeUserSelectStyles(get(node).ownerDocument);
+      if (get(state).enableUserSelectHack) removeUserSelectStyles(n.ownerDocument);
 
       log('DraggableCore: handleDragStop: %j', coreEvent);
 
       get(state).dragging = false;
 
       log('DraggableCore: Removing handlers');
-      removeEvent(get(node).ownerDocument, dragEventFor.move, handleDrag);
-      removeEvent(get(node).ownerDocument, dragEventFor.stop, handleDragStop);
+      removeEvent(n.ownerDocument, dragEventFor.move, handleDrag);
+      removeEvent(n.ownerDocument, dragEventFor.stop, handleDragStop);
     }
   };
 
@@ -257,7 +259,7 @@ const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCore
   };
 
   tryOnMounted(() => {
-    node = unrefElement(target);
+    node.value = unrefElement(target);
     if (!node) {
       console.error('You are trying to use <DraggableCore> without passing a valid node reference. Canceling initialization.');
       return;

@@ -47,7 +47,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
       initialState
     );
 
-  let node = ref();
+  const node = ref<HTMLElement | SVGElement>();
   const xPos = ref(NaN);
   const yPos = ref(NaN);
   const state = ref<DraggableState>(initState(options));
@@ -171,7 +171,8 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
   }));
 
   const transform = () => {
-    if (!get(node) || get(state).update === false) return;
+    const n = get(node);
+    if (!n || get(state).update === false) return;
     if (get(state).enableTransformFix) removeTransformFix();
 
     const offset = get(state).positionOffset;
@@ -179,12 +180,11 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     const styles = (!isSvg && createCSSTransform(transformOpts.value, offset)) || false;
     const svgTransform = (isSvg && createSVGTransform(transformOpts.value, offset)) || false;
 
-    if (typeof svgTransform === 'string') get(node).setAttribute('transform', svgTransform);
+    if (typeof svgTransform === 'string') n.setAttribute('transform', svgTransform);
     if (styles) {
       for (const style of Object.keys(styles)) {
-        if (style === 'transform')
-          styles[style] += `${get(node).style[style]}`.replace(/translate\((-?\d+?px,? ?)+\)+/gm, '').trim();
-        get(node).style[style] = styles[style];
+        if (style === 'transform') styles[style] += `${n.style[style]}`.replace(/translate\((-?\d+?px,? ?)+\)+/gm, '').trim();
+        n.style[style as any] = styles[style];
       }
     }
 
@@ -205,7 +205,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
   watch(classes, () => addClasses());
   const addClasses = () =>
     Object.keys(classes.value).forEach((cl) => {
-      classes.value[cl] ? get(node).classList.toggle(cl, true) : get(node).classList.toggle(cl, false);
+      classes.value[cl] ? get(node)?.classList.toggle(cl, true) : get(node)?.classList.toggle(cl, false);
     });
 
   const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
@@ -234,7 +234,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
   });
 
   tryOnMounted(() => {
-    node = unrefElement(target);
+    node.value = unrefElement(target);
     if (!node) {
       console.error('You are trying to use <Draggable> without passing a valid target reference.');
       return;
@@ -243,13 +243,13 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     let y = 0;
     const pos = get(state).position;
     const defaultPos = get(state).defaultPosition;
-    const stylePos = get(node).style;
+    const stylePos = get(node)?.style;
     if (pos && typeof pos.x !== 'undefined') x = pos.x;
     else if (defaultPos && typeof defaultPos.x !== 'undefined') x = defaultPos.x;
-    else if (stylePos.top) x = parseInt(stylePos.top, 10);
+    else if (stylePos && stylePos.top) x = parseInt(stylePos.top, 10);
     if (pos && typeof pos.y !== 'undefined') y = pos.y;
     else if (defaultPos && typeof defaultPos.y !== 'undefined') y = defaultPos.y;
-    else if (stylePos.left) y = parseInt(stylePos.left, 10);
+    else if (stylePos && stylePos.left) y = parseInt(stylePos.left, 10);
 
     xPos.value = x;
     yPos.value = y;

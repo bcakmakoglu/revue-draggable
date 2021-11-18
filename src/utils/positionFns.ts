@@ -11,7 +11,7 @@ export function getBoundPosition({
   bounds: any;
   x: number;
   y: number;
-  node: HTMLElement;
+  node: HTMLElement | SVGElement;
 }): [number, number] {
   // If no bounds, short-circuit and move on
   if (!bounds) return [x, y];
@@ -27,23 +27,17 @@ export function getBoundPosition({
     }
     const nodeStyle = ownerWindow.getComputedStyle(node);
     const boundNodeStyle = ownerWindow.getComputedStyle(boundNode);
+    const offsetLeft = 'offsetLeft' in node ? node.offsetLeft : 0;
+    const offsetTop = 'offsetTop' in node ? node.offsetTop : 0;
 
     // Compute bounds. This is a pain with padding and offsets but this gets it exactly right.
     bounds = {
-      left: -(node.offsetLeft - boundNode.offsetLeft) + int(boundNodeStyle.paddingLeft) + int(nodeStyle.marginLeft),
-      top: -(node.offsetTop - boundNode.offsetTop) + int(boundNodeStyle.paddingTop) + int(nodeStyle.marginTop),
+      left: -(offsetLeft - boundNode.offsetLeft) + int(boundNodeStyle.paddingLeft) + int(nodeStyle.marginLeft),
+      top: -(offsetTop - boundNode.offsetTop) + int(boundNodeStyle.paddingTop) + int(nodeStyle.marginTop),
       right:
-        innerWidth(boundNode) -
-        outerWidth(node) -
-        node.offsetLeft +
-        int(boundNodeStyle.paddingRight) -
-        int(nodeStyle.marginRight),
+        innerWidth(boundNode) - outerWidth(node) - offsetLeft + int(boundNodeStyle.paddingRight) - int(nodeStyle.marginRight),
       bottom:
-        innerHeight(boundNode) -
-        outerHeight(node) -
-        node.offsetTop +
-        int(boundNodeStyle.paddingBottom) -
-        int(nodeStyle.marginBottom)
+        innerHeight(boundNode) - outerHeight(node) - offsetTop + int(boundNodeStyle.paddingBottom) - int(nodeStyle.marginBottom)
     };
   }
 
@@ -81,13 +75,13 @@ export function getControlPosition({
 }: {
   e: MouseTouchEvent;
   touch: number | undefined;
-  node: HTMLElement;
+  node: HTMLElement | SVGElement;
   offsetContainer?: HTMLElement;
   scale: number;
 }): ControlPosition | null {
   const touchObj = typeof touch === 'number' ? getTouch(e, touch) : null;
   if (typeof touch === 'number' && !touchObj) return null; // not the right touch
-  const offsetParent = offsetContainer || node.offsetParent || node.ownerDocument.body;
+  const offsetParent = offsetContainer || ('offsetParent' in node && node.offsetParent) || node.ownerDocument.body;
   return offsetXYFromParent(touchObj || e, offsetParent, scale);
 }
 
@@ -98,7 +92,7 @@ export function createCoreData({
   lastX,
   lastY
 }: {
-  node: HTMLElement;
+  node: HTMLElement | SVGElement;
   x: number;
   y: number;
   lastX: number;

@@ -5,17 +5,14 @@ import { readFileSync } from 'fs';
 import { OutputOptions, Plugin, RollupOptions } from 'rollup';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
 import alias from '@rollup/plugin-alias';
-// @ts-ignore
-import { DEFAULT_EXTENSIONS as DEFAULT_BABEL_EXTENSIONS } from '@babel/core';
 
 const VUE_DEMI_IIFE = readFileSync(require.resolve('vue-demi/lib/index.iife.js'), 'utf-8');
 const configs: RollupOptions[] = [];
 
 const injectVueDemi: Plugin = {
   name: 'inject-vue-demi',
-  renderChunk(code) {
+  renderChunk(code: string) {
     return `${VUE_DEMI_IIFE};\n;${code}`;
   }
 };
@@ -94,12 +91,7 @@ for (const { external, iife } of activePackages) {
           }
         }),
         resolve(),
-        commonjs({ include: 'node_modules/**' }),
-        babel({
-          extensions: [...DEFAULT_BABEL_EXTENSIONS, '.ts', '.tsx'],
-          exclude: 'node_modules/**',
-          babelHelpers: 'bundled'
-        })
+        commonjs({ include: 'node_modules/**' })
       ],
       external: ['vue-demi', ...(external || [])]
     });

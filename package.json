@@ -46,7 +46,7 @@
     "ci": "start-server-and-test dev http-get://localhost:3000 test"
   },
   "dependencies": {
-    "@vueuse/core": "^5.1.3",
+    "@vueuse/core": "^6.9.1",
     "vue-demi": "latest"
   },
   "devDependencies": {

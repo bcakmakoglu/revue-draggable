@@ -58,7 +58,7 @@ export function removeEvent(el: Node, event: string, handler: EventHandler<any>,
   }
 }
 
-export function outerHeight(node: HTMLElement): number {
+export function outerHeight(node: HTMLElement | SVGElement): number {
   // This is deliberately excluding margin for our calculations, since we are using
   // offsetTop which is including margin. See getBoundPosition
   let height = node.clientHeight;
@@ -68,7 +68,7 @@ export function outerHeight(node: HTMLElement): number {
   return height;
 }
 
-export function outerWidth(node: HTMLElement): number {
+export function outerWidth(node: HTMLElement | SVGElement): number {
   // This is deliberately excluding margin for our calculations, since we are using
   // offsetLeft which is including margin. See getBoundPosition
   let width = node.clientWidth;

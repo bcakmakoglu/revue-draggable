@@ -2,7 +2,7 @@ import { EventHookOn } from '@vueuse/core';
 import { Ref } from 'vue-demi';
 
 export type DraggableData = {
-  node: HTMLElement;
+  node: HTMLElement | SVGElement;
   x: number;
   y: number;
   deltaX: number;
