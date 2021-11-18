@@ -108,7 +108,10 @@ const Draggable = defineComponent({
 
     onTransformed((transformEvent) => emit('transformed', transformEvent));
 
-    watch(props, (val) => (state.value = { ...state.value, ...val }));
+    watch(
+      () => props,
+      (val) => (state.value = { ...state.value, ...val })
+    );
 
     if (isVue3) {
       return () => {

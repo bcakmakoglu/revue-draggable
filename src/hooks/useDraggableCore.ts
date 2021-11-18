@@ -1,4 +1,4 @@
-import { ref, Ref, watch } from 'vue-demi';
+import { ref, watch } from 'vue-demi';
 import { get, createEventHook, MaybeRef, unrefElement, useEventListener, tryOnMounted } from '@vueuse/core';
 import {
   DraggableCoreOptions,
@@ -36,8 +36,8 @@ const eventsFor = {
 // Default to mouse events.
 let dragEventFor = eventsFor.mouse;
 
-const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreOptions>): UseDraggableCore => {
-  const initState = (initialState: Partial<DraggableCoreState>): DraggableCoreState =>
+const useDraggableCore = (target: MaybeRef<any>, options?: Partial<DraggableCoreOptions>): UseDraggableCore => {
+  const initState = (initialState?: Partial<DraggableCoreState>): DraggableCoreState =>
     Object.assign(
       {
         enableUserSelectHack: true,
@@ -63,7 +63,7 @@ const useDraggableCore = (target: MaybeRef<any>, options: Partial<DraggableCoreO
   const pos = ref([NaN, NaN]);
 
   let node = ref();
-  const state = ref(initState(options)) as Ref<DraggableCoreState>;
+  const state = ref<DraggableCoreState>(initState(options));
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
     onDragStopHook = createEventHook<DraggableEvent>();

@@ -67,7 +67,10 @@ const DraggableCore = defineComponent({
 
     onDragStop((dragStopEvent) => emit('stop', dragStopEvent));
 
-    watch(props, (val) => (state.value = { ...state.value, ...val }));
+    watch(
+      () => props,
+      (val) => (state.value = { ...state.value, ...val })
+    );
 
     if (isVue3) {
       return () => {

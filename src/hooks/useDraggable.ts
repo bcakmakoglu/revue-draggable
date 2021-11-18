@@ -1,4 +1,4 @@
-import { computed, Ref, ref, watch } from 'vue-demi';
+import { computed, ref, watch } from 'vue-demi';
 import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
@@ -13,8 +13,8 @@ import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../ut
 import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
 
-const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>): UseDraggable => {
-  const initState = (initialState: Partial<DraggableState>): DraggableState =>
+const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>): UseDraggable => {
+  const initState = (initialState?: Partial<DraggableState>): DraggableState =>
     Object.assign(
       {
         allowAnyClick: false,
@@ -50,7 +50,7 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
   let node = ref();
   const xPos = ref(NaN);
   const yPos = ref(NaN);
-  const state = ref(initState(options)) as Ref<DraggableState>;
+  const state = ref<DraggableState>(initState(options));
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -256,10 +256,13 @@ const useDraggable = (target: MaybeRef<any>, options: Partial<DraggableOptions>)
     addClasses();
     onUpdated();
 
-    watch(state, (val) => {
-      coreState.value = { ...coreState.value, ...val };
-      onUpdated();
-    });
+    watch(
+      () => state,
+      (val) => {
+        coreState.value = { ...coreState.value, ...val };
+        onUpdated();
+      }
+    );
   });
 
   return {
