@@ -172,7 +172,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
 
   const transform = () => {
     const n = get(node);
-    if (!n || get(state).update === false) return;
+    if (!n || get(state).update === false || !get(state).dragging) return;
     if (get(state).enableTransformFix) removeTransformFix();
 
     const offset = get(state).positionOffset;

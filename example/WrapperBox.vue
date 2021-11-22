@@ -1,6 +1,6 @@
 <template>
   <Draggable v-bind="draggableOptions" @start="start" @move="move" @stop="stop">
-    <div :class="`bg-${color}`" class="wrapper-box">
+    <div :class="`bg-${color}`" class="wrapper-box" @click="onClick">
       <div>
         <h2 class="flex items-center text-dark-800 text-2xl font-semibold mt-2 mb-0">
           {{ title }}
@@ -21,29 +21,13 @@ import InfoIcon from './assets/info.svg';
 
 export default {
   components: { InfoBox, Draggable, InfoIcon },
-  emits: ['start', 'move', 'stop'],
   props: {
     title: String,
     description: String,
     draggableOptions: Object,
     info: String
   },
-  data() {
-    return {
-      showInfo: false
-    };
-  },
-  methods: {
-    start(e) {
-      this.$emit('start', e, this.title);
-    },
-    move(e) {
-      this.$emit('move', e, this.title);
-    },
-    stop(e) {
-      this.$emit('stop', e);
-    }
-  },
+  emits: ['start', 'move', 'stop'],
   setup() {
     const randomInt = (min, max) => {
       min = Math.ceil(min);
@@ -66,6 +50,26 @@ export default {
     return {
       color: randomColor()
     };
+  },
+  data() {
+    return {
+      grid: [15, 15],
+      showInfo: false
+    };
+  },
+  methods: {
+    onClick() {
+      this.grid = [50, 50];
+    },
+    start(e) {
+      this.$emit('start', e, this.title);
+    },
+    move(e) {
+      this.$emit('move', e, this.title);
+    },
+    stop(e) {
+      this.$emit('stop', e);
+    }
   }
 };
 </script>

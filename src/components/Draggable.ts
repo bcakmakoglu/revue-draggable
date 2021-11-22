@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, isVue3, onUpdated } from 'vue-demi';
+import { h, defineComponent, PropType, isVue3, watch } from 'vue-demi';
 import { templateRef } from '@vueuse/core';
 import { DraggableOptions } from '../utils/types';
 import useDraggable from '../hooks/useDraggable';
@@ -108,7 +108,11 @@ const Draggable = defineComponent({
 
     onTransformed((transformEvent) => emit('transformed', transformEvent));
 
-    onUpdated(() => (state.value = { ...state.value, ...props }));
+    watch(
+      () => props,
+      (val) => (state.value = { ...state.value, ...val }),
+      { deep: true, flush: 'post' }
+    );
 
     if (isVue3) {
       return () => {

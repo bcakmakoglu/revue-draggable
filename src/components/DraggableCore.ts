@@ -1,4 +1,4 @@
-import { h, defineComponent, PropType, isVue3, onUpdated } from 'vue-demi';
+import { h, defineComponent, PropType, isVue3, watch } from 'vue-demi';
 import { DraggableCoreOptions } from '../utils/types';
 import useDraggableCore from '../hooks/useDraggableCore';
 import { templateRef } from '@vueuse/core';
@@ -67,7 +67,11 @@ const DraggableCore = defineComponent({
 
     onDragStop((dragStopEvent) => emit('stop', dragStopEvent));
 
-    onUpdated(() => (state.value = { ...state.value, ...props }));
+    watch(
+      () => props,
+      (val) => (state.value = { ...state.value, ...val }),
+      { deep: true, flush: 'post' }
+    );
 
     if (isVue3) {
       return () => {
