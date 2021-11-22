@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue-demi';
-import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
+import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core'
 import log from '../utils/log';
 import {
   DraggableEvent,
@@ -14,7 +14,7 @@ import { createCSSTransform, createSVGTransform } from '../utils/domFns';
 import useDraggableCore from './useDraggableCore';
 
 const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>): UseDraggable => {
-  const initState = (initialState?: Partial<DraggableState>): DraggableState =>
+  const initState = (): DraggableState =>
     Object.assign(
       {
         allowAnyClick: false,
@@ -43,14 +43,14 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
         prevPropsPosition: { x: 0, y: 0 },
         isElementSVG: false,
         update: true
-      },
-      initialState
+      } as DraggableState,
+      options
     );
 
   const node = ref<HTMLElement | SVGElement>();
   const xPos = ref(NaN);
   const yPos = ref(NaN);
-  const state = ref<DraggableState>(initState(options));
+  const state = ref(initState());
 
   const onDragStartHook = createEventHook<DraggableEvent>(),
     onDragHook = createEventHook<DraggableEvent>(),
@@ -164,10 +164,10 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
   const validPosition = computed(() => get(state).position || get(state).defaultPosition);
   const transformOpts = computed(() => ({
     // Set left if horizontal drag is enabled
-    x: canDragX(get(state).axis) && canDrag.value ? xPos.value : validPosition.value.x,
+    x: canDragX(get(state).axis) && get(canDrag) ? get(xPos) : get(validPosition).x,
 
     // Set top if vertical drag is enabled
-    y: canDragY(get(state).axis) && canDrag.value ? yPos.value : validPosition.value.y
+    y: canDragY(get(state).axis) && get(canDrag) ? get(yPos) : get(validPosition).y
   }));
 
   const transform = () => {
@@ -177,8 +177,8 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
 
     const offset = get(state).positionOffset;
     const isSvg = get(state).isElementSVG;
-    const styles = (!isSvg && createCSSTransform(transformOpts.value, offset)) || false;
-    const svgTransform = (isSvg && createSVGTransform(transformOpts.value, offset)) || false;
+    const styles = (!isSvg && createCSSTransform(get(transformOpts), offset)) || false;
+    const svgTransform = (isSvg && createSVGTransform(get(transformOpts), offset)) || false;
 
     if (typeof svgTransform === 'string') n.setAttribute('transform', svgTransform);
     if (styles) {
@@ -204,8 +204,8 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
   }));
   watch(classes, () => addClasses());
   const addClasses = () =>
-    Object.keys(classes.value).forEach((cl) => {
-      classes.value[cl] ? get(node)?.classList.toggle(cl, true) : get(node)?.classList.toggle(cl, false);
+    Object.keys(get(classes)).forEach((cl) => {
+      get(classes)[cl] ? get(node)?.classList.toggle(cl, true) : get(node)?.classList.toggle(cl, false);
     });
 
   const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop, state: coreState } = useDraggableCore(target, options);
