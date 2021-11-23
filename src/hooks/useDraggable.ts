@@ -183,7 +183,8 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
       if (typeof svgTransform === 'string') n.setAttribute('transform', svgTransform);
       if (styles) {
         for (const style of Object.keys(styles)) {
-          if (style === 'transform') styles[style] += `${n.style[style]}`.replace(/translate\((-?\d+?px,? ?)+\)+/gm, '').trim();
+          if (style === 'transform')
+            styles[style] += `${n.style[style]}`.replace(/translate\((-?\d+?.{0,2},? ?)+\)+/gm, '').trim();
           n.style[style as any] = styles[style];
         }
       }
