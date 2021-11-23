@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue-demi';
-import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core'
+import { createEventHook, get, MaybeRef, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core';
 import log from '../utils/log';
 import {
   DraggableEvent,
@@ -170,31 +170,32 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     y: canDragY(get(state).axis) && get(canDrag) ? get(yPos) : get(validPosition).y
   }));
 
-  const transform = () => {
+  const transform = (force = false) => {
     const n = get(node);
-    if (!n || get(state).update === false || !get(state).dragging) return;
-    if (get(state).enableTransformFix) removeTransformFix();
+    if (n && (force || (get(state).update && get(state).dragging))) {
+      if (get(state).enableTransformFix) removeTransformFix();
 
-    const offset = get(state).positionOffset;
-    const isSvg = get(state).isElementSVG;
-    const styles = (!isSvg && createCSSTransform(get(transformOpts), offset)) || false;
-    const svgTransform = (isSvg && createSVGTransform(get(transformOpts), offset)) || false;
+      const offset = get(state).positionOffset;
+      const isSvg = get(state).isElementSVG;
+      const styles = (!isSvg && createCSSTransform(get(transformOpts), offset)) || false;
+      const svgTransform = (isSvg && createSVGTransform(get(transformOpts), offset)) || false;
 
-    if (typeof svgTransform === 'string') n.setAttribute('transform', svgTransform);
-    if (styles) {
-      for (const style of Object.keys(styles)) {
-        if (style === 'transform') styles[style] += `${n.style[style]}`.replace(/translate\((-?\d+?px,? ?)+\)+/gm, '').trim();
-        n.style[style as any] = styles[style];
+      if (typeof svgTransform === 'string') n.setAttribute('transform', svgTransform);
+      if (styles) {
+        for (const style of Object.keys(styles)) {
+          if (style === 'transform') styles[style] += `${n.style[style]}`.replace(/translate\((-?\d+?px,? ?)+\)+/gm, '').trim();
+          n.style[style as any] = styles[style];
+        }
       }
-    }
 
-    const transformedData: TransformEvent = {
-      el: get(node),
-      style: styles,
-      transform: svgTransform,
-      classes: classes.value
-    };
-    onTransformedHook.trigger(transformedData);
+      const transformedData: TransformEvent = {
+        el: get(node),
+        style: styles,
+        transform: svgTransform,
+        classes: classes.value
+      };
+      onTransformedHook.trigger(transformedData);
+    }
   };
 
   const classes = computed(() => ({
@@ -226,7 +227,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     }
 
     if (get(state).enableTransformFix) applyTransformFix();
-    else transform();
+    else transform(true);
   };
 
   tryOnUnmounted(() => {
