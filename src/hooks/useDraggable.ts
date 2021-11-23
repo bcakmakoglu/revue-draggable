@@ -63,8 +63,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     const uiData = createDraggableData({
       data,
       x: xPos.value,
-      y: yPos.value,
-      scale: get(state).scale
+      y: yPos.value
     });
 
     const shouldUpdate = get(state).start?.(e, uiData);
@@ -83,8 +82,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     const uiData = createDraggableData({
       data,
       x: xPos.value,
-      y: yPos.value,
-      scale: get(state).scale
+      y: yPos.value
     });
 
     const newState = {
@@ -121,7 +119,6 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     if (!get(state).dragging) return false;
 
     const uiData = createDraggableData({
-      scale: get(state).scale,
       x: xPos.value,
       y: yPos.value,
       data
@@ -215,7 +212,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
   coreStart(({ event, data }) => onDragStart(event, data));
   coreStop(({ event, data }) => onDragStop(event, data));
 
-  const onUpdated = () => {
+  const onUpdated = (force = false) => {
     const pos = get(state).position;
     log('Draggable: Updated %j', {
       position: get(state).prevPropsPosition,
@@ -228,7 +225,7 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     }
 
     if (get(state).enableTransformFix) applyTransformFix();
-    else transform(true);
+    else transform(force);
   };
 
   tryOnUnmounted(() => {
@@ -259,8 +256,10 @@ const useDraggable = (target: MaybeRef<any>, options?: Partial<DraggableOptions>
     onUpdated();
 
     watch(state, (val) => {
+      let force = false;
+      if (val.position && (val.position.x !== get(xPos) || val.position.y !== get(yPos))) force = true;
       coreState.value = { ...coreState.value, ...val };
-      onUpdated();
+      onUpdated(force);
     });
   });
 
