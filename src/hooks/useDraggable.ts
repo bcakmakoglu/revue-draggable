@@ -183,7 +183,6 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
 
     const onUpdated = (force = false) => {
       const pos = state.position
-      console.log(pos)
       log('Draggable: Updated %j', {
         position: state.currentPosition,
         prevPropsPosition: state.prevPropsPosition
@@ -221,7 +220,7 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
 
       state.currentPosition = { x, y }
       addClasses()
-      onUpdated()
+      onUpdated(true)
 
       watch(
         () => state.position,
