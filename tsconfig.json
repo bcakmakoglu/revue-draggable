@@ -1,36 +1,43 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "target": "es2017",
-    "moduleResolution": "node",
-    "strict": true,
-    "jsx": "preserve",
-    "jsxFactory": "h",
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "lib": [
-      "es6",
-      "dom",
-      "es2016",
-      "es2017",
-      "es2020"
-    ],
-    "types": [
-      "@types/node"
-    ],
-    "allowSyntheticDefaultImports": true,
+    "outDir": "./tmp",
     "baseUrl": ".",
+    "module": "ESNext",
+    "target": "es2017",
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "declaration": true,
+    "declarationDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "incremental": false,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noUnusedLocals": false,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "@types/node",
+      "vite/client",
+      "cypress"
+    ],
     "paths": {
       "~/*": [
         "src/*"
       ]
-    }
+    },
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "node_modules",
+    "build",
     "dist",
-    "example"
+    "examples",
+    "cypress"
   ]
 }
