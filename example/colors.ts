@@ -1,4 +1,4 @@
-import windiColors from 'windicss/colors';
+import windiColors from 'windicss/colors'
 
 export const colors = {
   primary: {
@@ -48,4 +48,4 @@ export const colors = {
   indigo: windiColors.indigo,
   orange: windiColors.orange,
   amber: windiColors.amber
-};
+}
