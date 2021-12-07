@@ -8,7 +8,7 @@ const baseRules = {
   '@typescript-eslint/no-unused-vars': ['warn'],
   indent: ['warn', 2, { SwitchCase: 1, flatTernaryExpressions: true }],
   quotes: ['error', 'single', { avoidEscape: true }],
-  semi: ['error', 'always'],
+  semi: 0,
   'import/no-mutable-exports': 0,
   'no-cond-assign': [2],
   'no-console': 'off',
@@ -16,18 +16,8 @@ const baseRules = {
   '@typescript/camelcase': 0,
   'vue/no-v-html': 'off',
   'vue/attribute-hyphenation': 0,
-  'prettier/prettier': [
-    'warn',
-    {
-      singleQuote: true,
-      trailingComma: 'none',
-      semi: true,
-      bracketSpacing: true,
-      vueIndentScriptAndStyle: false,
-      printWidth: 130
-    }
-  ]
-};
+  'prettier/prettier': ['error', {}, { usePrettierrc: true }]
+}
 
 module.exports = {
   root: true,
@@ -46,4 +36,4 @@ module.exports = {
   ],
   plugins: [],
   rules: baseRules
-};
+}

@@ -1,7 +1,6 @@
-import { h, defineComponent, PropType, isVue3, watch } from 'vue-demi';
-import { templateRef } from '@vueuse/core';
-import { DraggableOptions } from '../utils/types';
-import useDraggable from '../hooks/useDraggable';
+import { isVue3, PropType } from 'vue-demi'
+import { DraggableOptions } from '~/utils'
+import useDraggable from '~/hooks/useDraggable'
 
 const Draggable = defineComponent({
   name: 'Draggable',
@@ -97,22 +96,22 @@ const Draggable = defineComponent({
   },
   emits: ['move', 'start', 'stop', 'transformed'],
   setup(props, { slots, emit, attrs }) {
-    const target = templateRef('target', null);
-    const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props);
+    const target = templateRef('target', null)
+    const { onDrag, onDragStart, onDragStop, onTransformed, state } = useDraggable(target, props)
 
-    onDrag((dragEvent) => emit('move', dragEvent));
+    onDrag((dragEvent) => emit('move', dragEvent))
 
-    onDragStart((dragStartEvent) => emit('start', dragStartEvent));
+    onDragStart((dragStartEvent) => emit('start', dragStartEvent))
 
-    onDragStop((dragStopEvent) => emit('stop', dragStopEvent));
+    onDragStop((dragStopEvent) => emit('stop', dragStopEvent))
 
-    onTransformed((transformEvent) => emit('transformed', transformEvent));
+    onTransformed((transformEvent) => emit('transformed', transformEvent))
 
     watch(
       () => props,
-      (val) => (state.value = { ...state.value, ...val }),
+      (val) => Object.assign(state, val),
       { deep: true, flush: 'post' }
-    );
+    )
 
     if (isVue3) {
       return () => {
@@ -123,17 +122,17 @@ const Draggable = defineComponent({
             })[0],
             { ref: 'target', ...attrs },
             {}
-          );
+          )
         }
-      };
+      }
     } else {
       return () => {
         if (slots.default) {
-          return h('div', { ref: 'target', ...attrs }, slots.default({ state }));
+          return h('div', { ref: 'target', ...attrs }, slots.default({ state }))
         }
-      };
+      }
     }
   }
-});
+})
 
-export default Draggable;
+export default Draggable
