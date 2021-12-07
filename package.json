@@ -25,7 +25,7 @@
     "./*": "./*"
   },
   "main": "./dist/revue-draggable.cjs.js",
-  "types": "./dist/revue-draggable.d.ts",
+  "types": "./dist/index.d.ts",
   "module": "./dist/revue-draggable.es.js",
   "unpkg": "./dist/revue-draggable.iife.js",
   "jsdelivr": "./dist/revue-draggable.iife.js",
