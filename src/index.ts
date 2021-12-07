@@ -1,6 +1,6 @@
 export * from './utils/types'
-export { default as useDraggableCore } from './hooks/useDraggableCore'
-export { default as useDraggable } from './hooks/useDraggable'
+export { default as useDraggableCore } from './composables/useDraggableCore'
+export { default as useDraggable } from './composables/useDraggable'
 export { default as DraggableDirective } from './directive/DraggableDirective'
 export { default as DraggablePlugin } from './plugin'
 export { default as Draggable } from './components/Draggable'

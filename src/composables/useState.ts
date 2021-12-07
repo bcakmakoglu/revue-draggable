@@ -1,4 +1,4 @@
-import { DraggableOptions, DraggableState } from '~/utils'
+import { DraggableOptions, DraggableState } from '../utils'
 
 export default (options?: Partial<DraggableOptions>): (() => DraggableState) => {
   const state = reactive(

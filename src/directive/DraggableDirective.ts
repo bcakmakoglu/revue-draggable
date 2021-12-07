@@ -1,8 +1,7 @@
 import { Directive, DirectiveHook, isVue3 } from 'vue-demi'
 import { MaybeElementRef } from '@vueuse/core'
-import { DraggableOptions, DraggableState } from '~/utils'
-import useDraggable from '~/hooks/useDraggable'
-import useDraggableCore from '~/hooks/useDraggableCore'
+import { DraggableOptions, DraggableState } from '../utils'
+import { useDraggable, useDraggableCore } from '../composables'
 
 const onMounted: DirectiveHook<NonNullable<MaybeElementRef>, any, Partial<DraggableOptions>> = (el, binding) => {
   const instance = getCurrentInstance()
