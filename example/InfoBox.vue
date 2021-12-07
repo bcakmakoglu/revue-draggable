@@ -90,7 +90,6 @@
 <script>
 export default {
   name: 'InfoBox',
-  emits: ['close'],
   props: {
     title: String,
     info: String,
@@ -100,12 +99,13 @@ export default {
       default: false
     }
   },
+  emits: ['close'],
   setup(props, { emit }) {
-    const close = () => emit('close');
+    const close = () => emit('close')
 
-    return { close };
+    return { close }
   }
-};
+}
 </script>
 <style>
 pre {
