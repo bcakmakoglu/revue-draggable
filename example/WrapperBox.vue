@@ -14,10 +14,10 @@
   </Draggable>
 </template>
 <script lang="ts">
-import { Draggable } from '../src';
-import { colors } from './colors';
-import InfoBox from './InfoBox.vue';
-import InfoIcon from './assets/info.svg';
+import { Draggable } from '../src'
+import { colors } from './colors'
+import InfoBox from './InfoBox.vue'
+import InfoIcon from './assets/info.svg'
 
 export default {
   components: { InfoBox, Draggable, InfoIcon },
@@ -29,49 +29,49 @@ export default {
   },
   emits: ['start', 'move', 'stop'],
   setup() {
-    const randomInt = (min, max) => {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
+    const randomInt = (min: number, max: number) => {
+      min = Math.ceil(min)
+      max = Math.floor(max)
+      return Math.floor(Math.random() * (max - min + 1)) + min
+    }
     const shuffle = (a: string[]) => {
       for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[a[i], a[j]] = [a[j], a[i]]
       }
-      return a;
-    };
+      return a
+    }
     const randomColor = () => {
-      const keys = shuffle(Object.keys(colors));
-      const bgKey = randomInt(3, 6);
-      return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff';
-    };
+      const keys = shuffle(Object.keys(colors))
+      const bgKey = randomInt(3, 6)
+      return `${keys[randomInt(0, keys.length)] || 'pink'}-${bgKey}00` || '#fff'
+    }
 
     return {
       color: randomColor()
-    };
+    }
   },
   data() {
     return {
       grid: [15, 15],
       showInfo: false
-    };
+    }
   },
   methods: {
     onClick() {
-      this.grid = [50, 50];
+      this.grid = [50, 50]
     },
     start(e) {
-      this.$emit('start', e, this.title);
+      this.$emit('start', e, this.title)
     },
     move(e) {
-      this.$emit('move', e, this.title);
+      this.$emit('move', e, this.title)
     },
     stop(e) {
-      this.$emit('stop', e);
+      this.$emit('stop', e)
     }
   }
-};
+}
 </script>
 <style>
 .wrapper-box {
