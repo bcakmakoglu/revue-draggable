@@ -19,16 +19,16 @@
   "homepage": "https://draggable.vueflow.dev",
   "exports": {
     ".": {
-      "default": "./dist/revue-draggable.esm.js",
+      "default": "./dist/revue-draggable.es.js",
       "require": "./dist/revue-draggable.cjs.js"
     },
     "./*": "./*"
   },
   "main": "./dist/revue-draggable.cjs.js",
   "types": "./dist/revue-draggable.d.ts",
-  "module": "./dist/revue-draggable.esm.js",
-  "unpkg": "./dist/revue-draggable.iife.min.js",
-  "jsdelivr": "./dist/revue-draggable.iife.min.js",
+  "module": "./dist/revue-draggable.es.js",
+  "unpkg": "./dist/revue-draggable.iife.js",
+  "jsdelivr": "./dist/revue-draggable.iife.js",
   "sideEffects": false,
   "files": [
     "dist"
