@@ -1,6 +1,6 @@
 import { isVue3, PropType } from 'vue-demi'
-import { DraggableOptions } from '~/utils'
-import useDraggable from '~/hooks/useDraggable'
+import { DraggableOptions } from '../utils'
+import { useDraggable } from '../composables'
 
 const Draggable = defineComponent({
   name: 'Draggable',

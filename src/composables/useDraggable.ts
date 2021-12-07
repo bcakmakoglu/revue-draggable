@@ -13,7 +13,7 @@ import {
   DraggableOptions,
   TransformEvent,
   UseDraggable
-} from '~/utils'
+} from '../utils'
 import useDraggableCore from './useDraggableCore'
 import useState from './useState'
 

@@ -1,6 +1,6 @@
 import { PropType, isVue3 } from 'vue-demi'
-import { DraggableCoreOptions } from '~/utils'
-import useDraggableCore from '~/hooks/useDraggableCore'
+import { DraggableCoreOptions } from '../utils'
+import { useDraggableCore } from '../composables'
 
 const DraggableCore = defineComponent({
   name: 'DraggableCore',

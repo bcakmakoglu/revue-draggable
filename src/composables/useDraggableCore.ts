@@ -17,7 +17,7 @@ import {
   EventHandler,
   MouseTouchEvent,
   UseDraggableCore
-} from '~/utils'
+} from '../utils'
 import useState from './useState'
 
 // Simple abstraction for dragging events names.
