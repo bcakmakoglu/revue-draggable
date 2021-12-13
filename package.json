@@ -70,7 +70,7 @@
     "vite": "2.5.x",
     "vite-plugin-windicss": "^1.2.7",
     "vite-svg-loader": "^2.1.0",
-    "vue": ">=3.0.5",
+    "vue": ">=3.2.26",
     "vue-router": "4",
     "vue-tsc": "^0.29.8",
     "vue2": "npm:vue@2",
