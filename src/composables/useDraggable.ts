@@ -36,9 +36,11 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
         ...state.currentPosition
       })
 
-      const shouldUpdate = state.start?.(e, uiData)
+      const shouldUpdate = state.start ? state.start(e, uiData) : state.update
+
       onDragStartHook.trigger({ event: e, data: uiData })
-      if ((shouldUpdate || state.update) === false) return false
+
+      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) return false
 
       state.dragging = true
       state.dragged = true
@@ -75,9 +77,11 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
         uiData.deltaY = newState.y - state.currentPosition.y
       }
 
-      const shouldUpdate = state.move?.(e, uiData)
+      const shouldUpdate = state.move ? state.move(e, uiData) : state.update
+
       onDragHook.trigger({ event: e, data: uiData })
-      if ((shouldUpdate || state.update) === false) return false
+
+      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) return false
 
       state.currentPosition = newState
       transform()
@@ -91,9 +95,11 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
         ...state.currentPosition
       })
 
-      const shouldUpdate = state.stop?.(e, uiData)
+      const shouldUpdate = state.stop ? state.stop(e, uiData) : state.update
+
       onDragStopHook.trigger({ event: e, data: uiData })
-      if ((shouldUpdate || state.update) === false) return false
+
+      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) return false
 
       log('Draggable: onDragStop: %j', data)
 
