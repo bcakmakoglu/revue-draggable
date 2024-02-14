@@ -1,12 +1,12 @@
-import { isNum, int, isTouch } from './shims'
-import { innerWidth, innerHeight, offsetXYFromParent, outerWidth, outerHeight, getTouch } from './domFns'
-import { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types'
+import { int, isNum, isTouch } from './shims'
+import { getTouch, innerHeight, innerWidth, offsetXYFromParent, outerHeight, outerWidth } from './domFns'
+import type { Bounds, ControlPosition, DraggableData, DraggableOptions, MouseTouchEvent } from './types'
 
 export function getBoundPosition({
   bounds,
   x,
   y,
-  node
+  node,
 }: {
   bounds: any
   x: number
@@ -14,7 +14,9 @@ export function getBoundPosition({
   node: HTMLElement | SVGElement
 }): [number, number] {
   // If no bounds, short-circuit and move on
-  if (!bounds) return [x, y]
+  if (!bounds) {
+    return [x, y]
+  }
   // Clone new bounds
   bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds)
 
@@ -23,7 +25,7 @@ export function getBoundPosition({
     const ownerWindow = ownerDocument.defaultView
     const boundNode = bounds === 'parent' ? node.parentNode : ownerDocument.querySelector(bounds)
     if (!(ownerWindow && boundNode instanceof ownerWindow.HTMLElement)) {
-      throw new Error('Bounds selector "' + bounds + '" could not find an element.')
+      throw new Error(`Bounds selector "${bounds}" could not find an element.`)
     }
     const nodeStyle = ownerWindow.getComputedStyle(node)
     const boundNodeStyle = ownerWindow.getComputedStyle(boundNode)
@@ -37,17 +39,25 @@ export function getBoundPosition({
       right:
         innerWidth(boundNode) - outerWidth(node) - offsetLeft + int(boundNodeStyle.paddingRight) - int(nodeStyle.marginRight),
       bottom:
-        innerHeight(boundNode) - outerHeight(node) - offsetTop + int(boundNodeStyle.paddingBottom) - int(nodeStyle.marginBottom)
+        innerHeight(boundNode) - outerHeight(node) - offsetTop + int(boundNodeStyle.paddingBottom) - int(nodeStyle.marginBottom),
     }
   }
 
   // Keep x and y below right and bottom limits...
-  if (isNum(bounds.right)) x = Math.min(x, bounds.right)
-  if (isNum(bounds.bottom)) y = Math.min(y, bounds.bottom)
+  if (isNum(bounds.right)) {
+    x = Math.min(x, bounds.right)
+  }
+  if (isNum(bounds.bottom)) {
+    y = Math.min(y, bounds.bottom)
+  }
 
   // But above left and top limits.
-  if (isNum(bounds.left)) x = Math.max(x, bounds.left)
-  if (isNum(bounds.top)) y = Math.max(y, bounds.top)
+  if (isNum(bounds.left)) {
+    x = Math.max(x, bounds.left)
+  }
+  if (isNum(bounds.top)) {
+    y = Math.max(y, bounds.top)
+  }
 
   return [x, y]
 }
@@ -71,7 +81,7 @@ export function getControlPosition({
   touch,
   node,
   offsetContainer,
-  scale
+  scale,
 }: {
   e: MouseTouchEvent
   touch: number | undefined
@@ -80,7 +90,9 @@ export function getControlPosition({
   scale: number
 }): ControlPosition | null {
   const touchObj = typeof touch === 'number' && isTouch(e) ? getTouch(e, touch) : null
-  if (typeof touch === 'number' && !touchObj) return null // not the right touch
+  if (typeof touch === 'number' && !touchObj) {
+    return null
+  } // not the right touch
   const offsetParent = offsetContainer || ('offsetParent' in node && node.offsetParent) || node.ownerDocument.body
   return offsetXYFromParent(touchObj || <MouseEvent>e, offsetParent, scale)
 }
@@ -90,7 +102,7 @@ export function createCoreData({
   x,
   y,
   lastX,
-  lastY
+  lastY,
 }: {
   node: HTMLElement | SVGElement
   x: number
@@ -98,7 +110,7 @@ export function createCoreData({
   lastX: number
   lastY: number
 }): DraggableData {
-  const isStart = isNaN(lastX)
+  const isStart = Number.isNaN(lastX)
   if (isStart) {
     // If this is our first move, use the x and y as last coords.
     return {
@@ -108,7 +120,7 @@ export function createCoreData({
       lastX: x,
       lastY: y,
       x,
-      y
+      y,
     }
   } else {
     // Otherwise calculate proper values.
@@ -119,7 +131,7 @@ export function createCoreData({
       lastX,
       lastY,
       x,
-      y
+      y,
     }
   }
 }
@@ -132,7 +144,7 @@ export function createDraggableData({ x, y, data }: { x: number; y: number; data
     deltaX: data.deltaX,
     deltaY: data.deltaY,
     lastX: x,
-    lastY: y
+    lastY: y,
   }
 }
 
@@ -141,6 +153,6 @@ function cloneBounds(bounds: Bounds): Bounds {
     left: bounds.left,
     top: bounds.top,
     right: bounds.right,
-    bottom: bounds.bottom
+    bottom: bounds.bottom,
   }
 }

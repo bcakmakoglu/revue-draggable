@@ -1,8 +1,8 @@
-// @credits https://gist.github.com/rogozhnikoff/a43cfed27c41e4e68cdc
-
 export function findInArray(array: Array<any> | TouchList, callback: (...args: any[]) => any): any {
   for (let i = 0, length = array.length; i < length; i++) {
-    if (callback.apply(callback, [array[i], i, array])) return array[i]
+    if (callback.apply(callback, [array[i], i, array])) {
+      return array[i]
+    }
   }
 }
 
@@ -15,9 +15,9 @@ export function isTouch(e: MouseEvent | TouchEvent): e is TouchEvent {
 }
 
 export function isNum(num: number): num is number {
-  return !isNaN(num)
+  return !Number.isNaN(num)
 }
 
 export function int(a: string): number {
-  return parseInt(a, 10)
+  return Number.parseInt(a, 10)
 }

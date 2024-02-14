@@ -1,5 +1,7 @@
-import { PropType, isVue3 } from 'vue-demi'
-import { DraggableCoreOptions } from '../utils'
+import { templateRef } from '@vueuse/core'
+import type { PropType } from 'vue-demi'
+import { defineComponent, h, isVue3, watch } from 'vue-demi'
+import type { DraggableCoreOptions } from '../utils/types'
 import { useDraggableCore } from '../composables'
 
 const DraggableCore = defineComponent({
@@ -7,52 +9,52 @@ const DraggableCore = defineComponent({
   props: {
     scale: {
       type: Number as PropType<DraggableCoreOptions['scale']>,
-      default: 1
+      default: 1,
     },
     allowAnyClick: {
       type: Boolean as PropType<DraggableCoreOptions['allowAnyClick']>,
-      default: true
+      default: true,
     },
     disabled: {
       type: Boolean as PropType<DraggableCoreOptions['disabled']>,
-      default: false
+      default: false,
     },
     enableUserSelectHack: {
       type: Boolean as PropType<DraggableCoreOptions['enableUserSelectHack']>,
-      default: true
+      default: true,
     },
     cancel: {
       type: String as PropType<DraggableCoreOptions['cancel']>,
-      default: undefined
+      default: undefined,
     },
     offsetParent: {
       type: Object as PropType<DraggableCoreOptions['offsetParent']>,
-      default: undefined
+      default: undefined,
     },
     grid: {
       type: Array as unknown as PropType<DraggableCoreOptions['grid']>,
-      default: undefined
+      default: undefined,
     },
     handle: {
       type: String as PropType<DraggableCoreOptions['handle']>,
-      default: undefined
+      default: undefined,
     },
     onStart: {
       type: Function as PropType<DraggableCoreOptions['start']>,
-      default: () => {}
+      default: () => {},
     },
     onMove: {
       type: Function as PropType<DraggableCoreOptions['move']>,
-      default: () => {}
+      default: () => {},
     },
     onStop: {
       type: Function as PropType<DraggableCoreOptions['stop']>,
-      default: () => {}
+      default: () => {},
     },
     onMouseDown: {
       type: Function as PropType<DraggableCoreOptions['mouseDown']>,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   emits: ['start', 'move', 'stop'],
   setup(props, { slots, emit, attrs }) {
@@ -69,7 +71,7 @@ const DraggableCore = defineComponent({
     watch(
       () => props,
       (val) => Object.assign(state, val),
-      { deep: true, flush: 'post' }
+      { deep: true, flush: 'post' },
     )
 
     if (isVue3) {
@@ -85,7 +87,7 @@ const DraggableCore = defineComponent({
         }
       }
     }
-  }
+  },
 })
 
 export default DraggableCore

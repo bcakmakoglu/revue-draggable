@@ -1,6 +1,6 @@
 import { findInArray, int, isFunction, isTouch } from './shims'
 import browserPrefix, { browserPrefixToKey } from './getPrefix'
-import { ControlPosition, EventHandler, MouseTouchEvent, PositionOffsetControlPosition } from './types'
+import type { ControlPosition, EventHandler, MouseTouchEvent, PositionOffsetControlPosition } from './types'
 
 let matchesSelectorFunc = <keyof Node>''
 
@@ -8,21 +8,28 @@ export function matchesSelector(el: Node, selector: string): boolean {
   if (!matchesSelectorFunc) {
     matchesSelectorFunc = findInArray(
       ['matches', 'webkitMatchesSelector', 'mozMatchesSelector', 'msMatchesSelector', 'oMatchesSelector'],
-      (method: keyof Node) => isFunction(el[method])
+      (method: keyof Node) => isFunction(el[method]),
     )
   }
 
   // Might not be found entirely (not an Element?) - in that case, bail
-  if (!isFunction(el[matchesSelectorFunc])) return false
-  else return (<(selector: string) => boolean>el[matchesSelectorFunc])(selector)
+  if (!isFunction(el[matchesSelectorFunc])) {
+    return false
+  } else {
+    return (<(selector: string) => boolean>el[matchesSelectorFunc])(selector)
+  }
 }
 
 // Works up the tree to the draggable itself attempting to match selector.
 export function matchesSelectorAndParentsTo(el: Node, selector: string, baseNode: Node): boolean {
   let node: null | Node = el
   do {
-    if (matchesSelector(node, selector)) return true
-    if (node === baseNode) return false
+    if (matchesSelector(node, selector)) {
+      return true
+    }
+    if (node === baseNode) {
+      return false
+    }
     node = node.parentNode
   } while (node)
 
@@ -33,15 +40,17 @@ export function addEvent(
   el: Node,
   event: string,
   handler: EventHandler<MouseTouchEvent>,
-  inputOptions?: Record<string, any>
+  inputOptions?: Record<string, any>,
 ): void {
-  if (!el) return
+  if (!el) {
+    return
+  }
   const options = { capture: true, ...inputOptions }
   if (el.addEventListener) {
     el.addEventListener(event, <EventListener>handler, options)
   } else {
-    // @ts-ignore
-    el['on' + event] = handler
+    // @ts-expect-error - compatibility for IE8
+    el[`on${event}`] = handler
   }
 }
 
@@ -49,15 +58,17 @@ export function removeEvent(
   el: Node,
   event: string,
   handler: EventHandler<MouseTouchEvent>,
-  inputOptions?: Record<string, any>
+  inputOptions?: Record<string, any>,
 ): void {
-  if (!el) return
+  if (!el) {
+    return
+  }
   const options = { capture: true, ...inputOptions }
   if (el.removeEventListener) {
     el.removeEventListener(event, <EventListener>handler, options)
   } else {
-    // @ts-ignore
-    el['on' + event] = null
+    // @ts-expect-error - compatibility for IE8
+    el[`on${event}`] = null
   }
 }
 
@@ -90,8 +101,12 @@ export function getTouch(e: TouchEvent, identifier: number): { clientX: number; 
 
 export function getTouchIdentifier(e: MouseTouchEvent): number | undefined {
   if (isTouch(e)) {
-    if (e.targetTouches[0]) return e.targetTouches[0].identifier
-    if (e.changedTouches[0]) return e.changedTouches[0].identifier
+    if (e.targetTouches[0]) {
+      return e.targetTouches[0].identifier
+    }
+    if (e.changedTouches[0]) {
+      return e.changedTouches[0].identifier
+    }
   }
 }
 
@@ -115,7 +130,7 @@ export function innerWidth(node: HTMLElement): number {
 export function offsetXYFromParent(
   evt: { clientX: number; clientY: number },
   offsetParent: Element,
-  scale: number
+  scale: number,
 ): ControlPosition {
   const isBody = offsetParent === offsetParent.ownerDocument.body
   const offsetParentRect = isBody ? { left: 0, top: 0 } : offsetParent.getBoundingClientRect()
@@ -128,7 +143,7 @@ export function offsetXYFromParent(
 
 export function createCSSTransform(
   controlPos: ControlPosition,
-  positionOffset?: PositionOffsetControlPosition
+  positionOffset?: PositionOffsetControlPosition,
 ): Record<string, string> {
   const translation = getTranslation(controlPos, 'px', positionOffset)
   return { [browserPrefixToKey('transform', browserPrefix)]: translation }
@@ -141,19 +156,21 @@ export function createSVGTransform(controlPos: ControlPosition, positionOffset?:
 export function getTranslation(
   { x, y }: ControlPosition,
   unitSuffix = 'px',
-  positionOffset?: PositionOffsetControlPosition
+  positionOffset?: PositionOffsetControlPosition,
 ): string {
   let translation = `translate(${Math.round(x)}${unitSuffix},${Math.round(y)}${unitSuffix})`
   if (positionOffset) {
     const defaultX = `${typeof positionOffset.x === 'string' ? positionOffset.x : Math.round(positionOffset.x) + unitSuffix}`
     const defaultY = `${typeof positionOffset.y === 'string' ? positionOffset.y : Math.round(positionOffset.y) + unitSuffix}`
-    translation = `translate(${defaultX}, ${defaultY})` + translation
+    translation = `translate(${defaultX}, ${defaultY})${translation}`
   }
   return translation
 }
 
 export function addUserSelectStyles(doc: Document): void {
-  if (!doc) return
+  if (!doc) {
+    return
+  }
   const styleEl = doc.getElementById('revue-draggable-style-el')
   if (!styleEl) {
     const el = doc.createElement('style')
@@ -163,13 +180,19 @@ export function addUserSelectStyles(doc: Document): void {
     el.innerHTML += '.revue-draggable-transparent-selection *::selection {all: inherit;}\n'
     doc.getElementsByTagName('head')[0].appendChild(el)
   }
-  if (doc.body) addClassName(doc.body, 'revue-draggable-transparent-selection')
+  if (doc.body) {
+    addClassName(doc.body, 'revue-draggable-transparent-selection')
+  }
 }
 
 export function removeUserSelectStyles(doc: Document): void {
-  if (!doc) return
+  if (!doc) {
+    return
+  }
   try {
-    if (doc.body) removeClassName(doc.body, 'revue-draggable-transparent-selection')
+    if (doc.body) {
+      removeClassName(doc.body, 'revue-draggable-transparent-selection')
+    }
     const selection = (doc.defaultView || window).getSelection()
     if (selection && selection.type !== 'Caret') {
       selection.removeAllRanges()

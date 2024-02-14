@@ -1,8 +1,0 @@
-{
-  "singleQuote": true,
-  "trailingComma": "none",
-  "semi": false,
-  "bracketSpacing": true,
-  "vueIndentScriptAndStyle": false,
-  "printWidth": 130
-}

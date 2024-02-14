@@ -24,11 +24,6 @@
       "vite/client",
       "cypress"
     ],
-    "paths": {
-      "~/*": [
-        "src/*"
-      ]
-    },
   },
   "include": [
     "src"

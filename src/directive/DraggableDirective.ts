@@ -1,6 +1,7 @@
-import { Directive, DirectiveHook, isVue3 } from 'vue-demi'
-import { MaybeElementRef } from '@vueuse/core'
-import { DraggableOptions, DraggableState } from '../utils'
+import type { Directive, DirectiveHook } from 'vue-demi'
+import { getCurrentInstance, isVue3 } from 'vue-demi'
+import type { MaybeElementRef } from '@vueuse/core'
+import type { DraggableOptions, DraggableState } from '../utils/types'
 import { useDraggable, useDraggableCore } from '../composables'
 
 const onMounted: DirectiveHook<NonNullable<MaybeElementRef>, any, Partial<DraggableOptions>> = (el, binding) => {
@@ -24,7 +25,7 @@ const onMounted: DirectiveHook<NonNullable<MaybeElementRef>, any, Partial<Dragga
     onDragStop((dragStopEvent) => {
       emit('stop', dragStopEvent)
     })
-    // @ts-ignore
+    // @ts-expect-error - store the draggable instance on the element
     el['revue-draggable'] = state
   } else {
     const { onDrag, onDragStop, onDragStart, onTransformed, state } = useDraggable(el, binding.value)
@@ -40,7 +41,7 @@ const onMounted: DirectiveHook<NonNullable<MaybeElementRef>, any, Partial<Dragga
     onTransformed((transformEvent) => {
       emit('transformed', transformEvent)
     })
-    // @ts-ignore
+    // @ts-expect-error - store the draggable instance on the element
     el['revue-draggable'] = state
   }
 }
@@ -58,7 +59,7 @@ const onUpdated: DirectiveHook<NonNullable<MaybeElementRef>, any, Partial<Dragga
 
 const DraggableDirective: Directive<NonNullable<MaybeElementRef>, Partial<DraggableOptions>> = {
   [isVue3 ? 'mounted' : 'inserted']: onMounted,
-  [isVue3 ? 'beforeUpdate' : 'update']: onUpdated
+  [isVue3 ? 'beforeUpdate' : 'update']: onUpdated,
 }
 
 export default DraggableDirective

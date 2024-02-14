@@ -12,7 +12,7 @@ export const colors = {
     '700': '#8c65bd',
     '800': '#705097',
     '900': '#5c427b',
-    DEFAULT: '#BB86FC'
+    'DEFAULT': '#BB86FC',
   },
   secondary: {
     '50': '#c4fef9',
@@ -25,7 +25,7 @@ export const colors = {
     '700': '#028276',
     '800': '#02564e',
     '900': '#012a26',
-    DEFAULT: '#03dac5'
+    'DEFAULT': '#03dac5',
   },
   accent: {
     '50': '#e6d4ff',
@@ -38,7 +38,7 @@ export const colors = {
     '700': '#3d0095',
     '800': '#2b0068',
     '900': '#18003b',
-    DEFAULT: '#6200ee'
+    'DEFAULT': '#6200ee',
   },
   light: windiColors.light,
   gray: windiColors.coolGray,
@@ -47,5 +47,5 @@ export const colors = {
   pink: windiColors.fuchsia,
   indigo: windiColors.indigo,
   orange: windiColors.orange,
-  amber: windiColors.amber
+  amber: windiColors.amber,
 }

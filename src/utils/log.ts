@@ -1,3 +1,7 @@
 export function log(...args: any[]): void {
-  if (typeof process !== 'undefined' && process.env.DRAGGABLE_DEBUG) console.log(...args)
+  // eslint-disable-next-line n/prefer-global/process
+  if (typeof process !== 'undefined' && process.env.DRAGGABLE_DEBUG) {
+    // eslint-disable-next-line no-console
+    console.log(...args)
+  }
 }

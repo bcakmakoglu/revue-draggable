@@ -1,4 +1,4 @@
-import { Plugin } from 'vue-demi'
+import type { Plugin } from 'vue-demi'
 import DraggableDirective from '../directive/DraggableDirective'
 import Draggable from '../components/Draggable'
 import DraggableCore from '../components/DraggableCore'

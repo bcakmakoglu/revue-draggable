@@ -1,8 +1,8 @@
-import theme from '@nuxt/content-theme-docs';
+import theme from '@nuxt/content-theme-docs'
 
 export default theme({
   docs: {
-    primaryColor: '#426dbe'
+    primaryColor: '#426dbe',
   },
   loading: { color: '#00CD81' },
   i18n: {
@@ -11,9 +11,9 @@ export default theme({
         code: 'en',
         iso: 'en-US',
         file: 'en-US.js',
-        name: 'English'
-      }
+        name: 'English',
+      },
     ],
-    defaultLocale: 'en'
-  }
-});
+    defaultLocale: 'en',
+  },
+})

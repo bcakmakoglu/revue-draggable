@@ -1,5 +1,5 @@
-import { Vue2 } from 'vue-demi';
-import { DraggablePlugin } from '@braks/revue-draggable';
+import { Vue2 } from 'vue-demi'
+import { DraggablePlugin } from '@braks/revue-draggable'
 
-// @ts-ignore
-Vue2.use(DraggablePlugin);
+// @ts-expect-error - global install
+Vue2.use(DraggablePlugin)

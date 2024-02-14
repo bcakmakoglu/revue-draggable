@@ -1,31 +1,23 @@
-import { get, MaybeElementRef } from '@vueuse/core'
-import {
-  canDragX,
-  canDragY,
-  createDraggableData,
-  getBoundPosition,
-  createCSSTransform,
-  createSVGTransform,
-  int,
-  log,
-  DraggableEvent,
-  DraggableEventHandler,
-  DraggableOptions,
-  TransformEvent,
-  UseDraggable
-} from '../utils'
+import type { MaybeElementRef } from '@vueuse/core'
+import { createEventHook, get, tryOnMounted, tryOnUnmounted, unrefElement } from '@vueuse/core'
+import { computed, effectScope, ref, toRefs, watch } from 'vue-demi'
+import type { DraggableEvent, DraggableEventHandler, DraggableOptions, TransformEvent, UseDraggable } from '../utils/types'
+import { log } from '../utils/log'
+import { canDragX, canDragY, createDraggableData, getBoundPosition } from '../utils/positionFns'
+import { int } from '../utils/shims'
+import { createCSSTransform, createSVGTransform } from '../utils/domFns'
 import useDraggableCore from './useDraggableCore'
 import useState from './useState'
 
-const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOptions>): UseDraggable => {
-  const node = ref<HTMLElement | SVGElement>(),
-    sharedState = useState(options),
-    state = sharedState(),
-    onDragStartHook = createEventHook<DraggableEvent>(),
-    onDragHook = createEventHook<DraggableEvent>(),
-    onDragStopHook = createEventHook<DraggableEvent>(),
-    onTransformedHook = createEventHook<TransformEvent>(),
-    scope = effectScope()
+function useDraggable(target: MaybeElementRef, options?: Partial<DraggableOptions>): UseDraggable {
+  const node = ref<HTMLElement | SVGElement | null>()
+  const sharedState = useState(options)
+  const state = sharedState()
+  const onDragStartHook = createEventHook<DraggableEvent>()
+  const onDragHook = createEventHook<DraggableEvent>()
+  const onDragStopHook = createEventHook<DraggableEvent>()
+  const onTransformedHook = createEventHook<TransformEvent>()
+  const scope = effectScope()
 
   scope.run(() => {
     const onDragStart: DraggableEventHandler = (e, data) => {
@@ -33,32 +25,36 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
 
       const uiData = createDraggableData({
         data,
-        ...state.currentPosition
+        ...state.currentPosition,
       })
 
       const shouldUpdate = state.start ? state.start(e, uiData) : state.update
 
       onDragStartHook.trigger({ event: e, data: uiData })
 
-      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) return false
+      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) {
+        return false
+      }
 
       state.dragging = true
       state.dragged = true
     }
 
     const onDrag: DraggableEventHandler = (e, data) => {
-      if (!state.dragging) return false
+      if (!state.dragging) {
+        return false
+      }
 
       log('Draggable: onDrag: %j', data)
 
       const uiData = createDraggableData({
         data,
-        ...state.currentPosition
+        ...state.currentPosition,
       })
 
       const newState = {
         x: uiData.x,
-        y: uiData.y
+        y: uiData.y,
       }
 
       if (state.bounds) {
@@ -66,7 +62,7 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
           bounds: state.bounds,
           x: newState.x,
           y: newState.y,
-          node: data.node
+          node: data.node,
         })
         newState.x = boundX
         newState.y = boundY
@@ -81,48 +77,60 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
 
       onDragHook.trigger({ event: e, data: uiData })
 
-      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) return false
+      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) {
+        return false
+      }
 
       state.currentPosition = newState
       transform()
     }
 
     const onDragStop: DraggableEventHandler = (e, data) => {
-      if (!state.dragging) return false
+      if (!state.dragging) {
+        return false
+      }
 
       const uiData = createDraggableData({
         data,
-        ...state.currentPosition
+        ...state.currentPosition,
       })
 
       const shouldUpdate = state.stop ? state.stop(e, uiData) : state.update
 
       onDragStopHook.trigger({ event: e, data: uiData })
 
-      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) return false
+      if (typeof shouldUpdate !== 'undefined' && !shouldUpdate) {
+        return false
+      }
 
       log('Draggable: onDragStop: %j', data)
 
-      if (state.enableTransformFix) applyTransformFix()
+      if (state.enableTransformFix) {
+        applyTransformFix()
+      }
 
       state.dragging = false
     }
 
     const applyTransformFix = () => {
       const target = get(node)
-      if (!target) return
+      if (!target) {
+        return
+      }
       target.style.transform = ''
       target.style.left = ''
       target.style.top = ''
       target.style.position = 'relative'
       const { x, y } = transformOpts.value
-      target.style.left = Math.round(int(<string>state.positionOffset?.x) || 0) + Math.round(Number(x)) + 'px'
-      target.style.top = Math.round(int(<string>state.positionOffset?.y) || 0) + Math.round(Number(y)) + 'px'
+      target.style.left = `${Math.round(int(<string>state.positionOffset?.x) || 0) + Math.round(Number(x))}px`
+      target.style.top = `${Math.round(int(<string>state.positionOffset?.y) || 0) + Math.round(Number(y))}px`
     }
 
     const removeTransformFix = () => {
       const target = get(node)
-      if (!target) return
+      if (!target) {
+        return
+      }
       target.style.transform = ''
       target.style.position = ''
       target.style.left = ''
@@ -138,25 +146,30 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
         x: canDragX(state.axis) && get(canDrag) ? state.currentPosition.x : get(validPosition).x,
 
         // Set top if vertical drag is enabled
-        y: canDragY(state.axis) && get(canDrag) ? state.currentPosition.y : get(validPosition).y
+        y: canDragY(state.axis) && get(canDrag) ? state.currentPosition.y : get(validPosition).y,
       }
     })
 
     const transform = (force = false) => {
       const n = get(node)
       if (n && (force || (state.update && state.dragging))) {
-        if (state.enableTransformFix) removeTransformFix()
+        if (state.enableTransformFix) {
+          removeTransformFix()
+        }
 
         const offset = state.positionOffset
         const isSvg = state.isElementSVG
         const styles = (!isSvg && createCSSTransform(get(transformOpts), offset)) || false
         const svgTransform = (isSvg && createSVGTransform(get(transformOpts), offset)) || false
 
-        if (typeof svgTransform === 'string') n.setAttribute('transform', svgTransform)
+        if (typeof svgTransform === 'string') {
+          n.setAttribute('transform', svgTransform)
+        }
         if (styles) {
           for (const style of Object.keys(styles)) {
-            if (style === 'transform')
+            if (style === 'transform') {
               styles[style] += `${n.style[style]}`.replace(/translate\((-?\d+?.{0,2},? ?)+\)+/gm, '').trim()
+            }
             n.style[style as any] = styles[style]
           }
         }
@@ -165,7 +178,7 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
           el: get(node),
           style: styles,
           transform: svgTransform,
-          classes: classes.value
+          classes: classes.value,
         }
         onTransformedHook.trigger(transformedData)
       }
@@ -174,7 +187,7 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
     const classes = computed(() => ({
       [state.defaultClassName]: !state.disabled,
       [state.defaultClassNameDragging]: state.dragging,
-      [state.defaultClassNameDragged]: state.dragged
+      [state.defaultClassNameDragged]: state.dragged,
     }))
     const addClasses = () =>
       Object.keys(get(classes)).forEach((cl) => {
@@ -191,15 +204,18 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
       const pos = state.position
       log('Draggable: Updated %j', {
         position: state.currentPosition,
-        prevPropsPosition: state.prevPropsPosition
+        prevPropsPosition: state.prevPropsPosition,
       })
       if (pos) {
         state.currentPosition = pos
         state.prevPropsPosition = { ...pos }
       }
 
-      if (state.enableTransformFix) applyTransformFix()
-      else transform(force)
+      if (state.enableTransformFix) {
+        applyTransformFix()
+      } else {
+        transform(force)
+      }
     }
 
     tryOnUnmounted(() => {
@@ -212,17 +228,28 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
         console.error('You are trying to use <Draggable> without passing a valid target reference.')
         return
       }
+
       let x = 0
       let y = 0
       const pos = state.position
       const defaultPos = state.defaultPosition
       const stylePos = get(node)?.style
-      if (pos && typeof pos.x !== 'undefined') x = pos.x
-      else if (defaultPos && typeof defaultPos.x !== 'undefined') x = defaultPos.x
-      else if (stylePos && stylePos.top) x = int(stylePos.top)
-      if (pos && typeof pos.y !== 'undefined') y = pos.y
-      else if (defaultPos && typeof defaultPos.y !== 'undefined') y = defaultPos.y
-      else if (stylePos && stylePos.left) y = int(stylePos.left)
+
+      if (pos && typeof pos.x !== 'undefined') {
+        x = pos.x
+      } else if (defaultPos && typeof defaultPos.x !== 'undefined') {
+        x = defaultPos.x
+      } else if (stylePos && stylePos.top) {
+        x = int(stylePos.top)
+      }
+
+      if (pos && typeof pos.y !== 'undefined') {
+        y = pos.y
+      } else if (defaultPos && typeof defaultPos.y !== 'undefined') {
+        y = defaultPos.y
+      } else if (stylePos && stylePos.left) {
+        y = int(stylePos.left)
+      }
 
       state.currentPosition = { x, y }
       addClasses()
@@ -232,9 +259,11 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
         () => state.position,
         (val) => {
           let force = false
-          if (val?.x !== state.currentPosition.x || val.y !== state.currentPosition.y) force = true
+          if (val?.x !== state.currentPosition.x || val.y !== state.currentPosition.y) {
+            force = true
+          }
           onUpdated(force)
-        }
+        },
       )
     })
   })
@@ -245,7 +274,7 @@ const useDraggable = (target: MaybeElementRef, options?: Partial<DraggableOption
     onDragStart: onDragStartHook.on,
     onDrag: onDragHook.on,
     onDragStop: onDragStopHook.on,
-    onTransformed: onTransformedHook.on
+    onTransformed: onTransformedHook.on,
   }
 }
 

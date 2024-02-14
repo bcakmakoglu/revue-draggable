@@ -1,4 +1,5 @@
-import { DraggableOptions, DraggableState } from '../utils'
+import { reactive } from 'vue-demi'
+import type { DraggableOptions, DraggableState } from '../utils/types'
 
 export default (options?: Partial<DraggableOptions>): (() => DraggableState) => {
   const state = reactive(
@@ -17,7 +18,7 @@ export default (options?: Partial<DraggableOptions>): (() => DraggableState) => 
         stop: () => {},
         mouseDown: () => {},
         position: undefined,
-        currentPosition: { x: NaN, y: NaN },
+        currentPosition: { x: Number.NaN, y: Number.NaN },
         positionOffset: undefined,
         scale: 1,
         axis: 'both',
@@ -30,10 +31,10 @@ export default (options?: Partial<DraggableOptions>): (() => DraggableState) => 
         dragged: false,
         prevPropsPosition: { x: 0, y: 0 },
         isElementSVG: false,
-        update: true
+        update: true,
       },
-      options
-    )
+      options,
+    ),
   )
 
   return (): DraggableState => state

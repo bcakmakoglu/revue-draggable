@@ -3,17 +3,25 @@ const prefixes = ['Moz', 'Webkit', 'O', 'ms']
 export function getPrefix(prop = 'transform'): string {
   // Ensure we're running in an environment where there is actually a global
   // `window` obj
-  if (typeof window === 'undefined') return ''
+  if (typeof window === 'undefined') {
+    return ''
+  }
 
   // If we're in a pseudo-browser server-side environment, this access
   // path may not exist, so bail out if it doesn't.
   const style = window.document?.documentElement?.style
-  if (!style) return ''
+  if (!style) {
+    return ''
+  }
 
-  if (prop in style) return ''
+  if (prop in style) {
+    return ''
+  }
 
   for (let i = 0; i < prefixes.length; i++) {
-    if (browserPrefixToKey(prop, prefixes[i]) in style) return prefixes[i]
+    if (browserPrefixToKey(prop, prefixes[i]) in style) {
+      return prefixes[i]
+    }
   }
 
   return ''

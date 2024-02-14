@@ -1,7 +1,7 @@
-import { EventHookOn } from '@vueuse/core'
-import { ToRefs } from 'vue-demi'
+import type { EventHookOn } from '@vueuse/core'
+import type { ToRefs } from 'vue-demi'
 
-export type DraggableData = {
+export interface DraggableData {
   node: HTMLElement | SVGElement
   x: number
   y: number
@@ -11,15 +11,21 @@ export type DraggableData = {
   lastY: number
 }
 
-export type Bounds = {
+export interface Bounds {
   left?: number
   top?: number
   right?: number
   bottom?: number
 }
 
-export type ControlPosition = { x: number; y: number }
-export type PositionOffsetControlPosition = { x: number | string; y: number | string }
+export interface ControlPosition {
+  x: number
+  y: number
+}
+export interface PositionOffsetControlPosition {
+  x: number | string
+  y: number | string
+}
 export type EventHandler<T extends Event> = (e: T) => void | false
 
 export type MouseTouchEvent = MouseEvent | TouchEvent

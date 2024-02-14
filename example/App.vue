@@ -1,3 +1,115 @@
+<script lang="ts">
+import { defineComponent } from 'vue-demi'
+import ExampleComponent from './ExampleComponent.vue'
+import WrapperBox from './WrapperBox.vue'
+
+export default defineComponent({
+  components: { WrapperBox, ExampleComponent },
+  data() {
+    return {
+      name: '',
+      currentEvent: {},
+      active: false,
+      transform: 'translate(0rem, 0rem)',
+      activeDrags: 0,
+      deltaPosition: {
+        x: 0,
+        y: 0,
+      },
+      controlledPosition: {
+        x: 0,
+        y: 0,
+      },
+    }
+  },
+  computed: {
+    event() {
+      return {
+        data: { ...this.currentEvent.data },
+      }
+    },
+  },
+  methods: {
+    toggleDraggable() {
+      this.active = !this.active
+    },
+    handleDrag(e) {
+      this.currentEvent = e
+      const { x, y } = this.deltaPosition
+      this.deltaPosition = {
+        x: x + e.data.deltaX,
+        y: y + e.data.deltaY,
+      }
+    },
+    onMove(e, name) {
+      this.name = name
+      this.currentEvent = e
+    },
+    onStart(e, name) {
+      this.name = name
+      this.currentEvent = e
+      this.activeDrags++
+    },
+    onStop() {
+      this.currentEvent = {}
+      this.name = ''
+      this.activeDrags--
+    },
+    onDrop(e) {
+      this.currentEvent = {}
+      this.activeDrags--
+      if (e.event.target.classList.contains('drop-target')) {
+        alert('Dropped!')
+        e.event.target.classList.remove('hovered')
+      }
+    },
+    onDropAreaMouseEnter(e) {
+      if (this.activeDrags) {
+        e.target.classList.add('hovered')
+      }
+    },
+    onDropAreaMouseLeave(e) {
+      e.target.classList.remove('hovered')
+    },
+    // For controlled component
+    adjustXPos(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      const { x, y } = this.controlledPosition
+      this.controlledPosition = { x: x - 10, y }
+    },
+    adjustYPos(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      const { x, y } = this.controlledPosition
+      this.controlledPosition = { x, y: y - 10 }
+    },
+    onControlledDrag(e) {
+      this.currentEvent = e
+      const { x, y } = e.data
+      this.controlledPosition = { x, y }
+    },
+    onControlledDragStop(e) {
+      this.currentEvent = {}
+      this.onControlledDrag(e)
+      this.onStop()
+    },
+    translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
+      const convertedValues = transform
+        .replace('translate(', '')
+        .replace(')', '')
+        .split(',')
+        .map((px) => px.replace('px', ''))
+        .map((px) => Number.parseInt(px, 10) / remBaseline)
+        .map((x) => `${x}rem`)
+      const [x, y] = convertedValues
+
+      return (this.transform = `translate(${x}, ${y})`)
+    },
+  },
+})
+</script>
+
 <template>
   <div id="demo">
     <div class="grid grid-cols-2">
@@ -110,9 +222,9 @@
         @stop="onStop"
         @move="onMove"
       >
-        <strong class="cursor">
-          <div>Drag here</div>
-        </strong>
+        <div class="cursor">
+          <strong>Drag here</strong>
+        </div>
       </WrapperBox>
 
       <WrapperBox
@@ -165,7 +277,7 @@
           <div style="overflow: scroll">
             <div class="bg-gray-500" style="white-space: pre-wrap">
               I have long scrollable content and a handle ✋.
-              {{ '\n' + Array(40).fill('x').join('\n') }}
+              {{ `\n${Array(40).fill('x').join('\n')}` }}
             </div>
           </div>
         </div>
@@ -495,117 +607,7 @@ translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
     </div>
   </div>
 </template>
-<script>
-import { defineComponent } from 'vue-demi'
-import ExampleComponent from './ExampleComponent.vue'
-import WrapperBox from './WrapperBox.vue'
 
-export default defineComponent({
-  components: { WrapperBox, ExampleComponent },
-  data() {
-    return {
-      name: '',
-      currentEvent: {},
-      active: false,
-      transform: 'translate(0rem, 0rem)',
-      activeDrags: 0,
-      deltaPosition: {
-        x: 0,
-        y: 0
-      },
-      controlledPosition: {
-        x: 0,
-        y: 0
-      }
-    }
-  },
-  computed: {
-    event() {
-      return {
-        data: { ...this.currentEvent.data }
-      }
-    }
-  },
-  methods: {
-    toggleDraggable() {
-      this.active = !this.active
-    },
-    handleDrag(e) {
-      this.currentEvent = e
-      const { x, y } = this.deltaPosition
-      this.deltaPosition = {
-        x: x + e.data.deltaX,
-        y: y + e.data.deltaY
-      }
-    },
-    onMove(e, name) {
-      this.name = name
-      this.currentEvent = e
-    },
-    onStart(e, name) {
-      this.name = name
-      this.currentEvent = e
-      this.activeDrags++
-    },
-    onStop() {
-      this.currentEvent = {}
-      this.name = ''
-      this.activeDrags--
-    },
-    onDrop(e) {
-      this.currentEvent = {}
-      this.activeDrags--
-      if (e.event.target.classList.contains('drop-target')) {
-        alert('Dropped!')
-        e.event.target.classList.remove('hovered')
-      }
-    },
-    onDropAreaMouseEnter(e) {
-      if (this.activeDrags) {
-        e.target.classList.add('hovered')
-      }
-    },
-    onDropAreaMouseLeave(e) {
-      e.target.classList.remove('hovered')
-    },
-    // For controlled component
-    adjustXPos(e) {
-      e.preventDefault()
-      e.stopPropagation()
-      const { x, y } = this.controlledPosition
-      this.controlledPosition = { x: x - 10, y }
-    },
-    adjustYPos(e) {
-      e.preventDefault()
-      e.stopPropagation()
-      const { x, y } = this.controlledPosition
-      this.controlledPosition = { x, y: y - 10 }
-    },
-    onControlledDrag(e) {
-      this.currentEvent = e
-      const { x, y } = e.data
-      this.controlledPosition = { x, y }
-    },
-    onControlledDragStop(e) {
-      this.currentEvent = {}
-      this.onControlledDrag(e)
-      this.onStop()
-    },
-    translateTransformToRem(transform = 'translate(0rem, 0rem)', remBaseline = 16) {
-      const convertedValues = transform
-        .replace('translate(', '')
-        .replace(')', '')
-        .split(',')
-        .map((px) => px.replace('px', ''))
-        .map((px) => parseInt(px, 10) / remBaseline)
-        .map((x) => `${x}rem`)
-      const [x, y] = convertedValues
-
-      return (this.transform = `translate(${x}, ${y})`)
-    }
-  }
-})
-</script>
 <style>
 #demo {
   @apply min-h-100vh flex flex-col justify-center p-12 dark:bg-dark-800;

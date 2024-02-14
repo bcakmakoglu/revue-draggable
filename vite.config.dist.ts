@@ -1,18 +1,17 @@
-import { resolve } from 'path'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import WindiCSS from 'vite-plugin-windicss'
 import svgLoader from 'vite-svg-loader'
-import AutoImport from 'unplugin-auto-import/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
     alias: {
-      '~': resolve('src')
+      '~': resolve('src'),
     },
     dedupe: ['vue'],
-    extensions: ['.ts', '.vue']
+    extensions: ['.ts', '.vue'],
   },
   build: {
     minify: 'esbuild',
@@ -20,7 +19,7 @@ export default defineConfig({
     lib: {
       formats: ['es', 'iife', 'cjs'],
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'revueDraggable'
+      name: 'revueDraggable',
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
@@ -31,23 +30,14 @@ export default defineConfig({
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {
-          vue: 'Vue',
-          'vue-demi': 'VueDemi'
-        }
-      }
-    }
+          'vue': 'Vue',
+          'vue-demi': 'VueDemi',
+        },
+      },
+    },
   },
-  plugins: [
-    vue(),
-    WindiCSS(),
-    svgLoader(),
-    // https://github.com/antfu/unplugin-auto-import
-    AutoImport({
-      imports: ['vue-demi', '@vueuse/core'],
-      dts: 'src/auto-imports.d.ts'
-    })
-  ],
+  plugins: [vue(), WindiCSS(), svgLoader()],
   optimizeDeps: {
-    include: ['vue', 'vue-demi', '@vueuse/core']
-  }
+    include: ['vue', 'vue-demi', '@vueuse/core'],
+  },
 })
