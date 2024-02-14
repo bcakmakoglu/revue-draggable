@@ -35,16 +35,17 @@ the [Demo 🪄](https://draggable.vueflow.dev) to see Revue Draggable in action.
 ## 🛠 Setup
 
 ```bash
-# install revue draggable
+$ npm i --save @braks/revue-draggable
+
+# or
 $ yarn add @braks/revue-draggable
 
 # or
-$ npm i --save @braks/revue-draggable
+$ pnpm add @braks/revue-draggable
 ```
 
-For Vue2 add the composition-api to your dependencies.
+For Vue2 add the composition-api to your dependencies (if you're using Vue < 2.7).
 ```bash
-# install revue flow
 $ yarn add @braks/revue-draggable @vue/composition-api
 
 # or
@@ -114,23 +115,15 @@ The easiest way to make your elements draggable is by using the **DraggableDirec
 with no configuration necessary.
 
 ````vue {}[App.vue]
-<template>
-  <div v-draggable="/* Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
-</template>
-<script>
-... the rest of your code
+<div v-draggable="/* Pass DraggableProps as binding value here */" class="box">I use a directive to make myself draggable</div>
 ````
 
 Or use the component wrapper.
 (In Vue2 make sure to include the full-build, runtime-build only works for Vue3.)
 ````vue {}[App.vue]
-<template>
-  <Draggable>
-    <div class="box">I use a wrapper</div>
-  </Draggable>
-</template>
-<script>
-... the rest of your code
+<Draggable>
+  <div class="box">I use a wrapper</div>
+</Draggable>
 ````
 
 Check [the example file](./example/App.vue) for more in-detail examples like dropping elements, setting boundaries or syncing states.
@@ -141,16 +134,16 @@ This project uses [Vite](https://vitejs.dev/) for development and [Rollup](https
 
 ```bash
 # start (dev)
-$ yarn dev
+$ pnpm dev
 
 # build app
-$ yarn build
+$ pnpm build
 
 # serve app from build
-$ yarn serve
+$ pnpm serve
 
 # build dist
-$ yarn build:dist
+$ pnpm build:dist
 ```
 
 ## 🐛 Debugging
@@ -162,10 +155,5 @@ Set the environment variable `DRAGGABLE_DEBUG` to enable logs on drag handlers.
 Testing is done with Cypress.
 You can find the specs in the [cypress directory](/cypress);
 ```bash
-$ yarn ci # starts test server and runs tests, make sure port 3000 is open
+$ pnpm ci # starts test server and runs tests, make sure port 3000 is open
 ```
-
-# 💝 Sponsors
-
-Special thanks go to sponsors!
-[jfrueh](https://github.com/jfrueh)

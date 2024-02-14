@@ -37,13 +37,13 @@
   "scripts": {
     "dev": "vue-tsc --noEmit && vite",
     "build": "vue-tsc --noEmit && vite build",
-    "build:demo": "yarn && yarn --cwd vue2-demo && yarn --cwd vue2-demo build",
+    "build:demo": "pnpm && pnpm --cwd vue2-demo && pnpm --cwd vue2-demo build",
     "build:dist": "vite --config vite.config.dist.ts build && tsc && rm -rf tmp",
     "serve": "vite preview",
-    "prepublishOnly": "yarn build:dist",
+    "prepublishOnly": "pnpm build:dist",
     "test": "cypress run",
     "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
-    "lint": "yarn lint:js",
+    "lint": "pnpm lint:js",
     "ci": "start-server-and-test dev http-get://localhost:3000 test"
   },
   "dependencies": {
