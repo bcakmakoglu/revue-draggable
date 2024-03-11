@@ -19,11 +19,10 @@
   "homepage": "https://draggable.vueflow.dev",
   "exports": {
     ".": {
-      "import": "./dist/revue-draggable.es.js",
-      "require": "./dist/revue-draggable.cjs.js",
-      "default": "./dist/revue-draggable.es.js"
-    },
-    "./*": "./*"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/revue-draggable.mjs",
+      "require": "./dist/revue-draggable.js"
+    }
   },
   "main": "./dist/revue-draggable.cjs.js",
   "types": "./dist/index.d.ts",
