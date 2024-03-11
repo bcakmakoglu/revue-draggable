@@ -15,21 +15,24 @@ export function matchesSelector(el: Node, selector: string): boolean {
   // Might not be found entirely (not an Element?) - in that case, bail
   if (!isFunction(el[matchesSelectorFunc])) {
     return false
-  } else {
-    return (<(selector: string) => boolean>el[matchesSelectorFunc])(selector)
   }
+
+  return (<(selector: string) => boolean>el[matchesSelectorFunc])(selector)
 }
 
 // Works up the tree to the draggable itself attempting to match selector.
 export function matchesSelectorAndParentsTo(el: Node, selector: string, baseNode: Node): boolean {
   let node: null | Node = el
+
   do {
     if (matchesSelector(node, selector)) {
       return true
     }
+
     if (node === baseNode) {
       return false
     }
+
     node = node.parentNode
   } while (node)
 
@@ -45,7 +48,9 @@ export function addEvent(
   if (!el) {
     return
   }
+
   const options = { capture: true, ...inputOptions }
+
   if (el.addEventListener) {
     el.addEventListener(event, <EventListener>handler, options)
   } else {
@@ -63,7 +68,9 @@ export function removeEvent(
   if (!el) {
     return
   }
+
   const options = { capture: true, ...inputOptions }
+
   if (el.removeEventListener) {
     el.removeEventListener(event, <EventListener>handler, options)
   } else {
