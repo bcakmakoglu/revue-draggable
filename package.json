@@ -34,11 +34,11 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vue-tsc --noEmit && vite",
+    "dev": "vue-tsc --noEmit && vite --port 3000",
     "build": "vue-tsc --noEmit && vite build",
     "build:demo": "pnpm && pnpm --cwd vue2-demo && pnpm --cwd vue2-demo build",
     "build:dist": "vite --config vite.config.dist.ts build && tsc && rm -rf tmp",
-    "serve": "vite preview",
+    "serve": "vite preview --port 3000",
     "prepublishOnly": "pnpm build:dist",
     "test": "cypress run",
     "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
@@ -84,11 +84,10 @@
   },
   "publishConfig": {
     "access": "public",
-    "registry": "http://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/"
   },
   "np": {
     "branch": "master",
-    "yarn": false,
     "message": "v%s",
     "testScript": "ci"
   },
