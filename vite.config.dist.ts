@@ -27,6 +27,7 @@ export default defineConfig({
       external: ['vue', 'vue-demi'],
       output: {
         dir: './dist',
+        format: 'esm',
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {
