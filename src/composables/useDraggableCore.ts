@@ -43,6 +43,7 @@ let dragEventFor = eventsFor.mouse
 function useDraggableCore(
   target: MaybeElementRef,
   options?: Partial<DraggableCoreOptions> | (() => DraggableState),
+  internal?: boolean,
 ): UseDraggableCore {
   const node = ref<HTMLElement | SVGElement | null>()
   const state = isFunction(options) ? options() : useState(options)()
@@ -109,8 +110,10 @@ function useDraggableCore(
 
       log('DraggableCore: handleDragStart: %j', coreEvent)
 
-      const shouldUpdate = state.start?.(e, coreEvent)
+      const shouldUpdate = internal ? true : state.start?.(e, coreEvent)
+
       onDragStartHook.trigger({ event: e, data: coreEvent })
+
       if ((shouldUpdate || state.update) === false) {
         return false
       }
@@ -165,8 +168,10 @@ function useDraggableCore(
 
         log('DraggableCore: handleDrag: %j', coreEvent)
 
-        const shouldUpdate = state.move?.(e, coreEvent)
+        const shouldUpdate = internal ? true : state.move?.(e, coreEvent)
+
         onDragHook.trigger({ event: e, data: coreEvent })
+
         if ((shouldUpdate || state.update) === false) {
           try {
             handleDragStop(new MouseEvent('mouseup'))
@@ -211,8 +216,10 @@ function useDraggableCore(
           lastY: pos.y,
         })
 
-        const shouldUpdate = state.stop?.(e, coreEvent)
+        const shouldUpdate = internal ? true : state.stop?.(e, coreEvent)
+
         onDragStopHook.trigger({ event: e, data: coreEvent })
+
         if ((shouldUpdate || state.update) === false) {
           return false
         }
