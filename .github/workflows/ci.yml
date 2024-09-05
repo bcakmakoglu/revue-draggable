@@ -42,7 +42,12 @@ jobs:
         run: pnpm lint
 
       - name: Run tests 🧪
-        run: pnpm ci
+        uses: cypress-io/github-action@v5
+        with:
+          install-command: pnpm cypress install
+          start: pnpm ci:test
+          command: pnpm test
+          browser: chrome
 
       - name: Build App 🛠
         run: pnpm build

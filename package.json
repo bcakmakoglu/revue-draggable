@@ -43,7 +43,7 @@
     "test": "cypress run",
     "lint:js": "eslint --ext \".js,.jsx,.ts,.tsx\" --fix --ignore-path .gitignore .",
     "lint": "pnpm lint:js",
-    "ci": "start-server-and-test dev http-get://localhost:3000 test"
+    "ci:test": "start-server-and-test dev http-get://localhost:3000 test"
   },
   "dependencies": {
     "@vueuse/core": "^11.0.3",
