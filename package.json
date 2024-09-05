@@ -89,7 +89,7 @@
   "np": {
     "branch": "master",
     "message": "v%s",
-    "testScript": "ci"
+    "testScript": "ci:test"
   },
   "husky": {
     "hooks": {
