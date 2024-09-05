@@ -189,13 +189,16 @@ function useDraggable(target: MaybeElementRef, options?: Partial<DraggableOption
       [state.defaultClassNameDragging]: state.dragging,
       [state.defaultClassNameDragged]: state.dragged,
     }))
+
     const addClasses = () =>
       Object.keys(get(classes)).forEach((cl) => {
         get(classes)[cl] ? get(node)?.classList.toggle(cl, true) : get(node)?.classList.toggle(cl, false)
       })
+
     watch(classes, addClasses)
 
-    const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop } = useDraggableCore(target, sharedState)
+    const { onDragStart: coreStart, onDrag: coreDrag, onDragStop: coreStop } = useDraggableCore(target, sharedState, true)
+
     coreDrag(({ event, data }) => onDrag(event, data))
     coreStart(({ event, data }) => onDragStart(event, data))
     coreStop(({ event, data }) => onDragStop(event, data))
