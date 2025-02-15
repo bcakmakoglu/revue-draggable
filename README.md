@@ -5,7 +5,6 @@
 [![devDependencies Status](https://status.david-dm.org/gh/bcakmakoglu/revue-draggable.svg?type=dev)](https://david-dm.org/bcakmakoglu/revue-draggable?type=dev)
 ![vulnerabilities](https://img.shields.io/snyk/vulnerabilities/github/bcakmakoglu/revue-draggable)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/bcakmakoglu/revue-draggable)
-![GitHub last commit](https://img.shields.io/github/last-commit/bcakmakoglu/revue-draggable)
 
 **Make your Vue components draggable. 🤏**
 
